@@ -1,0 +1,15 @@
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+main.pdf
+.*.swp
+*-eps-converted-to.pdf
+*.bcf
+*.run.xml
+.ipynb_checkpoints
+__pycache__

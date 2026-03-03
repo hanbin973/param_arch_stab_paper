@@ -1,0 +1,358 @@
+\begin{minipage}[b]{2.5in}
+  Resubmission Cover Letter \\
+  {\textbf GENETICS}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{2.5in}
+    Hanbin Lee  \\
+  \today
+\end{minipage}
+
+\vskip 2em
+
+\noindent
+{\bf To the Editor(s) -- }
+
+\vskip 1em
+
+We are writing to submit a revised version of our manuscript,
+titled
+``Genetic prediction with ARG-powered linear algebra'',
+GENETICS-2025-308825.
+
+Thanks to the reviewers, the revision now clearly shows the computational advantage of our new algorithm compared to existing software and better explains how the new approach relates to the genotype (SNP)-based counterpart.
+The main additions are:
+the GRM-vector product algorithm comparison to \argneedlelib (Figure~\ref{fig:matvec}),
+a scaling benchmark compared to \texttt{BOLT-LMM} (Figure~\ref{fig:runtime_boltlmm}),
+and the SNP-GRM based mixed model's BLUP alongside the previously conducted benchmark (Figure~\ref{fig:pedigree}).
+In particular, we were able to work with \argneedlelib, because this software has now been released.
+We also reflected the comments from reviewers to better contextualize the ARG-LMM within the existing body of mixed model literature.
+
+We think the additional results will be of interest to readers of the paper,
+but they still represent minor changes to the paper,
+as they only add quantitative detail in a few places.
+In particular, we are careful to not make strong claims about the other software:
+for instance, our software shows potentially much better computational scaling than \boltlmm,
+but we frame this as a theoretical proof of concept rather than proof of superiority
+(of course, since \boltlmm is mature software with extensive empirical application,
+while more work is needed to investigate the ARG-LMM framework).
+
+In addition to a Response to Reviewers
+(in which page/line numbers refer to the revised manuscript file),
+we have also uploaded a pdf with differences to the previously submitted version highlighted.
+
+\vskip 2em
+
+\noindent \hspace{4em}
+\begin{minipage}{3in}
+\noindent
+{\bf Sincerely,}
+
+\vskip 2em
+
+{\bf
+   Hanbin Lee, on behalf of the authors.
+}\\
+\end{minipage}
+
+\vskip 4em
+
+\pagebreak
+
+%%%%%%%%%%%%%%
+\reviewersection{1}
+
+% Major comments:
+
+\begin{point}{} % \revpoint{1}{1} in paper.tex
+The only major addition I would like to see in the manuscript, and I do not think it is necessary, is a more explicit comparison to using the SNP-GRM for the same approaches. The authors bring up that it's slightly odd to ``ignore'' the SNPs when using the ARG-GRM, but state that in some cases (e.g. sparse SNP datasets) there is evidence that it outperforms the SNP-GRM. I'm probably fine with the authors leaving it at that, and referencing other papers, but it could make this paper stronger and more self-contained to make those comparisons explicitly. 
+\end{point}
+
+\reply{
+We added a SNP genotype GRM to the comparison with the definition following the standard formula:
+\begin{align*}
+    \mathrm{GRM}_{ij} = \frac{1}{M}\sum_{k=1}^M
+    \frac{(x_{ik}-2p_k)(x_{jk}-2p_k)}{2p_k(1-p_k)}
+\end{align*}
+We filtered out variants with sample frequency lower than 0.005 to avoid large denominators.
+The result is presented in Figure~\ref{fig:pedigree}, 
+and described at \revref.
+
+Like with pedigree and Monte-Carlo ARG-GRMs, 
+we fitted the variance component using a custom \nloptr-based script.
+The algorithm is from \citet{meyer1985mlemvr} and \citet{lippert2011linear},
+where we rotate the trait and the covariates by the eigenvectors of the GRM.
+}
+
+\begin{point}{} % \revpoint{1}{2} in paper.tex
+Similarly, the authors could compare running time of fast methods for variance component inference from the SNP-GRM (e.g. BOLT-LMM) to their approach. Again, I do not think that this is an essential addition to the manuscript, but it would merely be nice.
+\end{point}
+
+\reply{
+We added runtime comparison between \tslmm and \texttt{BOLT-LMM}.
+The comparison shows that runtime of \tslmm scales more gradually than that of \texttt{BOLT-LMM}. 
+See Figure~\ref{fig:runtime_boltlmm} and \revref.
+However, we've been careful not to present this as a careful comparison with modern genotype-based methods;
+doing justice to that work falls to another paper.
+}
+
+% Minor comments:
+
+\begin{point}{} % \revpoint{1}{3} in paper.tex
+In the paragraph starting \revref, % line 120,
+especially due to the reference to phylogenetic models of Brownian motion, it might be appropriate to cite \citet{schraiber2024unifying}. % Schraiber et al (2024). 
+\end{point}
+
+\reply{
+Good suggestion; we have cited this paper. \revref
+}
+
+\begin{point}{\revref} % Line 152, \revpoint{1}{4} in paper.tex
+I think it's probably worth emphasizing here that this is (implicitly) a neutral model. The authors highlight this later, but I think being up front about it is useful here, too. 
+\end{point}
+
+\reply{
+We added a sentence to the paper to mention this. \revref
+}
+
+\begin{point}{} % \revpoint{1}{5} in paper.tex
+In some presentations of the ARG-GRM, it's ``standardized'' by something that's
+the ARG-equivalent of p(1-p), e.g. in Fan et al's approach. The authors do
+bring this up in the paragraph at \llname{alpha_discussion}, % on 591,
+but I think it might be worth bringing
+up earlier (e.g. the definition of $B$ at \llname{B_defn}). % below line 164).
+It'd also be useful to
+know if this kind of standardization can be done in their framework (I think
+so?) 
+\end{point}
+
+\reply{
+Good idea; the short answer to this is that
+    yes, we can incorporate frequency normalization, but have not,
+    essentially because this normalization doesn't stem from a generative model.
+    We have added a note about this
+    at \revref.
+}
+
+\begin{point}{}% \revpoint{1}{6} in paper.tex
+In the paragraph starting \revref, % line 182,
+I think a citation to \cite{schraiber2015sensitivity} and \cite{koch2019effects}
+%    ,Schraiber and Landis (2015) and Koch (2019)
+would be appropriate, as they discuss a similar neutral
+model in detail (while averaging over the genealogy). 
+\end{point}
+
+\reply{
+Again, good ideas; this is done. \revref
+}
+
+\begin{point}{} % \revpoint{1}{7} in paper.tex
+The authors point out the trace cancellation in the calculation of the
+average information, as if it is a lucky thing in their specific case, but my
+memory of how AI works is that the trace cancellation is the whole point and
+happens generally? I assume the authors know this and this is just a quirk of
+my reading of their writing, but it might be nice to clarify (or else point out
+that I am mistaken). 
+\end{point}
+
+\reply{
+    This is true. The whole point of AI-REML is the trace cancellation which holds
+    whenever the total covariance matrix is a linear combination of parameters.
+    Interestingly, although not directly related to the paper, empirical evidence
+    and heuristics suggest that AI-REML still works even if the linearity of the
+    covariance matrix doesn’t hold. See \citet{zhu2018essential}.
+    We updated the text to reflect this \revref. 
+}
+
+\begin{point}{\revref} % Line 313, \revpoint{1}{8} in paper.tex
+``criteria'' -> ``criterion'' 
+\end{point}
+
+\reply{
+Thank you for spotting this error. We’ve corrected it. \revref
+}
+
+\begin{point}{Figure~\ref{fig:prediction}} % Figure 4, % \revpoint{1}{9} in paper.tex
+I think that making the green line actually a different line type than the other lines would be useful to indicate that it is fundamentally different from the blue and orange lines, and represents a maximum possible accuracy, would help the readability of the figure. 
+\end{point}
+
+\reply{
+We changed it to a dotted black line (Figure~\ref{fig:prediction}).
+}
+
+\begin{point}{\revref} % \revpoint{1}{10} in paper.tex
+In the ``more realistic simulations'' with a spatial model, the spatial model is only active for 150 time units, before being recapitated. I would think that means that almost all the time in the coalescent tree is in the recapitation, which very little signal due to the spatial model. Is that accurate?
+\end{point}
+
+\reply{
+Good question;
+one answer to your question is to note that in Figure~\ref{fig:pedigree}A,
+we can see lots of local correlation in trait value,
+which indicates shared ancestry relevant to trait prediction.
+It is true that most ``coalescent time'' is before this,
+but nonetheless we expect that the top few PCs to reflect geography after this period,
+and there to be potentially more smaller spatial structure
+(i.e., clusters of close relatives).
+This was the main motivation for the experiment:
+since having ``different'' eigenstructure for the covariance matrix
+can lead to different convergence properties for the randomized linear algebra
+methods we're using.
+We have added an additional few sentences that point this out more explicitly
+\llname{spatial_reasons}.
+}
+
+%%%%%%%%%%%%%%
+\reviewersection{2}
+
+\begin{point}{} % \revpoint{2}{1} in paper.tex
+From a linear mixed model perspective, both ARGs and GRMs enter the model as covariance structures; and under standard additive assumptions and sufficiently dense markers, a GRM can be viewed as an empirical approximation to the covariance implied by the underlying ARG. ARG is a different parameterization of relatedness rather than providing fundamentally new inferential power. The paper could benefit from explicitly discussing when and why ARG-based covariance is expected to theoretically outperform GRMs, and when the two are expected to yield nearly identical prediction performance. 
+\end{point}
+
+\reply{
+We agree that this is an important point and common question readers will have.
+We have updated our Discussion to (hopefully) more directly address this point \revref.
+In particular, we've tried to make the points that \citet{zhu2024fastvariancecomponent}
+has obtained good empirical results in this direction
+(that ARG-based GRMs can add additional power in some circumstances),
+but more empirical work is needed.
+}
+
+\begin{point}{\revref} % Line 658, \revpoint{2}{2} in paper.tex
+The authors state that ARGs provide a ``time axis'' that leads to more interpretable results \revref. % (L658).
+It may be true in principle, it is not clear how this advantage is actually
+exploited in the current model. The model does not incorporate time-related
+effects explicitly. It reads more like the time axis is a latent property of
+the data structure. 
+\end{point}
+
+\reply{
+We agree that our comment wasn't clear enough.
+Now, we have reminded the reader that the time axis is useful in this paper
+because it is reflected in the units of $\tau^2$ \revref.
+}
+
+\begin{point}{} % \revpoint{2}{3} in paper.tex
+The paper relies heavily on randomized Haseman-Elston (HE) regression for
+variance component estimation, but may not explain sufficiently how this choice
+is motivated. 
+\end{point}
+
+\reply{
+We've added a sentence giving the motivation for using this as a starting location
+at \revref.
+(We don't think that our use of it is particularly crucial, however;
+also see discussion of HE in the Introduction, around \llname{haseman}.)
+}
+
+\begin{point}{} % \revpoint{2}{4} NOT NEEDED in paper.tex
+The paper demonstrates that ARG-based BLUP is feasible, but it is less clear
+that it provides meaningful advantages for genomic prediction accuracy. The
+strong advantage of ARGs may be in variance decomposition and interpretability.
+\end{point}
+
+\reply{
+We agree generally, but also think that there may be advantages for accuracy
+in some situations (e.g., when genotyping data is incomplete,
+as observed for GWAS by \cite{zhu2024fastvariancecomponent}).
+We have mentioned this in the Discussion
+(see point above and section at \revreffull{2}{1}).
+An explicit comparison to the usual SNP-GRM (genotype GRM) was also added to Figure~\ref{fig:pedigree}.
+}
+
+%%%%%%%%%%%%%%
+\reviewersection{3}
+
+\begin{point}{} % \revpoint{3}{1} in paper.tex
+As inferred ARGs will necessarily be used in real data practices, I would like
+to see some more discussions on the comparison between ARG inference methods.
+For example, Relate could be run for 2000 sequences, and ARG-Needle/Threads
+could be run for more. It would be useful for the authors to compare the
+performance between these methods and given general guidelines to the potential
+users; 
+\end{point}
+
+\reply{
+This would be an excellent thing to explore,
+but we believe it is beyond the scope of this paper.
+For instance, the strengths and weaknesses of different methods
+are expected to be different at different sample sizes
+and in different situations (data quality; structure; etcetera),
+so that an informative exploration would make this paper far too long.
+There's an ongoing effort to measure how sensitive ARG-based methods are to ARG inference methods, e.g. \citet{peng2025evalarg}. 
+We have added some more discussion of this point
+to \revref.
+}
+
+\begin{point}{} % \revpoint{3}{2} NOT NEEDED in paper.tex
+Another aspect which is generally missing from the article is that the
+benchmark has not compared the performance using whole genome sequences versus
+ARGs (true and inferred). The benchmark as of now focuses on compare the
+performance between inferred and true ARGs and make the point that the loss is
+not significant. While that seems to be true, there is one fundamental question
+which remains unanswered: does ARG-based inference provide additional benefit
+other than computational efficiency? If the ARG-based computation only saves a
+tolerable runtime but results in worse accuracy, I hardly think people will use
+it. I would like the authors to make the comparison between using whole genomes
+and inferred ARGs, to address the above concern; 
+\end{point}
+
+\reply{
+We agree -- the question of how and when it is beneficial to use ARGs
+is a significant open question in the field
+(and which needs some empirical work, in our opinion).
+To give a bit more information about this,
+we have added a comparison (see Figure~\ref{fig:pedigree}) to the usual SNP-GRM (the genotype GRM),
+showing that we do not have worse results,
+even with inferred ARGs.
+The SNP set used to compute the genotype GRM contains all true causal variants alongside non-causal ones,
+with filtering to avoid large denominators in constructing the GRM.
+Furthermore, we now discuss in more detail around \revreffull{2}{1},
+other situations in which ARG-based methods might provide an advantage
+to SNP-based methods.
+}
+
+\begin{point}{} % \revpoint{3}{3} NOT NEEDED in paper.tex
+There is something non-intuitive in Figure \ref{fig:estimation} and \ref{fig:prediction}.
+In Figure \ref{fig:prediction}, %.4,
+the authors shows that the sample correlation performance using inferred ARGs is getting
+closer with using true ARGs. However, in figure \ref{fig:estimation}, %3,
+the MSE gap (blue vs green) seems to get larger with large sample sizes.
+Can the author explain this obvious inconsistency? 
+\end{point}
+
+\reply{
+This is an interesting observation,
+but after thinking hard about it,
+we don't think we can confidently say anything useful about this pattern.
+There are only two sample sizes (2,000 and 50,000) in Figure~\ref{fig:estimation},
+and the latter sample size is below the largest sample size in
+Figure~\ref{fig:prediction};
+and furthermore although the gap seen in Figure~\ref{fig:estimation}
+does not get smaller, both blue and green bars in that figure do get smaller.
+It would be interesting to understand more,
+but the point of this paper is to describe the method,
+not to benchmark the behavior in different ARG inference situations.
+}
+
+\begin{point}{} % \revpoint{3}{4} in paper.tex
+Since the method relies on building ARGs from data, it would also be good to discuss the difference between using genotype array data and whole genome sequences, as they hugely impact the ARG inference accuracy. It would also be nice to discuss the robustness of ARG-based estimator and genotype-based estimator in these 2 cases; 
+\end{point}
+
+\reply{
+Again, we definitely agree, and would love to explore this,
+but we can't get too deep on this here, since it would be very speculative.
+We do point to the work by \cite{zhu2024fastvariancecomponent} in a few more places,
+who more directly study this exact question.
+We now refer more directly to this point at
+\revref
+and around \revreffull{2}{1}.
+}
+
+\begin{point}{} % \revpoint{3}{5} in paper.tex
+It would be nice to say something about the memory use of their method at different data sizes. I am sure that is a benefit of the method.
+\end{point}
+
+\reply{
+The memory scaling is given by the product of the number of nodes and test vectors used in trace estimation.
+We have updated the text at \revref.
+}

@@ -1,0 +1,245 @@
+
+
+% ---------------
+We reuse the expensive quantities to reduce computation.
+$(\bX^T \bV \bX)^{-1}$, $\bP\by$ and $\bC\bP\by$ are repeatedly used in equations (\ref{reml_gradient}) and (\ref{avg_information}).
+After getting (\ref{gls_fe}), we get the the residual $\by - \bX\bbeta^{(n)}$.
+$\bP\by$ follows from the identity $\bP^{(n)}\by = \bV^{(n)-1} (\by - \bX \bbeta^{(n)})$,
+and have already computed $(\bX^T \bV^{(n)} \bX)^{-1}$ from the usual matrix inversion.
+$\bC \bP \by$ follows from a single matrix-vector product that we explain shortly.
+
+The efficient genetic relatedness matrix-vector multiplication implemented in \textsf{tskit} is the key ingredient of our algorithm.
+Let $\bC = \bZ \Sigma_\bu \bZ^T$ be the individual genetic relatedness matrix.
+\textsf{GeneticRelatednessMatrix} implements $\bv \mapsto \bC\bv$.
+A more commonly used subroutine is its extension 
+$\textsf{CovarianceMatrix}(\sigma, \tau, \bv) = (\sigma^2 \bI + \tau^2 \bC ) \bv$ which trivially follows from \textsf{GeneticRelatednessMatrix}.
+We can multiply the inverse of $\sigma^2 \bI + \tau^2 \bC $ by conjugate gradient deploying \textsf{CovarianceMatrix}.
+We denote this as $\textsf{CovarianceMatrix}^{-1}(\sigma, \tau, \bv) = (\sigma^2 \bI + \tau^2 \bC)^{-1} \bv$.
+
+\begin{taocpalg}{D}{First and second derivatives} \label{algo:D}
+{
+    $\by$ is the trait vector and $\bX$ is the fixed effects covariates.
+    Compute the gradients (\ref{reml_gradient}) and the average informations (\ref{avg_information}).
+    $\tau^{(n)}$, $\sigma^{(n)}$ and $\bbeta^{(n)}$ are the working variance components and the fixed effects coefficient at step $n$.
+    Define $\bV^{(n)}$ and $\bP^{(n)}$ in the same fashion.
+}
+
+
+\algstep{D1.}{Compute $\bbeta^{(n)}$}{ 
+    Compute equation (\ref{gls_fe}). 
+    Keep $(\bX^T \bV^{(n)} \bX)^{-1}$,  
+    $\bP^{(n)}\by$, and $\bC \bP^{(n)}\by$ for uses in later steps.
+j}
+
+\algstep{D2.}{Compute gradient}{\\
+    Compute $\Tr(\bP^{(n)})$ and  
+    $\bP^{(n)} \by = \textsf{CovarianceMatrix}^{-1}(\sigma^{(n)}, \tau^{(n)}, \by - \bX \bbeta^{(n)})$.\\
+    $\bC^{(n)}\bP^{(n)} \by = \textsf{CovarianceMatrix}(0, 1, \bP^{(n)}\by)$. \\
+    $\by^T \bP^{(n)} \bP^{(n)} \by = (\bP^{(n)} \by)^T(\bP^{(n)} \by)$. \\
+    $\by^T \bP^{(n)} \bC^{(n)} \bP^{(n)} \by = (\bC^{(n)}\bP^{(n)} \by)^T(\bP^{(n)} \by)$.
+}
+
+\algstep{D3.}{Compute average information}{ \\
+    $\bV^{-1(n)} \bP^{(n)}\by = \textsf{CovarianceMatrix}^{-1}(\sigma^{(n)}, \tau^{(n)}, \bP^{(n)}\by)$. \\
+    $\bV^{-1(n)} \bC^{(n)} \bP^{(n)}\by = \textsf{CovarianceMatrix}^{-1}(\sigma^{(n)}, \tau^{(n)}, \bC^{(n)}\bP^{(n)}\by)$. \\
+    %
+    $\by^T \bP^{(n)} \bV^{-1(n)} \bP^{(n)}\by = 
+    (\bV^{-1(n)}\bP^{(n)} \by)^T \bP^{(n)}\by
+    $. \\
+    $\by^T \bP^{(n)} \bC^{(n)} \bV^{-1(n)} \bC^{(n)} \bP^{(n)}\by = 
+    (\bV^{-1(n)} \bC^{(n)} \bP^{(n)} \by)^T \bC^{(n)}\bP^{(n)}\by.
+    $ \\
+    %
+    $\bX^T \bV^{-1(n)} \bP^{(n)}\by = \bX^T  \cdot \bV^{-1(n)} \bP^{(n)}\by$. \\
+    $\bX^T\bV^{-1(n)} \bC^{(n)} \bP^{(n)}\by = \bX^T \cdot \bV^{-1(n)} \bC^{(n)} \bP^{(n)}\by$.\\
+    %
+    $\by^T \bP^{(n)} \bV^{-1(n)} \bX (\bX^T \bV^{-1(n)}\bX)^{-1} \bX^T \bV^{-1(n)} \bP^{(n)}\by \\
+    = \by^T \bP^{(n)} \bV^{-1(n)} \bX \cdot (\bX^T \bV^{-1(n)}\bX)^{-1} \cdot \bX^T \bV^{-1(n)} \bP^{(n)}\by$ . \\
+    $\by^T \bP^{(n)} \bC^{(n)} \bV^{-1(n)} \bX (\bX^T \bV^{-1(n)}\bX)^{-1} \bX^T \bV^{-1(n)}  \bP^{(n)}\by \\
+    = \by^T \bP^{(n)} \bC^{(n)} \bV^{-1(n)} \bX \cdot (\bX^T \bV^{-1(n)}\bX)^{-1} \cdot \bX^T \bV^{-1(n)} \bP^{(n)}\by$.  \\
+    $\by^T \bP^{(n)} \bC^{(n)} \bV^{-1(n)} \bX (\bX^T \bV^{-1(n)}\bX)^{-1} \bX^T \bV^{-1(n)} \bC^{(n)} \bP^{(n)}\by \\
+    = \by^T \bP^{(n)} \bC^{(n)} \bV^{-1(n)} \bX \cdot (\bX^T \bV^{-1(n)}\bX)^{-1} \cdot \bX^T \bV^{-1(n)} \bC^{(n)} \bP^{(n)}\by$. \\
+}
+
+\end{taocpalg}
+
+\textsf{CovarianceMatrix}$^{-1}$ dominates most of the computation in \textbf{Algorithm D}.
+This routine occurs twice in gradient computation and twice more in average information computation.
+Therefore, the overall routine is only as twice as expensive compared to computing gradient only.
+This additional cost is payed off (supplementary figures?)
+
+
+The concerns around confounding and false discoveries caused by population structure in genome-wide association studies led to the development of
+numerous methods such as genomic control, principal component (PC) adjustment, and linear mixed models \citep{devlin1999genomiccontrol, price2006eigenstrat, kang2010variancecomponent}.
+Principal component adjustment and linear mixed models continue to be popular in literature,
+and recently proposed methods tend to include the elements of both approaches \citep{loh2015boltlmm, jiang2019fastgwa}.
+
+Early discussions centered on determining the most suitable method for adjusting population structure \citep{price2010popstrat, sul2013selection}.
+Shortly after, people started to recognize the close relationship between the two methods, 
+as both methods used the same genetic relatedness matrix \citep{hoffman2013lmm}.
+Linear mixed model includes the entire relatedness matrix,
+and PC adjustment takes the top eigenvectors of the relatedness matrix after eigendecomposition.
+For this reason,
+some authors argued that PC adjustment approximates the linear mixed model \citep{hoffman2013lmm, yao2023limitationpca}.
+A recent analysis shows that this claim is only partially correct
+because the linear mixed model and PC adjustment weigh the eigenvectors
+differently \citep{schraiber2024unifying}.
+These analyses are based on the eigenspectrum of the genetic relatedness matrix.
+
+An alternative viewpoint comes from the interpretation of genetic effects as either fixed or random effects.
+It is common to test a single SNP at a time,
+and other SNPs that may be potentially associated with the trait
+are omitted from the regression \citep{sul2018confounding}.
+If an omitted causal variant is correlated with the tested variant,
+the tested variant appears to be associated with the trait even in the absence of true causation \citep{vilhjlmsson2012natureconfounding, sul2018confounding, veller2024interpreting}.
+Thus, one must account for the omitted variants in univariate regression.
+PC adjustment can be thought of as including the omitted variants in the regression by reducing their dimension via principal component analysis.
+PC covariates produced from dimension reduction are included as fixed effects in the regression.
+Liner mixed models integrate over the omitted variable by treating them as random variables \citep{sul2018confounding}.
+
+A common feature of these different viewpoints on the nature of confounding in genome-wide association studies
+is that they are either purely mathematical (eigenspectrum) or statistical (fixed versus random effects),
+where the arguments are only weakly connected to the underlying evolutionary process.
+Some efforts have been made to clarify that population structure itself is not the problem, 
+but the allele frequency stratification caused by genetic drift is the real problem in association testing \citep{vilhjlmsson2012natureconfounding, edge2013windfalls}.
+
+Here, we present a unifying view that combines all the aforementioned perspectives from an evolutionary perspective based on ARG-LMM.
+As we've stressed earlier, 
+genetic effects are in fact branch effects and not the variants' effect.
+Branch effects are the aggregate effect of mutations that have occurred on it,
+and the randomness is solely driven by the random mutational process.
+Similar to how this interpretation led to evolutionary interpretations of random effects,
+we can explain how evolutionary forces are related to confounding, in particular the fixed effects, in complex trait analysis.
+
+Surprisingly, the fixed components of the genetic effects $\bZ\bfix$ turn out to be absent when the evolution is neutral.
+Under neutral evolutionary scenarios that may or may not accompany demographic events that cause population structure, 
+we may assume that the mutation rate is constant for each position \citep{wakeley2008coalescent, durrett2008probabilitydna},
+i.e., $u_{ep} = u_p$ for all $e: p\in e$ (edge $e$ contains position $p$). 
+In this case, we show that $\bZ\bfix$ reduces to a constant.
+\begin{align} 
+    \begin{aligned}
+        \left[\bZ \bfix \right]_n 
+        &= \sum_{e=1}^E \bZ_{ne} \E{ \sum_{p:p\in e} \bbeta_p \mathbf{1}_{ep}}  
+        = \sum_{e=1}^E \sum_{p:p\in e} \bZ_{ne} \bbeta_p l_eu_p  \\
+        &= \sum_{p=1}^P \sum_{e:p\in e} \bZ_{ne} \bbeta_p l_eu_p 
+        = \sum_{p=1}^P \bbeta_p u_p \left(\sum_{e:p\in e} \bZ_{ne}  l_e \right) \\ 
+        &= \sum_{p=1}^P \bbeta_p u_p \cdot 2t_{\mathrm{root},p}
+        = \text{const. resp. to $n$}
+    \end{aligned}
+\end{align}
+This means that the fixed component of the genetic effect is fully accounted for by an intercept.
+Hence, once we include an intercept in the regression model, 
+further adjustment by PC covariates is unnecessary. 
+This argument formalizes earlier claims that population structure itself is not a concern \citep{vilhjlmsson2012natureconfounding, edge2013windfalls}.
+Regardless of how complicated the demographic events and the population structure are, 
+their directional contribution in the regression as fixed effects is vacant.
+Nonetheless, genetic drift does not play a role here, as claimed earlier, because conditioning on the genealogy wipes the variation of drift out of the inference. 
+In sum, fixed effects covariates are obsolete for correcting genetic confounding if the evolutionary process is neutral.
+
+The previous result does not, however, preclude the utility of PC adjustment in genetic association studies for two reasons.
+First of all, rarely is an evolutionary process purely neutral.
+Various studies have shown that although selective sweeps are rare in the human genome,
+negative and background selection is universal [cite].
+This means that we can no longer assume a constant mutation rate at a given position across edges.
+This will cause the fixed portion of genetic effects $\bZ\bfix$ to be non-trivial, unlike the neutral scenario.
+This is in line with evidence from simulations and empirical studies where pure linear mixed models without PC covariates
+are not properly calibrated in populations affected by selection \citep{price2010popstrat, sul2013selection, price2013response, vilhjlmsson2012natureconfounding, edge2013windfalls}.
+
+
+The time zero of evolutionary change must be specified in any evolutionary analysis.
+For example, the notion of identity-by-descent (IBD) is valid given a particular reference time point because any genetic materials will eventually coalesce if we go sufficiently further back in time \citep{Thompson2013}.
+The idea of fixing a time point in which the evolutionary process began has a long history that dates back to \cite{Wright1949} and has been expanded in subsequent studies in the context of quantitative genetics \citep{weir1990gda, weir2002fstatistics, Ochoa2021, hou2023kinshiprobust}.
+Choosing this time point is also important in ARG-LMM's generative model.
+The current paper makes an implicit choice of which we condition at
+the time of the oldest root node in the tree sequence, i.e., the grand TMRCA.
+However, one could choose another time point below the grand TMRCA.
+All mutations that occurred above this time point but below the grand TMRCA will be conditioned and become fixed effects.
+These effects are not constant across individuals even if the evolution is neutral.
+If this time is set below the grand TMRCA, 
+one should include all the genetic effects above this time 
+as fixed effects in the regression model.
+The relatedness driven by random effects will decay as we get closer to the present and eventually vanish as soon as we arrive.
+This reiterates the previous arguments that relatedness is a relative measure with respect to a reference time point that is set by the researcher,
+and no single measure of relatedness exists in an absolute sense \citep{Thompson2013}.
+We plan to add an option in \textsf{tslmm} to set this time point and automatically handle the evolution of relatedness and fixed effects as a function of time zero.
+
+We can further generalize equation (\ref{origin_fe})'s argument to incorporate time-varying mutation rate within an edge.
+In this setting, we stipulate that a mutation rate at a position only depends on time, i.e., the mutation rate is a function of time $u_p(t)$.
+\begin{align} 
+    \begin{aligned}
+        \left[\bZ \bfix \right]_n 
+        &= \sum_{e=1}^E \bZ_{ne} \E{ \sum_{p:p\in e} \bbeta_p \mathbf{1}_{ep}}  
+        = \sum_{e=1}^E \sum_{p:p\in e} \bZ_{ne} \bbeta_p \E{ \mathbf{1}_{ep}}  \\
+        &= \sum_{e=1}^E \sum_{p:p\in e} \bZ_{ne} \bbeta_p \int_{t(e(c))}^{t(e(p))} u_p(t) dt  
+        = \sum_{p=1}^P \bbeta_p \sum_{e: p \in e } \bZ_{ne}  \int_{t(e(c))}^{t(e(p))} u_p(t) dt  \\
+        &=  2 \cdot \sum_{p=1}^P \bbeta_p \int_{0}^{t_{\mathrm{root},p}} u_p(t) dt
+        = \text{const. resp. to $n$}
+    \end{aligned}
+\end{align}
+Therefore, a non-trivial fixed effect is present only if there is a heterogeneity in the mutation rate across both time and lineages.
+As a side note, our argument only discusses the role of fixed effects as a correction for genetic confounding.
+PC covariates may correct non-genetic confounders that align with the population structure, and so would be useful despite not being relevant to correcting genetic confounding.
+
+
+
+
+
+Unlike the usual definition of additive variance, this quantity does not depend on the frequency of alleles.
+Indeed, the relationship between $\tau^2$ and additive genetic variance is convoluted and we discuss this relationship in depth.
+
+Recall the close resemblance between the CoA model and ARG-LMM.
+A core quantity of the CoA model is the mutational variance 
+\begin{align}
+\sigma_m^2 = \sum_l \sum_{p:p \in l} \bbeta_p^2 u_l
+\label{eq:mutational_variance}
+\end{align}
+where $\sigma_l^2$ and $u_l$ are the allelic effect's variance and the mutation rate of locus $l$, respectively \citep{kimura1964numberofalleles,lynch1998quant, walsh2018evolution}.
+\cite{lynch1986phenoneutral} have shown that in a neutrally evolving additive trait of a diploid population of size $N_e$,
+the additive genetic variance coincides with $4N_e\sigma_m^2$  under the drift-mutation equilibrium only in \textit{expectation}.
+When genetic drift is non-negligible, as much as the frequency of individual variants, the additive variance of the trait fluctuates randomly over time and across evolutionary replicates.
+On the other hand, the effective population size $N_e$ and the mutational variance $\sigma_m^2$ are fixed parameters that govern the evolution of the system.
+Hence, the additive genetic variance can only be equal to a combination of fixed numbers $4N_e \sigma_m^2$ in \textit{average}.
+This means that rarely is a population's additive variance a fixed parameter in an evolutionary system incorporating genetic drift.
+Note that increasing the population size nor the sample size remove this variability \citep{lynch1986phenoneutral}.
+The same issue is present in ARG-LMM which describes the evolution until the time of full coalescence.
+% avg. coalesence time ~Ne, drift rate 1-1/Ne => converge to constant factor ~e^-1
+
+To cope with the randomness of additive genetic variance, one could simulate a trait with a fixed additive variance $V_G$  by the following steps.
+After simulating the population's genetic value $\bg$, we divide the genetic values by its population standard deviation $\sqrt{\var{\bg}} = \sqrt{\sum_{n=1}^N (\bg_n - \overline{\bg})^2 / (N-1)}$.
+Then, multiplying the genetic values by $\sqrt{V_G}$ will give the desired result.
+To further specify the narrow sense heritability $h^2$, adding a normal distribution with variance $(1-h^2)/h^2 \cdot V_G$ will do. 
+This procedure has been pursued earlier in \cite{zhang2021biobank} and \cite{tagami2024tstrait}.
+However, a careful inspection of the above process tells that it is impossible to recover $V_G$ nor $h^2$ in practice.
+Suppose that a trait was generated from an ARG-LMM with $\tau^2$ and $\sigma^2$. 
+Scaling by $V_G / \var{\bg}$ and $(1-h^2)/h^2 \cdot V_G$ of the aforementioned procedure turns the ARG-LMM to have new parameters $\tau^{2}_{\textrm{new}} = \tau^2 \cdot V_G / \var{\bg}$ and $\sigma^{2}_{\textrm{new}} = \sigma^2 \cdot (1-h^2)/h^2 \cdot V_G$.
+An unbiased estimator (e.g. \texttt{tslmm}) recovers only the new parameters $\tau^2_{\textrm{new}}$ and $\sigma^2_{\textrm{new}}$ which are functions of three unknown quantities $V_G$, $h^2$, and $\var{\bg}$.
+That said, we cannot recover any of the three quantities from data as we only have two equations.
+The benchmark of estimating $h^2$ presented in \cite{zhang2021biobank} was only able to recover $V_G$ and $h^2$ due to knowing the value of $\bg$ in the simulation.
+Hence, the benchmark does not inform real world analysis that has no access to the true genetic values $\bg$.
+
+We demonstrate this argument through neutral evolution experiments repeated multiple times, mimicking the theoretical setup of \cite{lynch1986phenoneutral}.
+We have $\sigma_m^2 = \tau^2 \cdot P$ due to the resemblance between equations (\ref{eq:global_tau}) and (\ref{eq:mutational_variance}) (see \textbf{Materials and Methods}).
+Thus, we can estimate the mutational variance using \texttt{tslmm} through multiplying the total sequence length to the $\tau^2$ estimate.
+As shown in \textbf{Figure \ref{fig:mutationalvariance}A}, $P \widehat{\tau}_{\texttt{tslmm}}^2$ is an unbiased estimator of the mutational variance $\sigma_m^2$.
+The additive genetic variance $\var{\bg}$ exhibits substantial variability but it is also possible to estimate $\sigma_m^2$ because the average additive variance over replicates is $4N_e \sigma_m^2$.
+Based on this observation, one might be tempted to estimate $\var{\bg}$ with $\widehat{\tau}^2_{\texttt{tslmm}}$ through $4N_e \cdot P \widehat{\tau}^2_{\texttt{tslmm}}$.
+However, the two quantities are very weakly correlated (\textbf{Figure \ref{fig:mutationalvariance}B}).
+Thus, even in the simplest setting of a panmictic population in an equilibrium, 
+evolving with constant size, 
+in which a closed-form formula,
+$\E{\var{\bg}} = 4N_e\sigma_m^2$, between average additive genetic variance $\E{\var{\bg}}$ and $\sigma_m^2 = P \tau^2$ exists, 
+one cannot reliably obtain $V_G$ nor $h^2$ out of ARG-LMM.
+In more realistic evolutionary models lacking this simple relationship, the attempt to recover $\var{\bg}$ from $\widehat{\tau}^2_{\texttt{tslmm}}$ is even more hopeless.
+In sum, the estimates from ARG-LMM based models should be understood as the mutational variance $\sigma_m^2$ divided by the length of the genome and one should refrain from interpreting it as the additive variance.
+One can instead estimate the mutational heritability $h^2_m = \sigma_m^2 / \sigma^2$ \citep{lynch1998quant}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{img/mutationalvariance.pdf}
+    \caption{Mutational and additive genetic variances. 10 freely recombining loci were simulated with mutation rate $\mu=10^{-4}$ and a constant population size $N_e=1000$ were simulated 100 times. (A) Additive variance $\var{\bg}$ and \texttt{tslmm} $\widehat{\tau}^2$ can both estimate the mutational variance. (B) The correlation between additive variance and \texttt{tslmm} is weak.}
+    \label{fig:mutationalvariance}
+\end{figure}
+
+
+
+

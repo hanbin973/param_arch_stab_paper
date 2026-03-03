@@ -1,0 +1,171 @@
+\usepackage[T1]{fontenc}
+\usepackage{tgtermes}
+\usepackage[hidelinks]{hyperref}
+\usepackage{nameref}
+
+\usepackage{graphicx}
+\usepackage{setspace}
+\setstretch{1}
+\usepackage[letterpaper]{geometry}
+\usepackage{nicefrac}
+\usepackage{lineno}
+\usepackage{authblk}
+\usepackage{xspace}
+
+\linenumbers
+
+% aesthetics
+\usepackage{tcolorbox}
+
+\newcommand{\fullref}[1]{{\bf \nameref{#1}}}
+
+% url
+\usepackage{url}
+\usepackage{xcolor}
+
+% math
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathabx}
+
+\theoremstyle{definition}
+\newtheorem{theorem}{Theorem}
+\theoremstyle{definition}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem*{model}{Model}
+
+% tikz
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{shapes,decorations,arrows,calc,arrows.meta,fit,positioning}
+
+
+% symbol shortcuts
+
+% popgen shortcuts
+\newcommand{\seff}{s_{\mathrm{eff}}}
+\newcommand{\hp}{\widehat{p}}
+
+% derivative
+\newcommand{\pard}[3][]{
+    \frac{\partial^{#1} #2}{\partial {#3}^{#1}}
+    }
+
+% expectation & variance
+\newcommand{\E}[2][]{\mathbb{E}_{#1}\left[#2\right]}
+\newcommand{\var}[2][]{\mathrm{Var}_{#1}\left(#2\right)}
+\newcommand{\cov}[2][]{\mathrm{Cov}_{#1}\left(#2\right)}
+\newcommand{\prob}[2][]{\mathbb{P}_{#1}\left(#2\right)}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\| #1 \right\|}
+\newcommand\indep{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern4mu{#1#2}}}
+\newcommand{\pinf}{p_{\infty}}
+
+\newcommand{\hE}[2][]{\widehat{\mathbb{E}}_{#1}\left[#2\right]}
+\newcommand{\hvar}[2][]{\widehat{\mathrm{Var}}_{#1}\left(#2\right)}
+\newcommand{\hcov}[2][]{\widehat{\mathrm{Cov}}_{#1}\left(#2\right)}
+\newcommand{\hprob}[2][]{\widehat{\mathbb{P}}_{#1}\left(#2\right)}
+
+% all letters/symbols
+\newcommand{\bA}[0]{\mathbf{A}}
+\newcommand{\bB}[0]{\mathbf{B}}
+\newcommand{\bC}[0]{\mathbf{C}}
+\newcommand{\bD}[0]{\mathbf{D}}
+\newcommand{\bE}[0]{\mathbf{E}}
+\newcommand{\bG}[0]{\mathbf{G}}
+\newcommand{\bH}[0]{\mathbf{H}}
+\newcommand{\bI}[0]{\mathbf{I}}
+\newcommand{\bK}[0]{\mathbf{K}}
+\newcommand{\bM}[0]{\mathbf{M}}
+\newcommand{\bN}[0]{\mathbf{N}}
+\newcommand{\bP}[0]{\mathbf{P}}
+\newcommand{\bQ}[0]{\mathbf{Q}}
+\newcommand{\bR}[0]{\mathbf{R}}
+\newcommand{\bT}[0]{\mathbf{T}}
+\newcommand{\bU}[0]{\mathbf{U}}
+\newcommand{\bV}[0]{\mathbf{V}}
+\newcommand{\bW}[0]{\mathbf{W}}
+\newcommand{\bX}[0]{\mathbf{X}}
+\newcommand{\bY}[0]{\mathbf{Y}}
+\newcommand{\bZ}[0]{\mathbf{Z}}
+
+\newcommand{\tree}[0]{\mathcal{T}}
+\newcommand{\nodes}{\mathcal{N}}
+\newcommand{\edges}{\mathcal{E}}
+
+\newcommand{\balpha}[0]{\boldsymbol{\alpha}}
+\newcommand{\bbeta}[0]{\boldsymbol{\beta}}
+\newcommand{\btheta}[0]{\boldsymbol{\theta}}
+\newcommand{\bdelta}[0]{\boldsymbol{\delta}}
+\newcommand{\hbeta}[0]{\boldsymbol{\widehat{\beta}}}
+\newcommand{\beps}[0]{{\boldsymbol{\varepsilon}}}
+\newcommand{\veps}[0]{{{\varepsilon}}}
+\newcommand{\bmu}[0]{\boldsymbol{\mu}}
+\newcommand{\bLambda}[0]{\mathbf{\Lambda}}
+\newcommand{\bSigma}[0]{\mathbf{\Sigma}}
+
+\newcommand{\bone}[0]{\mathbf{1}}
+\newcommand{\ba}[0]{\mathbf{a}}
+\newcommand{\bb}[0]{\mathbf{b}}
+\newcommand{\bd}[0]{\mathbf{d}}
+\newcommand{\bg}[0]{\mathbf{g}}
+\newcommand{\br}[0]{\mathbf{r}}
+\newcommand{\bfix}[0]{\mathbf{f}}
+\newcommand{\bu}[0]{\mathbf{u}}
+\newcommand{\bv}[0]{\mathbf{v}}
+\newcommand{\bw}[0]{\mathbf{w}}
+\newcommand{\ow}[0]{\overline{w}}
+\newcommand{\bx}[0]{{\mathbf{x}}}
+\newcommand{\by}[0]{\mathbf{y}}
+\newcommand{\bz}[0]{{\mathbf{z}}}
+\newcommand{\oz}[0]{{\overline{z}}}
+
+\DeclareMathOperator{\argmin}{argmin}
+\DeclareMathOperator{\Tr}{tr}
+\newcommand{\ai}[0]{\mathrm{AI}}
+
+\newcommand{\pluseq}{\mathrel{+}=}
+\newcommand{\mineq}{\mathrel{-}=}
+
+\newcommand{\tslmm}[0]{\texttt{tslmm}\xspace}
+\newcommand{\msprime}[0]{\texttt{msprime}\xspace}
+\newcommand{\tsinfer}[0]{\texttt{tsinfer}\xspace}
+\newcommand{\tsdate}[0]{\texttt{tsdate}\xspace}
+\newcommand{\tskit}[0]{\texttt{tskit}\xspace}
+\newcommand{\tstrait}[0]{\texttt{tstrait}\xspace}
+\newcommand{\slim}[0]{\texttt{SLiM}\xspace}
+\newcommand{\stdpopsim}[0]{\texttt{stdpopsim}\xspace}
+\newcommand{\argneedle}[0]{\texttt{ARG-needle}\xspace}
+\newcommand{\argneedlelib}[0]{\texttt{arg-needle-lib}\xspace}
+\newcommand{\arglmm}[0]{\texttt{arg-lmm}\xspace}
+\newcommand{\nloptr}[0]{\texttt{nloptr}\xspace}
+\newcommand{\boltlmm}[0]{\texttt{BOLT-LMM}\xspace}
+
+% These macros are borrowed from TAOCPMAC.tex
+\newcommand{\slug}{\hbox{\kern1.5pt\vrule width2.5pt height6pt depth1.5pt\kern1.5pt}}
+\def\xskip{\hskip 7pt plus 3pt minus 4pt}
+\newdimen\algindent
+\newif\ifitempar \itempartrue % normally true unless briefly set false
+\def\algindentset#1{\setbox0\hbox{{\bf #1.\kern.25em}}\algindent=\wd0\relax}
+\def\algbegin #1 #2{\algindentset{#21}\alg #1 #2} % when steps all have 1 digit
+\def\aalgbegin #1 #2{\algindentset{#211}\alg #1 #2} % when 10 or more steps
+\def\alg#1(#2). {\medbreak % Usage: \algbegin Algorithm A (algname). This...
+  \noindent{\bf#1}({\it#2\/}).\xskip\ignorespaces}
+\def\kalgstep#1.{\ifitempar\smallskip\noindent\else\itempartrue
+   \hskip-\parindent\fi
+   \hbox to\algindent{\bf\hfil #1.\kern.25em}%
+   \hangindent=\algindent\hangafter=1\ignorespaces}
+
+\newcommand{\algstep}[3]{\kalgstep #1 [#2] #3 }
+\newenvironment{taocpalg}[3]{%
+\vspace{1em}%
+\algbegin Algorithm #1. ({#2}). #3 }
+{\vspace{1em}}
+
+
+\newcommand{\algorithmref}[1]{#1}
