@@ -32,13 +32,13 @@
 
 \begin{abstract}
     Recently, stabilizing selection has emerged as a central means of understanding complex trait architecture.
-    A typical approach is to derive the distribution of genome-wide association study (GWAS) summary statistics from a population genetic model and offer a \emph{post-hoc} interpretation of GWAS results, 
+    A typical approach is to derive the distribution of genome-wide association study (GWAS) summary statistics from a population genetic model and offer a \emph{post-hoc} interpretation of GWAS results 
     which is derived from standard pipelines agnostic to the underlying evolutionary process.
     In this paper, we work in the opposite direction:
-    we study how complex trait should be analyzed in the first place under stabilizing selection.
+    we study how complex traits should be analyzed in the first place under stabilizing selection.
     To this end, we propose a general framework to derive variance component models from evolutionary principles.
     We show that this framework reduces to a linear mixed model with a novel frequency-dependent architecture under the equilibrium limit of stabilizing selection.
-    Next, we take into account for pleiotropy and show that functional annotations acts on variance components through trait-fitness genetic correlation.
+    Next, we account for pleiotropy and show that functional annotations acts on variance components through trait-fitness genetic correlation.
 \end{abstract}
 
 \vspace{1em} 
@@ -47,19 +47,19 @@
 \section{Introduction}
 
 With the rapid expansion of massive genomic datasets,
-a tremendous amount of genetic variants associated to complex traits have been discovered through genome-wise association studies (GWAS) [cite].
+a tremendous amount of genetic variants associated to complex traits have been discovered through genome-wide association studies (GWAS) [cite].
 Beyond identifying trait-associated loci, recent works have developed methods to aggregate signals under the statistical significance threshold.
 These methods have been used for various purposes including, but not limited to,
 heritability estimation, functional characterization, and natural selection detection [cite].
-Some of these methods aims to reveal the overall landscape of how genetic variants contribute to trait genetics, which is referred to as the \emph{genetic architecture}.
+Some of these methods aim to reveal the overall landscape of how genetic variants contribute to trait genetics, which is referred to as the \emph{genetic architecture}.
 At the heart of these methods lies a formula that describes the magnitude of variant effect sizes as a function of minor allele frequency (MAF), linkage disequilibrium (LD), and functional annotations among many others [cite].
-This magnitude of effect sizes is measured in average squared effect size in which the average is taken over with respect to the \emph{random-effects model}.
+This magnitude of effect sizes is measured in average squared effect size in which the average is taken with respect to the \emph{random-effects model}.
 
-In quantitative genetics, linear models involving both fixed and random effects are called \emph{mixed-effects model} and has a long history of its use in quantitative genetics.
+Linear models involving both fixed and random effects are called \emph{mixed-effects model} and has a long history of its use in quantitative genetics.
 Before the genomic era, mixed-models were generally used in conjunction with pedigree.
 In this setting, the random effects reflect the randomness driven by Mendelian segregation at each generation.
 As this randomness accumulates over time along the genealogical paths of the pedigree,
-individuals within appear correlated due to shared ancestry.
+individuals of the population appear correlated due to shared ancestry.
 This is the centerpiece of \emph{genetic relatedness} and the covariance matrix of individual traits, called the \emph{genetic relatedness matrix}, summarizes this notion [cite].
 Furthermore, pedigree can be viewed as a graph that can serve as a sparse data structure naturally suited for large scale computation with genetic data [cite].
 
@@ -80,26 +80,26 @@ ranging from mixture models to semi-parametric Dirichlet process priors that dem
 Despite the success of statistical extensions of the classic linear mixed model,
 the interpretability remains a missing piece.
 Unlike the pedigree random-effects that represent Mendelian segregation,
-these Bayesian extensions lack biological interpretability of their priors: What biological and technical randomness do the random-effects represent [cite, Steinsaltz]?
+these Bayesian extensions lack biological interpretability in their priors: What biological and technical randomness do the random-effects represent [cite, Steinsaltz]?
 To answer this question, it is inevitable to dive into the population genetics literature and we will return to this issue soon.
 
 Another reason to consider population genetics in understanding trait's genetic architecture is because it is subject to evolutionary forces.
-Depending on how the trait is determined, it may or may not be suited to survive and spread through the population.
+Depending on how the trait influences fitness, the underlying variants may or may not be suited to survive and spread through the population.
 The study of complex trait evolution has a rich history [cite] and has been revived recently in the genomic era.
 A landmark study by [cite, Simons] adopted a stabilizing selection model coupled with pleiotropy to explain the distribution of observed GWAS effect sizes.
-Several follow-up studies have appeared and confirmed that stabilizing selection is pivotal force in shaping the genetic architecture of human complex traits [cite].
+Several follow-up studies have appeared and confirmed that stabilizing selection is a pivotal force in shaping the genetic architecture of human complex traits [cite].
 Nevertheless, these works mainly focus on the \emph{post-hoc} interpretation of GWAS outcomes and speak very little about how the genetic data should be processed in the first place.
 
 To this end, we develop a full probabilistic model of complex trait evolution and use it to derive an evolutionarily interpretable linear mixed model.
-In doing so, we first clarify the source of genetic random-effects as coming from mutations randomly hitting the genome,
+In doing so, we first posit that the source of genetic random-effects as coming from mutations randomly hitting the genome,
 thereby sampling candidate segregating sites that appear in the genotyped samples.
 This is inspired by the earlier works of [cite, Kimura] which appears as [cite, continuum of alleles etc] in the literature.
 Subsequently, the prior distribution is characterized by the parameters governing the mutational landscape such as functional annotations. 
-Then, following recent works in stabilizing selection, we take into account for genetic drift and natural selection to further refine the random effects distribution.
-As a result, we obtain a random effects model naturally parameterized by evolutionary quantities underlying the population naturally leading to interpretable estimates.
+Then, following recent works in stabilizing selection, we account for genetic drift and natural selection to further refine the random effects distribution.
+As a result, we obtain a random effects model naturally parameterized by evolutionary quantities underlying the population, naturally leading to interpretable estimates.
 
 We confirm that this model can be estimated using the conventional restricted maximum likelihood (REML) estimator through extensive forward simulations.
-With the correctly specified frequency-dependent formulation, 
+With a correctly specified frequency-dependent formulation, 
 the new model offers noticeable improvements in genetic prediction.
 
 \section{Theory and model}
@@ -109,7 +109,7 @@ the new model offers noticeable improvements in genetic prediction.
 \textcolor{red}{notation table}
 
 We consider an observed trait $y$ and an unobserved trait $z$ where the latter determines the fitness of an individual.
-We assume an \emph{additive model} whereby both $y$ and $z$ is weighted sum of genotypes [cite].
+We assume an \emph{additive model} whereby both $y$ and $z$ are weighted sums of genotypes [cite].
 \begin{gather}
     \begin{gathered}
         y_i = G_i\beta + \veps \\
@@ -144,7 +144,7 @@ we can express $p(G \mid \alpha, \beta)$ as
         \cdot \underbrace{p(P_t \mid \alpha)}_{\text{Evolution}} dP_t
     \end{aligned}
 \end{align}
-Here, $p(G \mid \alpha, \beta, P_t) = p(G \mid P_t)$ because once the state of the population $P_t$ is given, choosing $G$ is entirely determined by the study's sampling scheme.
+Here, $p(G \mid \alpha, \beta, P_t) = p(G \mid P_t)$ because once the population state $P_t$ is given, the distribution of $G$ is entirely determined by the study's sampling scheme.
 For instance, one can randomly sample genomes from the population with replacement.
 The second simplification $P(P_t \mid \alpha, \beta) = P(P_t \mid \alpha)$ comes from the fact that $z$ determines the fitness through equation~\ref{eq:trait_and_fitness}.
 As long as $\alpha$ is given, the evolution does not depend on $\beta$.
@@ -155,7 +155,7 @@ Mutation chooses randomly from these loci that ultimately appears to be the vari
 Furthermore, if the mutation rate is small enough, this process is effectively a \emph{sampling with replacement} scheme corresponding to the \emph{infinite-alleles} or the \emph{infinite-sites} assumption.
 This argument first appeared in [cite, Kimura] as the continuum-of-alleles (CoA) model in the infinite-alleles context.
 Hence, the distribution of $\alpha$ and $\beta$ in this paper refers to the random selection of effect sizes driven by mutation hitting random loci on the genome.
-For the sake of easing computation,
+To simplify computations,
 we assume normality
 \begin{gather} \label{eq:coa}
 \begin{pmatrix}
@@ -219,9 +219,9 @@ For a more comprehensive review of different choices of $\Sigma_\beta$, see [cit
 
 Despite its empirical success [cite], 
 equation~\ref{eq:alpha} and its variants have several shortcomings.
-In particular, the choice of $\Sigma_\beta = \var{\beta \mid G}$ was assumed making its parameters $h^2$ and $\alpha$ merely a tuning parameter without an explicit biological interpretation, although heuristic arguments exist.
+In particular, the choice of $\Sigma_\beta = \var{\beta \mid G}$ was assumed making its parameters $h^2$ and $\alpha$ merely tuning parameters without an explicit biological interpretation, although heuristic arguments exist.
 For instance, a positive $\alpha$ partially captures the inverse relationship between minor allele frequency and effect size [cite].
-A notable pathologic behavior is that $[p_j(1-p_j)]^{-\alpha}$ diverges to infinity as $p_j$ approaches zero, requiring heuristic GRM partitioning over multiple MAF bins [cite, Wainschtein].
+A notable pathological behavior is that $[p_j(1-p_j)]^{-\alpha}$ diverges to infinity as $p_j$ approaches zero, requiring heuristic GRM partitioning over multiple MAF bins [cite, Wainschtein].
 It is also unclear if the sample frequency $\hp_j$ can replace the true frequency $p_j$, especially in rare variants.
 
 Our framework offers a principled solution to the aforementioned issues.
@@ -240,7 +240,7 @@ and compute
 \end{align}
 What is left is to find the appropriate formula of $p(\beta \mid G)$ to complete the formula.
 Since $p(G\mid\alpha)$ in equation~\ref{eq:goal1} contains evolutionary information,
-the final formula will naturally expressed by evolutionary parameters of the system.
+the final formula will be naturally expressed in terms of evolutionary parameters of the system.
 
 \subsection{Diffusion approximation for stabilizing selection}
 
@@ -256,7 +256,7 @@ The marginal selection coefficient $\seff$ is given by
     \seff(x) = \left(x-\frac{1}{2}\right)\frac{\alpha^2}{V_S}
 \end{align}
 for a biallelic loci of frequency $x$ and effect size $\alpha$ \citep{Robertson1956againstextreme,Lande1976phenoevolution,Simons2018popgeninterpretation, Negm2024longrangeld}.
-In a panmictmic diploid population of size $N$,
+In a panmictic diploid population of size $N$,
 the diffusion approximation corresponding to equation~\ref{eq:seff} is
 \begin{align} \label{eq:wf_diffusion_raw}
     \begin{aligned}
@@ -268,7 +268,7 @@ the diffusion approximation corresponding to equation~\ref{eq:seff} is
     \end{aligned}
 \end{align}
 where $B_t$ is the Brownian motion.
-We choose to measure $V_S$ in the units of $2N$,
+We choose to measure $V_S$ in units of $2N$,
 so we write $V_S = 2N \cdot W_S$.
 Accordingly, we keep $\theta = 4N\mu$.
 By scaling equation~\ref{eq:wf_diffusion_raw} by the $2N$ factor,
@@ -311,7 +311,7 @@ with the normalizing constant
     \right)
 \end{align}
 where $_1F_1(a;b;z)$ is the Kummer's hypergeometric function.
-Fortunately, $_1F_1(a;b;z) = 1 + \mathcal{O}(a)$, so we can ignore the factor with $\theta \rightarrow 0$.
+Fortunately, $_1F_1(a;b;z) = 1 + \mathcal{O}(a)$, so we can ignore the factor as $\theta \rightarrow 0$.
 
 \subsection{Deriving the approximate genetic architecture}
 
@@ -410,7 +410,7 @@ a Gaussian density which has the variance of
     \right]
 \end{align}
 with effectively three parameters $\sigma_b^2$, $\alpha_a^2 / W_S$, and $\rho$.
-Note that $W_S$ and $\alpha_a^2$ cannot be separately identifies because the formula remains invariant with respect to a common scaling factor.
+Note that $W_S$ and $\alpha_a^2$ cannot be separately identified because the formula remains invariant with respect to a common scaling factor.
 
 The formula has several important properties.
 First, if the trait $y$ is uncorrelated with fitness $z$ ($\rho=0$), it reduces to $\sigma_b^2$ and has no dependence on the sample frequency $\hp_j$.
