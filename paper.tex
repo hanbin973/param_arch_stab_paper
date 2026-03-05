@@ -106,8 +106,31 @@ the new model offers noticeable improvements in genetic prediction.
 
 \subsection{The general framework}
 
-\textcolor{red}{notation table}
-
+\begin{table}[htpb]
+    \centering
+    \caption{Key mathematical notations}
+    \label{tab:notation}
+    \vspace{0.5em}
+    \begin{tabular}{ll}
+        \hline
+        Symbol & Description \\
+        \hline
+        $y, z$ & Observed trait ($y$) and unobserved fitness-determining trait ($z$) \\
+        $G$ & Genotype matrix \\
+        $\alpha, \beta$ & Additive effect sizes of variants on fitness and observed trait \\
+        $\veps, \delta$ & Non-genetic environmental components for $y$ and $z$ \\
+        $\sigma_a^2, \sigma_b^2$ & Mutational variances of fitness and trait effect sizes \\
+        $\rho_{ab}$ & Mutational correlation between fitness and trait \\
+        $p_j, \hp_j$ & Population and sample minor allele frequency of locus $j$ \\
+        $V_S$ & Variance of the stabilizing selection fitness landscape \\
+        $W_S$ & Population-scaled selection parameter variance ($W_S = V_S / 2N$) \\
+        $\seff(x)$ & Marginal selection coefficient at population allele frequency $x$ \\
+        $N, \mu$ & Diploid population size and mutation rate \\
+        $\theta$ & Population-scaled mutation rate ($\theta = 4N\mu$) \\
+        $\pinf(x \mid \alpha)$ & Equilibrium density of allele frequency $x$ with fitness effect $\alpha$ \\
+        \hline
+    \end{tabular}
+\end{table}
 We consider an observed trait $y$ and an unobserved trait $z$ where the latter determines the fitness of an individual.
 We assume an \emph{additive model} whereby both $y$ and $z$ are weighted sums of genotypes [cite].
 \begin{gather}
