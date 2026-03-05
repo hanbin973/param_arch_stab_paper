@@ -408,7 +408,7 @@ Next, we put equation~\ref{eq:beta_to_dirac} back into equation~\ref{eq:swapped}
         \int p(\alpha_j \mid \beta_j) \cdot 
         \exp\left[-\frac{\alpha_j^2}{W_S}\hp_j(1-\hp_j) \right] d\alpha_j \\
         & \ \propto \ \int
-        \exp \left( -\frac{\hat{p}_j(1 - \hat{p}_j) \rho_{ab,j}^2 \frac{\sigma_{a,j}^2}{\sigma_{b,j}^2} \beta_j^2}{W_s + 2\sigma_{a,j}^2(1 - \rho_{ab,j}^2)\hat{p}_j(1 - \hat{p}_j)} \right)
+        \exp \left[ -\frac{\left( \alpha_j - \rho_{ab,j} \frac{\sigma_{a,j}}{\sigma_{b,j}} \beta_j \right)^2}{2 \sigma_{a,j}^2 (1 - \rho_{ab,j}^2)} \right]
         \exp\left[-\frac{\alpha_j^2}{W_S}\hp_j(1-\hp_j) \right] d\alpha_j 
         \\
         & \ \propto \
@@ -432,8 +432,8 @@ a Gaussian density which has the variance of
         }
     \right]
 \end{align}
-with effectively three parameters $\sigma_b^2$, $\alpha_a^2 / W_S$, and $\rho$.
-Note that $W_S$ and $\alpha_a^2$ cannot be separately identified because the formula remains invariant with respect to a common scaling factor.
+with effectively three parameters $\sigma_b^2$, $\sigma_a^2 / W_S$, and $\rho$.
+Note that $W_S$ and $\sigma_a^2$ cannot be separately identified because the formula remains invariant with respect to a common scaling factor.
 
 The formula has several important properties.
 First, if the trait $y$ is uncorrelated with fitness $z$ ($\rho=0$), it reduces to $\sigma_b^2$ and has no dependence on the sample frequency $\hp_j$.
@@ -443,14 +443,25 @@ Finally, it captures the intuition from earlier studies that the relative ratio 
 
 \section{Simulation and empirical study}
 
+\subsection{SLiM simulation}
+Throw config.yaml and .slim to genAI?
+
 \subsection{Variance component estimation}
+
+Restricted maximum likelihood (REML) is a standard tool to estimate variance components in quantitative genetics [cite].
+
+Fit mixed model and get estimate with different parameterizations.
+Several $\alpha$ models could help?
+
 
 
 \subsection{Genetic prediction}
+Fit mixed model and get blup with different parameterizations
 
 
 \subsection{Post-hoc analysis of GWAS summary statistics}
-
+We can essentially copy and paste from Yuval's 2025 paper but is it necessary?
+Maybe if we aim higher impact factors?
 
 \section{Discussion}
 
