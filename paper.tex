@@ -445,9 +445,36 @@ Finally, it captures the intuition from earlier studies that the relative ratio 
 
 \subsection{Variance component estimation}
 
+A major advantage of theoretically grounding the linear mixed model in population genetics is that the variance components become directly interpretable as evolutionary parameters. To evaluate our approach, we employed forward-time simulations of polygenic trait evolution under stabilizing selection using SLiM framework. We then fit the explicit frequency-dependent variance model via restricted maximum likelihood (REML) across a varying grid of true mutational variances ($\sigma_a^2$) and selection widths ($W_s$).
+
+We emphasize that the parameterization primarily permits joint estimation of the genetic architecture through combinations like the ratio $\sigma_a^2 / W_s$. Figure~\ref{fig:blm_sigma2_a_over_ws} demonstrates that the model faithfully recovers the unbiased ratio $\sigma_a^2 / W_s$ with low empirical variance irrespective of the specific true $\sigma_a^2$ regime. Furthermore, Figure~\ref{fig:blm_sigma2_a} confirms that the individual mutational variance $\sigma_a^2$ itself is unbiasedly characterized throughout our experimental grid of true stabilizing selection strengths. Combined, these results empirically validate the diffusion approximation detailed in our theory.
+
+\begin{figure}[htpb]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blm_summary_sigma2_a_over_Ws.pdf}
+    \caption{Recovery of the relative genetic architecture parameter. REML estimates of the ratio $\sigma_a^2 / W_s$ are presented across simulation replicates for varying underlying true configurations of stabilizing selection and variance.}
+    \label{fig:blm_sigma2_a_over_ws}
+\end{figure}
+
+\begin{figure}[htpb]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blm_summary_sigma2_a.pdf}
+    \caption{Unbiased recovery of the mutational variance parameter. REML estimates of $\sigma_a^2$ tightly match the theoretical expectations (dashed lines) independently across different selection regimes ($W_s \in \{0.5, 1.0, 2.0\}$).}
+    \label{fig:blm_sigma2_a}
+\end{figure}
 
 \subsection{Genetic prediction}
 
+To assess whether the evolutionary derivation leads to tangible benefits in practical inference tasks, we benchmarked the predictive performance of best linear unbiased prediction (BLUP). Both the stabilized evolutionary model (derived in the previous section) and the standard $\alpha$-model were evaluated across a grid of parameter scenarios. Specifically, we varied the mutational variance parameter $\sigma_a^2$ and the intrinsic phenotypic selection width $W_s$, controlling the architecture's susceptibility to genetic drift versus strong stabilizing selection.
+
+Figure~\ref{fig:blup_prediction} presents the validation $R^2$ and correlation for the two models across independent simulation replicates. Our explicitly derived frequency-dependent architecture mitigates prediction errors associated with alleles subjected to strong selection where traditional $\alpha$-models systematically fail. As the intensity of selection increases relative to mutational variation (decreasing true $W_s$ and increasing $\sigma_a^2$), the baseline $\alpha$-model exhibits highly erratic, deteriorated predictive validation scores. Constrastingly, the theoretically grounded evolutionary architecture remains unbiased, preserving robust and tight predictive correlations and systematically outperforming the heuristic parameterization across all realistic regimes.
+
+\begin{figure}[htpb]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_summary_prediction.pdf}
+    \caption{Benchmark of genetic prediction performance. Validation $R^2$ and correlation across simulated replicates are shown for varying configurations of true $\sigma_a^2$ and selection parameter $W_s$. The evolutionary parameterization systematically outperforms the standard $\alpha$-model, particularly in regimes characterized by strong relative stabilizing selection ($W_s=0.5$).}
+    \label{fig:blup_prediction}
+\end{figure}
 
 \subsection{Post-hoc analysis of GWAS summary statistics}
 
