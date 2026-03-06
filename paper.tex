@@ -38,7 +38,7 @@
     we study how complex traits should be analyzed in the first place under stabilizing selection.
     To this end, we propose a general framework to derive variance component models from evolutionary principles.
     We show that this framework reduces to a linear mixed model with a novel frequency-dependent architecture under the equilibrium limit of stabilizing selection.
-    Next, we account for pleiotropy and show that functional annotations acts on variance components through trait-fitness genetic correlation.
+    Next, we account for pleiotropy and show that functional annotations act on variance components through trait-fitness genetic correlation.
 \end{abstract}
 
 \vspace{1em} 
@@ -441,10 +441,48 @@ Secondly, it is always bounded above by $\sigma_b^2$, so does not diverge to inf
 Nevertheless, it captures the negative correlation between $\hp_j$ and the magnitude of $\beta_j$.
 Finally, it captures the intuition from earlier studies that the relative ratio of mutational variance $\sigma_{a,j}^2$ and selection width $W_S$ determines the system [cite, Hayward].
 
+When majority of variants are small, equation~\ref{eq:beta_cond_var} carries an identification issue.
+To see this,
+\begin{align}
+    \begin{aligned}
+    \E{\beta_j^2 \mid \hp_j} &= 
+         \sigma_{b,j}^2 \cdot 
+    \left[
+        \frac{
+            1 + (1-\rho_{ab,j}^2) \cdot 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)}{
+            1 + 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
+        }
+    \right]  \\
+    &= \sigma_{b,j}^2 \cdot 
+    \left[
+    1 - 
+    \rho_{ab,j}^2 \cdot 
+        \frac{
+             2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)}{
+            1 + 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
+        }
+    \right] \\
+    &\approx \sigma_{b,j}^2 \cdot 
+    \left[
+    1 - 
+             2\frac{\rho_{ab,j}^2\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)
+    \right]
+    \end{aligned}
+\end{align}
+for small $\hp_j$.
+Hence, we essentially have only two parameters: $\sigma_{b}^2$ and $\frac{\rho^2_{ab}\sigma_a^2}{W_S}$.
+
+
 \section{Simulation and empirical study}
 
+
+\textcolor{red}{Everything above is hand-written. All below is GENAI. Curious how people manage to write meaningful stuffs using it. Only the numbers are correct and mostly rubbish.}
+
 \subsection{SLiM simulation}
-Throw config.yaml and .slim to genAI?
+We conducted forward-time, individual-based simulations using the SLiM simulation framework to generate population genetic datasets under an infinite-sites quantitative trait model subject to stabilizing selection. Our foundational scenario simulated a panmictic demographic history with a constant diploid population size of $N=10{,}000$ individuals. To correctly capture the macro-level genetic architecture and linkage blocks, we simulated sequences scaled up to $L=10^6$ loci. Simulation parameters were appropriately scaled from a reference configuration ($L_{\text{ref}}=50{,}000$, $N_{\text{ref}}=10{,}000$) to the active genome sequence to maintain intended target architecture constraints. An aggregate reference mutation rate of $U_{\text{ref}} = 0.01$ yielded a per-locus mutation rate of $\mu = (U_{\text{ref}}/L) \times (N_{\text{ref}}/N) = 10^{-8}$, and the uniform per-generation recombination rate was scaled to $r = 10^{-3} \times (L_{\text{ref}}/L) = 5 \times 10^{-5}$.
+
+The trait architecture was framed by a strictly additive genetic model without environmental variance ($V_E = 0$). Mutational effect sizes were drawn from a zero-centered Gaussian prior with an expected mutational variance $\sigma_a^2$. The fitness dynamics were governed by evaluating individuals' centered additive trait values against an optimizing Gaussian fitness landscape where the parameter $V_S$ dictates selection strength. Specifically, we assessed a systematic parameter grid of $50$ independent simulation replicates per configuration. We varied the population-scaled selection parameter $W_S = V_S / 2N \in \{0.5, 1.0, 2.0\}$ and the genetic variation scalar $\sigma_a^2 \in \{0.5, 1.0, 2.0\}$. All population paths underwent a preliminary burn-in period of $10N$ generations ($\approx 100{,}000$ generations) to reach equilibrium site frequency dynamics, followed by $40{,}000$ further generations simulating the active observational regime.
+
 
 \subsection{Variance component estimation}
 
@@ -467,7 +505,6 @@ We emphasize that the parameterization primarily permits joint estimation of the
 \end{figure}
 
 \subsection{Genetic prediction}
-Fit mixed model and get blup with different parameterizations
 
 To assess whether the evolutionary derivation leads to tangible benefits in practical inference tasks, we benchmarked the predictive performance of best linear unbiased prediction (BLUP). Both the stabilized evolutionary model (derived in the previous section) and the standard $\alpha$-model were evaluated across a grid of parameter scenarios. Specifically, we varied the mutational variance parameter $\sigma_a^2$ and the intrinsic phenotypic selection width $W_s$, controlling the architecture's susceptibility to genetic drift versus strong stabilizing selection.
 
