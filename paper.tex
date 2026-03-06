@@ -472,6 +472,17 @@ To see this,
 for small $\hp_j$.
 Hence, we essentially have only two parameters: $\sigma_{b}^2$ and $\frac{\rho^2_{ab}\sigma_a^2}{W_S}$.
 
+The above expression linearizes the formula, which we found to work poorly for estimation.
+We found that the following parameterization obtained from matching first-order Taylor expansion works the best in practice.
+\begin{align}
+    \begin{aligned}
+     \E{\beta_j^2 \mid \hp_j} &\approx
+     \sigma_{b,j}^2 \cdot
+     \frac{1}{1
+     +2 \frac{\rho_{ab,j}^2\sigma_a^2}{W_S}}.
+    \end{aligned} 
+\end{align}
+
 
 \section{Simulation and empirical study}
 
