@@ -528,8 +528,7 @@ Here, the field is the rest of the genome, or the genetic background, with which
 Because this background consists of a huge number of loci,
 although being stochastic in principle, we instead treat it as a deterministic \emph{average} which gives rise to the term mean-field.
 
-By working with each locus while leaving all else as a deterministic aggregate, 
-it gives rise to the factorized probability in equation~\ref{eq:mean_field}.
+We work with each locus while leaving all else as a deterministic aggregate.
 Under this framework, one can further refine equation~\ref{eq:seff} as (after scaling by $2N$)
 \begin{align} \label{eq:seff_ld}
     \seff(x_j) = \left(x_j-\frac{1}{2}\right)\cdot \left( 
@@ -570,8 +569,8 @@ Solving for $V_g$ with $h(u) V_g \ll V_S$ gives
     V_g = \frac{2L\theta \sigma_a^2}{2 + \frac{\sigma_a^2}{W_S}}.
 \end{align}
 which means that the shape of $h$ is irrelevant under the $V_g \ll V_S$ approximation.
-A locus-level equivalent is derived in [Keightley and Hill 1988, cite].
-With diminishing selection $W_S \rightarrow \infty$, the formula reduces to the classic neutral result $V_G = L\theta\sigma_a^2 = 4NL\mu\sigma_a^2$ [Lynch 1986, cite].
+A locus-level equivalent is derived in \citet{Keightley_1988}.
+With diminishing selection $W_S \rightarrow \infty$, the formula reduces to the classic neutral result $V_G = L\theta\sigma_a^2 = 4NL\mu\sigma_a^2$ \citep{Lynch_1986}.
 
 We now follow the same steps as before to deduce
 \begin{align} \label{eq:arch_final}
