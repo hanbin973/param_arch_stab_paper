@@ -197,16 +197,16 @@ In practice, we only have the sample frequency $\hp_j$ instead of $p_j$, so the 
     \end{aligned}
 \end{align}
 replaces $\Sigma_\beta$.
-The $\alpha=1$ case is the genome-wide complex trait analysis (GCTA) model [cite, Yang].
-Together with $G$, $G \widehat{\Sigma}_{\beta}G^T$ is a genomic estimate of genetic relatedness, called the genomic genetic relatedness matrix (GRM) [cite].
-For a more comprehensive review of different choices of $\Sigma_\beta$, see [cite].
+The $\alpha=1$ case is the genome-wide complex trait analysis (GCTA) model \citep{Yang_2011}.
+Together with $G$, $G \widehat{\Sigma}_{\beta}G^T$ is a genomic estimate of genetic relatedness, called the genomic genetic relatedness matrix (GRM) \citep{Speed_2014}.
+For a more comprehensive review of different choices of $\Sigma_\beta$, see \citep{Lehmann_2025, Weir_2026}.
 
-Despite its empirical success [cite], 
+Despite its empirical success \citep{Speed_2014}, 
 equation~\ref{eq:alpha} and its variants have several theoretical and practical shortcomings.
 In particular, one assumes the formula $\Sigma_\beta = \var{\beta \mid G}$ at the beginning, 
 so the parameters $h^2$ and $\alpha$ are merely tuning parameters without an explicit biological interpretation, although heuristic arguments exist.
 For instance, a positive $\alpha>0$ partially captures the inverse relationship between minor allele frequency and effect size [cite].
-A notable pathological behavior is that $[p_j(1-p_j)]^{-\alpha}$ diverges to infinity as $p_j$ approaches zero, requiring heuristic GRM partitioning over multiple MAF bins if rare variants are involved [cite, Wainschtein].
+A notable pathological behavior is that $[p_j(1-p_j)]^{-\alpha}$ diverges to infinity as $p_j$ approaches zero, requiring heuristic GRM partitioning over multiple MAF bins if rare variants are involved \citep{Wainschtein_2022}.
 Also, it is unclear if the sample frequency $\hp_j$ can replace the true frequency $p_j$, especially in rare variants that tend to exhibit larger sampling variance.
 
 Our framework offers a principled solution to the aforementioned issues.
@@ -233,7 +233,7 @@ We'll assume in the rest of the paper the following:
 \end{align}
 for some constants $\sigma_a^2$, $\sigma_b^2$ and $\rho_{ab}^2$.
 Although the choice looks arbitrary at first sight, 
-the relationship of [Simons et al, 2018]'s framework is a special instance of this parameterization.
+the relationship of \citet{Simons2018popgeninterpretation}'s framework is a special instance of this parameterization.
 Under their isotopic FGM model,
 \begin{align}
     \E{\alpha_1^2 \mid \norm{\alpha}} = \cdots =
@@ -509,6 +509,8 @@ I thank the attendees of New York Area Population Genetics 26 for valuable comme
 This research was supported in part by the National Institute of General Medical Sciences of the
 NIH under award number R35GM151145. The content is solely the responsibility of the authors
 and does not necessarily represent the official views of the NIH.
+
+\printbibliography
 
 
 \appendix
