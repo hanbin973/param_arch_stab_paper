@@ -1,0 +1,15 @@
+simulation_parameters:
+  sigma2_a: [0.5, 1.0, 2.0]   # Prior effect-size variance (constant across L)
+  N: 1.0e4
+  L: 2.0e6                    # Active genome size
+  MUT_RATE: 1.0e-8            # Per-site mutation rate
+  REC_RATE: 1.0e-5            # Per-site recombination rate, REC/MUT = 10^3 to ensure LE
+  VS_SCALE: [1.0, 2.0, 4.0]   # VS = VS_SCALE * 2N; one burn-in per VS_SCALE value
+  RHO: [0.0, 0.707, 1.0]      # Correlation between alpha and beta for the observed trait
+  ALPHA_GRID: [0.0, 0.5, 1.0] # alpha baseline family; alpha=1.0 matches the old vanilla model
+  VE: 0.0
+
+experiment:
+  replicates: 20               # Number of replicate runs
+  burn_in_duration_factor: 10  # BURN_IN = burn_in_duration_factor * N generations
+  sim_length_factor: 5         # SIM_LENGTH = sim_length_factor * N generations after burn-in

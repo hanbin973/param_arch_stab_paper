@@ -1,0 +1,91 @@
+// Burn-in Simulation for Hayward & Sella (2022) — Infinite Sites Model
+initialize() {
+    if (!exists("N")) defineConstant("N", 10000);
+    if (!exists("L")) defineConstant("L", 10000);
+    if (!exists("MUT_RATE")) defineConstant("MUT_RATE", 1e-8);
+    if (!exists("REC_RATE")) defineConstant("REC_RATE", 1e-8);
+
+    if (!exists("VS")) defineConstant("VS", 2.0 * N);
+    if (!exists("SIGMA_A")) defineConstant("SIGMA_A", 1.0);  // SD of m2 effect sizes = sqrt(sigma2_a)
+    
+    if (!exists("VE")) defineConstant("VE", 0.0);
+    if (!exists("OUTPUT_POP")) defineConstant("OUTPUT_POP", "burnin.txt");
+    if (!exists("OUTPUT_FILE")) defineConstant("OUTPUT_FILE", "burnin.csv");
+    if (!exists("BURN_IN")) defineConstant("BURN_IN", 10 * N);
+
+    // m2: Derived Allele (Quantitative Trait) - selectionCoeff used as effect size
+    // Under infinite sites there are no back-mutations, so m3 is not needed.
+    initializeMutationType("m2", 0.5, "n", 0.0, SIGMA_A);
+    
+    initializeGenomicElementType("g1", m2, 1.0);
+    initializeGenomicElement(g1, 0, L-1);
+    initializeMutationRate(MUT_RATE);
+    initializeRecombinationRate(REC_RATE);
+}
+
+1 early() {
+    sim.addSubpop("p1", N);
+    
+    // Alpha/Beta for equilibrium allele frequency distribution (Equation 4 in paper)
+    theta = 4.0 * N * MUT_RATE;
+    defineConstant("ALPHA", theta);
+    defineConstant("BETA", theta);
+    
+    // Initial Mean Centering - MUST happen in early() before first fitness evaluation
+    inds = p1.individuals;
+    phenotypes = inds.sumOfMutationsOfType(m2);
+    defineConstant("INITIAL_MEAN", mean(phenotypes));
+    catn("Total Segregating Sites Injected: " + size(sim.mutationsOfType(m2)));
+    catn("INITIAL_MEAN: " + INITIAL_MEAN);
+    catn("VS: " + VS);
+    catn("SIGMA_A: " + SIGMA_A);
+    
+    writeFile(OUTPUT_FILE, "tick,mean,var,v_genic", append=F);
+}
+
+mutationEffect(m2) {
+    // Treat m2 selection coefficients as trait effect sizes, not fitness effects
+    return 1.0;
+}
+
+fitnessEffect() {
+    if (!exists("INITIAL_MEAN")) return 1.0;
+    phenotype_raw = individual.sumOfMutationsOfType(m2);
+    phenotype_centered = phenotype_raw - INITIAL_MEAN;
+    env_noise = (VE > 0) ? rnorm(1, 0, sqrt(VE)) else 0.0;
+    phenotype_final = phenotype_centered + env_noise;
+    return exp( -1.0 * (phenotype_final^2) / (2.0 * VS) );
+}
+
+// Dynamics Tracking
+2: late() {
+    genetic_values = p1.individuals.sumOfMutationsOfType(m2) - INITIAL_MEAN;
+    mean_p = mean(genetic_values);
+    var_p = var(genetic_values);
+    
+    // Calculate Genic Variance (Vg)
+    muts = sim.mutationsOfType(m2);
+    v_genic = 0.0;
+    if (size(muts) > 0) {
+        freqs = sim.mutationFrequencies(p1, muts);
+        effects = muts.selectionCoeff;
+        v_genic = sum(2.0 * freqs * (1.0 - freqs) * (effects^2));
+    }
+    
+    log_line = paste(c(community.tick, mean_p, var_p, v_genic), sep=",");
+    writeFile(OUTPUT_FILE, log_line, append=T);
+}
+
+// Termination and Save
+s1 2 late() {
+    if (community.tick == BURN_IN) {
+        sim.outputFull(OUTPUT_POP);
+        catn("Burn-in complete at tick " + community.tick);
+        sim.simulationFinished();
+    }
+}
+
+// Reschedule the termination block
+1 early() {
+    community.rescheduleScriptBlock(s1, start=BURN_IN, end=BURN_IN);
+}

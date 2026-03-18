@@ -1,0 +1,125 @@
+// Main Simulation for Hayward & Sella (2022) - Replicate Run — Infinite Sites Model
+initialize() {
+    if (!exists("LOAD_POP_FILE")) stop("LOAD_POP_FILE must be defined");
+    if (!exists("OUTPUT_FILE")) defineConstant("OUTPUT_FILE", "output.csv");
+    if (!exists("OUTPUT_POP_FILE")) defineConstant("OUTPUT_POP_FILE", "output.txt");
+    if (!exists("OUTPUT_VCF_FILE")) defineConstant("OUTPUT_VCF_FILE", "output.vcf");
+    if (!exists("OUTPUT_PHENO_DIR")) defineConstant("OUTPUT_PHENO_DIR", ".");
+    if (!exists("RHO_LIST")) defineConstant("RHO_LIST", "1.0");
+    if (!exists("REP_ID")) defineConstant("REP_ID", 0);
+    if (!exists("SIM_LENGTH")) defineConstant("SIM_LENGTH", 1000);
+    
+    // These must match burnin.slim for consistency upon loading
+    if (!exists("N")) defineConstant("N", 10000);
+    if (!exists("L")) defineConstant("L", 50000);
+    if (!exists("MUT_RATE")) defineConstant("MUT_RATE", 1e-8);
+    if (!exists("REC_RATE")) defineConstant("REC_RATE", 1e-8);
+    
+    if (!exists("VS")) defineConstant("VS", 2.0 * N);
+    if (!exists("VE")) defineConstant("VE", 0.0);
+    if (!exists("SIGMA_A")) defineConstant("SIGMA_A", 1.0);  // SD of m2 effect sizes = sqrt(sigma2_a)
+
+    // Under infinite sites, m3 back-mutations are not needed.
+    initializeMutationType("m2", 0.5, "n", 0.0, SIGMA_A);
+    
+    initializeGenomicElementType("g1", m2, 1.0);
+    initializeGenomicElement(g1, 0, L-1);
+    initializeMutationRate(MUT_RATE);
+    initializeRecombinationRate(REC_RATE);
+}
+
+1 early() {
+    sim.readFromPopulationFile(LOAD_POP_FILE);
+    
+    // Reschedule events relative to the loaded tick
+    start_tick = community.tick + 1;
+    end_tick = community.tick + SIM_LENGTH;
+    
+    community.rescheduleScriptBlock(s1, start=start_tick, end=end_tick);
+    community.rescheduleScriptBlock(s2, start=end_tick, end=end_tick);
+    
+    // Initial centering logic
+    inds = p1.individuals;
+    phenotypes = inds.sumOfMutationsOfType(m2);
+    defineConstant("INITIAL_MEAN", mean(phenotypes));
+    
+    writeFile(OUTPUT_FILE, "tick,mean,var,v_genic", append=F);
+}
+
+mutationEffect(m2) {
+    // Treat m2 selection coefficients as trait effect sizes, not fitness effects
+    return 1.0;
+}
+
+// Dynamics Tracking
+s1 2: late() {
+    genetic_values = p1.individuals.sumOfMutationsOfType(m2) - INITIAL_MEAN;
+    mean_p = mean(genetic_values);
+    var_p = var(genetic_values);
+    
+    // Calculate Genic Variance (Vg)
+    muts = sim.mutationsOfType(m2);
+    v_genic = 0.0;
+    if (size(muts) > 0) {
+        freqs = sim.mutationFrequencies(p1, muts);
+        effects = muts.selectionCoeff;
+        v_genic = sum(2.0 * freqs * (1.0 - freqs) * (effects^2));
+    }
+    
+    log_line = paste(c(community.tick, mean_p, var_p, v_genic), sep=",");
+    writeFile(OUTPUT_FILE, log_line, append=T);
+}
+
+fitnessEffect() {
+    if (!exists("INITIAL_MEAN")) return 1.0;
+    phenotype_raw = individual.sumOfMutationsOfType(m2);
+    phenotype_centered = phenotype_raw - INITIAL_MEAN;
+    env_noise = (VE > 0) ? rnorm(1, 0, sqrt(VE)) else 0.0;
+    phenotype_final = phenotype_centered + env_noise;
+    return exp( -1.0 * (phenotype_final^2) / (2.0 * VS) );
+}
+
+// Termination
+s2 1000 late() {
+    inds = p1.individuals;
+    muts = sim.mutationsOfType(m2);
+    rho_strings = strsplit(RHO_LIST, ",");
+
+    // Export one observed-trait phenotype file per rho using beta | alpha.
+    for (rho_str in rho_strings) {
+        rho = asFloat(rho_str);
+        key = "beta_rho_" + rho_str;
+        beta_sd = sqrt(max(c(0.0, 1.0 - rho^2))) * SIGMA_A;
+
+        if (size(muts) > 0) {
+            for (mut in muts) {
+                beta_mean = rho * mut.selectionCoeff;
+                beta = beta_mean + ((beta_sd > 0.0) ? rnorm(1, 0.0, beta_sd) else 0.0);
+                mut.setValue(key, beta);
+            }
+        }
+
+        phenotypes = c();
+        for (ind in inds) {
+            ph = 0.0;
+            g1_muts = ind.haplosomes[0].mutationsOfType(m2);
+            g2_muts = ind.haplosomes[1].mutationsOfType(m2);
+            if (size(g1_muts) > 0) {
+                ph = ph + sum(g1_muts.getValue(key));
+            }
+            if (size(g2_muts) > 0) {
+                ph = ph + sum(g2_muts.getValue(key));
+            }
+            phenotypes = c(phenotypes, ph);
+        }
+
+        pheno_lines = paste(phenotypes, sep="\n");
+        pheno_file = OUTPUT_PHENO_DIR + "/rho" + rho_str + "/rep_" + REP_ID + ".pheno";
+        writeFile(pheno_file, pheno_lines, append=F);
+    }
+    
+    sim.outputFull(OUTPUT_POP_FILE);
+    p1.individuals.outputIndividualsToVCF(OUTPUT_VCF_FILE);
+    catn("Replicate finished at tick " + community.tick);
+    community.simulationFinished();
+}

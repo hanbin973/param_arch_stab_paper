@@ -1,0 +1,332 @@
+import math
+import yaml
+
+with open("config.yaml", "r") as f:
+    config = yaml.safe_load(f)
+
+sim = config["simulation_parameters"]
+exp = config["experiment"]
+
+
+def as_float(value):
+    return float(value)
+
+
+def as_int(value):
+    return int(float(value))
+
+
+N = as_int(sim["N"])
+L = as_int(sim["L"])
+MUT_RATE = as_float(sim["MUT_RATE"])
+REC_RATE = as_float(sim["REC_RATE"])
+VE = as_float(sim["VE"])
+replicates = range(exp["replicates"])
+vs_scale_vals = sim["VS_SCALE"]
+sigma2_a_vals = sim["sigma2_a"]
+rho_vals = sim["RHO"]
+
+vs_scales = [str(v) for v in vs_scale_vals]
+sigma2_as = [str(s) for s in sigma2_a_vals]
+rhos = [str(r) for r in rho_vals]
+
+localrules: plot_blm, plot_blm_grid, plot_blup_grid, plot_blup_sigma2a_grid, plot_blup_grid_rho1_fixed, plot_blup_sigma2a_grid_rho1_fixed
+
+
+rule all:
+    input:
+        expand(
+            "results/blm/rho{rho}/vs{vs_scale}_sa{sigma2_a}/rep_{rep_id}.csv",
+            rho=rhos,
+            vs_scale=vs_scales,
+            sigma2_a=sigma2_as,
+            rep_id=replicates,
+        ),
+        expand(
+            "results/blup/rho{rho}/vs{vs_scale}_sa{sigma2_a}/rep_{rep_id}.csv",
+            rho=rhos,
+            vs_scale=vs_scales,
+            sigma2_a=sigma2_as,
+            rep_id=replicates,
+        ),
+        expand(
+            "plots/vs{vs_scale}_sa{sigma2_a}_rho{rho}.png",
+            rho=rhos,
+            vs_scale=vs_scales,
+            sigma2_a=sigma2_as,
+        ),
+        "plots/blm_summary_sigma2_a_over_Ws.pdf",
+        "plots/blm_summary_sigma2_a.pdf",
+        "plots/blup_summary_prediction.pdf",
+        "plots/blup_sigma2a_estimates.pdf",
+        "plots/blup_summary_prediction_rho1_fixed.pdf",
+        "plots/blup_sigma2a_estimates_rho1_fixed.pdf",
+
+
+rule burn_in:
+    input:
+        "scripts/burnin.slim",
+        "config.yaml",
+    output:
+        pop_txt="results/burnin/vs{vs_scale}_sa{sigma2_a}/burnin.txt",
+        csv="results/burnin/vs{vs_scale}_sa{sigma2_a}/burnin.csv",
+    resources:
+        slurm_mem="2g",
+        time="0-12:00:00",
+        partition="standard",
+        account="jonth1",
+    params:
+        N=N,
+        L=L,
+        MUT_RATE=MUT_RATE,
+        REC_RATE=REC_RATE,
+        BURN_IN=int(N * exp["burn_in_duration_factor"]),
+        VS=lambda wildcards: 2 * N * float(wildcards.vs_scale),
+        SIGMA_A=lambda wildcards: math.sqrt(float(wildcards.sigma2_a)),
+    shell:
+        """
+        slim -d N={params.N} -d L={params.L} -d MUT_RATE={params.MUT_RATE} \
+             -d BURN_IN={params.BURN_IN} \
+             -d REC_RATE={params.REC_RATE} \
+             -d VS={params.VS} \
+             -d SIGMA_A={params.SIGMA_A} \
+             -d "OUTPUT_POP='{output.pop_txt}'" \
+             -d "OUTPUT_FILE='{output.csv}'" scripts/burnin.slim
+        """
+
+
+rule replicate:
+    input:
+        pop_txt="results/burnin/vs{vs_scale}_sa{sigma2_a}/burnin.txt",
+        script="scripts/main.slim",
+        config="config.yaml",
+    output:
+        csv="results/vs{vs_scale}_sa{sigma2_a}/replicates/rep_{rep_id}.csv",
+        pop_txt="results/vs{vs_scale}_sa{sigma2_a}/replicates/pop/rep_{rep_id}.txt",
+        vcf="results/vs{vs_scale}_sa{sigma2_a}/replicates/vcf/rep_{rep_id}.vcf",
+        pheno=expand(
+            "results/vs{{vs_scale}}_sa{{sigma2_a}}/replicates/pheno/rho{rho}/rep_{{rep_id}}.pheno",
+            rho=rhos,
+        ),
+    resources:
+        slurm_mem="2g",
+        time="0-06:00:00",
+        partition="standard",
+        account="jonth1",
+    params:
+        N=N,
+        L=L,
+        MUT_RATE=MUT_RATE,
+        REC_RATE=REC_RATE,
+        VS=lambda wildcards: 2 * N * float(wildcards.vs_scale),
+        SIGMA_A=lambda wildcards: math.sqrt(float(wildcards.sigma2_a)),
+        VE=VE,
+        SIM_LENGTH=int(N * exp["sim_length_factor"]),
+        PHENO_DIR=lambda wildcards: (
+            f"results/vs{wildcards.vs_scale}_sa{wildcards.sigma2_a}/replicates/pheno"
+        ),
+        PHENO_DIRS=lambda wildcards: " ".join(
+            f"results/vs{wildcards.vs_scale}_sa{wildcards.sigma2_a}/replicates/pheno/rho{rho}"
+            for rho in rhos
+        ),
+        RHO_LIST=",".join(rhos),
+    shell:
+        """
+        mkdir -p {params.PHENO_DIRS}
+        slim -s {wildcards.rep_id} \
+             -d "LOAD_POP_FILE='{input.pop_txt}'" \
+             -d N={params.N} -d L={params.L} \
+             -d MUT_RATE={params.MUT_RATE} \
+             -d REC_RATE={params.REC_RATE} \
+             -d VS={params.VS} -d VE={params.VE} \
+             -d SIGMA_A={params.SIGMA_A} \
+             -d REP_ID={wildcards.rep_id} \
+             -d "RHO_LIST='{params.RHO_LIST}'" \
+             -d SIM_LENGTH={params.SIM_LENGTH} \
+             -d "OUTPUT_FILE='{output.csv}'" \
+             -d "OUTPUT_POP_FILE='{output.pop_txt}'" \
+             -d "OUTPUT_VCF_FILE='{output.vcf}'" \
+             -d "OUTPUT_PHENO_DIR='{params.PHENO_DIR}'" scripts/main.slim
+        """
+
+
+rule fit_blm:
+    input:
+        vcf="results/vs{vs_scale}_sa{sigma2_a}/replicates/vcf/rep_{rep_id}.vcf",
+        pheno="results/vs{vs_scale}_sa{sigma2_a}/replicates/pheno/rho{rho}/rep_{rep_id}.pheno",
+    output:
+        "results/blm/rho{rho}/vs{vs_scale}_sa{sigma2_a}/rep_{rep_id}.csv",
+    resources:
+        slurm_mem="8g",
+        time="0-00:30:00",
+        partition="standard",
+        account="jonth1",
+    threads: 4
+    shell:
+        "python scripts/fit_blm.py {input.vcf} {input.pheno} {wildcards.rep_id} {wildcards.sigma2_a} {wildcards.vs_scale} {wildcards.rho} {output}"
+
+
+rule blup:
+    input:
+        vcf="results/vs{vs_scale}_sa{sigma2_a}/replicates/vcf/rep_{rep_id}.vcf",
+        pheno="results/vs{vs_scale}_sa{sigma2_a}/replicates/pheno/rho{rho}/rep_{rep_id}.pheno",
+        script="scripts/blup_predict.py",
+        config="config.yaml",
+    output:
+        "results/blup/rho{rho}/vs{vs_scale}_sa{sigma2_a}/rep_{rep_id}.csv",
+    resources:
+        slurm_mem="8g",
+        time="0-01:00:00",
+        partition="standard",
+        account="jonth1",
+    shell:
+        "python scripts/blup_predict.py {input.vcf} {input.pheno} {wildcards.rep_id} {wildcards.sigma2_a} {wildcards.vs_scale} {wildcards.rho} {output}"
+
+
+rule blup_rho1_fixed:
+    input:
+        vcf="results/vs{vs_scale}_sa{sigma2_a}/replicates/vcf/rep_{rep_id}.vcf",
+        pheno="results/vs{vs_scale}_sa{sigma2_a}/replicates/pheno/rho{rho}/rep_{rep_id}.pheno",
+        script="scripts/blup_predict_rho1.py",
+        shared="scripts/blup_predict.py",
+        fit_blm="scripts/fit_blm.py",
+        config="config.yaml",
+    output:
+        "results/blup_rho1_fixed/rho{rho}/vs{vs_scale}_sa{sigma2_a}/rep_{rep_id}.csv",
+    resources:
+        slurm_mem="8g",
+        time="0-01:00:00",
+        partition="standard",
+        account="jonth1",
+    shell:
+        "python scripts/blup_predict_rho1.py {input.vcf} {input.pheno} {wildcards.rep_id} {wildcards.sigma2_a} {wildcards.vs_scale} {wildcards.rho} {output}"
+
+
+rule plot_blm:
+    input:
+        expand(
+            "results/blm/rho{{rho}}/vs{{vs_scale}}_sa{{sigma2_a}}/rep_{rep_id}.csv",
+            rep_id=replicates,
+        ),
+    output:
+        "plots/vs{vs_scale}_sa{sigma2_a}_rho{rho}.png",
+    resources:
+        slurm_mem="2g",
+        time="0-00:10:00",
+        partition="debug",
+        account="jonth1",
+    params:
+        blm_dir="results/blm/rho{rho}/vs{vs_scale}_sa{sigma2_a}",
+    shell:
+        "python scripts/plot_blm.py {params.blm_dir} {output} {wildcards.vs_scale} {wildcards.sigma2_a} {wildcards.rho}"
+
+
+rule plot_blm_grid:
+    input:
+        expand(
+            "results/blm/rho{rho}/vs{vs_scale}_sa{sigma2_a}/rep_{rep_id}.csv",
+            rho=rhos,
+            vs_scale=vs_scales,
+            sigma2_a=sigma2_as,
+            rep_id=replicates,
+        ),
+        "scripts/plot_blm_grid.py",
+        "config.yaml",
+    output:
+        "plots/blm_summary_sigma2_a_over_Ws.pdf",
+        "plots/blm_summary_sigma2_a.pdf",
+    resources:
+        slurm_mem="2g",
+        time="0-00:10:00",
+        partition="debug",
+        account="jonth1",
+    shell:
+        "python scripts/plot_blm_grid.py {output[0]} {output[1]}"
+
+
+rule plot_blup_grid:
+    input:
+        expand(
+            "results/blup/rho{rho}/vs{vs_scale}_sa{sigma2_a}/rep_{rep_id}.csv",
+            rho=rhos,
+            vs_scale=vs_scales,
+            sigma2_a=sigma2_as,
+            rep_id=replicates,
+        ),
+        "scripts/plot_blup_grid.py",
+        "config.yaml",
+    output:
+        "plots/blup_summary_prediction.pdf",
+    resources:
+        slurm_mem="2g",
+        time="0-00:10:00",
+        partition="debug",
+        account="jonth1",
+    shell:
+        "python scripts/plot_blup_grid.py {output}"
+
+
+rule plot_blup_sigma2a_grid:
+    input:
+        expand(
+            "results/blup/rho{rho}/vs{vs_scale}_sa{sigma2_a}/rep_{rep_id}.csv",
+            rho=rhos,
+            vs_scale=vs_scales,
+            sigma2_a=sigma2_as,
+            rep_id=replicates,
+        ),
+        "scripts/plot_blup_sigma2a_grid.py",
+        "config.yaml",
+    output:
+        "plots/blup_sigma2a_estimates.pdf",
+    resources:
+        slurm_mem="2g",
+        time="0-00:10:00",
+        partition="debug",
+        account="jonth1",
+    shell:
+        "python scripts/plot_blup_sigma2a_grid.py --results-base results/blup --output {output}"
+
+
+rule plot_blup_grid_rho1_fixed:
+    input:
+        expand(
+            "results/blup_rho1_fixed/rho{rho}/vs{vs_scale}_sa{sigma2_a}/rep_{rep_id}.csv",
+            rho=rhos,
+            vs_scale=vs_scales,
+            sigma2_a=sigma2_as,
+            rep_id=replicates,
+        ),
+        "scripts/plot_blup_grid_rho1.py",
+        "config.yaml",
+    output:
+        "plots/blup_summary_prediction_rho1_fixed.pdf",
+    resources:
+        slurm_mem="2g",
+        time="0-00:10:00",
+        partition="debug",
+        account="jonth1",
+    shell:
+        "python scripts/plot_blup_grid_rho1.py {output}"
+
+
+rule plot_blup_sigma2a_grid_rho1_fixed:
+    input:
+        expand(
+            "results/blup_rho1_fixed/rho{rho}/vs{vs_scale}_sa{sigma2_a}/rep_{rep_id}.csv",
+            rho=rhos,
+            vs_scale=vs_scales,
+            sigma2_a=sigma2_as,
+            rep_id=replicates,
+        ),
+        "scripts/plot_blup_sigma2a_grid_rho1.py",
+        "config.yaml",
+    output:
+        "plots/blup_sigma2a_estimates_rho1_fixed.pdf",
+    resources:
+        slurm_mem="2g",
+        time="0-00:10:00",
+        partition="debug",
+        account="jonth1",
+    shell:
+        "python scripts/plot_blup_sigma2a_grid_rho1.py --results-base results/blup_rho1_fixed --output {output}"

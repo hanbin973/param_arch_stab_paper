@@ -1,15 +1,82 @@
+# ----------------------
+# Python
+# ----------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Tooling caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.pyre/
+.hypothesis/
+.tox/
+.nox/
+
+# Coverage / test output
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Packaging / build
+build/
+dist/
+site/
+.eggs/
+*.egg
+*.egg-info/
+pip-wheel-metadata/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment / local settings
+.env
+.env.*
+.python-version
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+
+# ----------------------
+# LaTeX / TeX
+# ----------------------
 *.aux
-*.log
-*.out
 *.bbl
-*.blg
-*.fls
-*.fdb_latexmk
-*.synctex.gz
-main.pdf
-.*.swp
-*-eps-converted-to.pdf
 *.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.nav
+*.out
 *.run.xml
-.ipynb_checkpoints
-__pycache__
+*.snm
+*.synctex.gz
+*.toc
+*.xdv
+
+# Generated directories
+_build/
+build/
+out/
+
+# Optional: ignore compiled manuscript PDFs, but keep source figure PDFs tracked
+# paper.pdf
+# main.pdf
+
