@@ -117,7 +117,7 @@ we obtain
 with the forward Kolmogorov equation given by
 \begin{align} \label{eq:fwd_kolmogorov_scaled}
     \begin{aligned}
-     \pard{p(x,t;\alpha)}{t} 
+     \pard{p(x,t;\norm{\alpha})}{t} 
      =& -\pard{}{x} 
      \left[
      \left(
@@ -125,22 +125,22 @@ with the forward Kolmogorov equation given by
         \frac{\norm{\alpha}^2}{W_S}
         + \frac{1}{2}\theta(1-2X_t)
         \right)
-        p(x,t;\alpha)
+        p(x,t;\norm{\alpha})
      \right] \\
-     &+\frac{1}{2} \pard[2]{}{x}[x(1-x)p(x,t;\alpha)].
+     &+\frac{1}{2} \pard[2]{}{x}[x(1-x)p(x,t;\norm{\alpha})].
      \end{aligned}
 \end{align}
 
-We'll make use of the stationary density $p(x,t;\alpha)$ of equation~\ref{eq:fwd_kolmogorov_scaled}.
+We'll make use of the stationary density $p(x,t;\norm{\alpha})$ of equation~\ref{eq:fwd_kolmogorov_scaled}.
 This can be obtained by setting the left-hand side to zero, meaning that the density does not change with respect to $t$ \citep{Ewens2004mathpopgen}.
 \begin{align} \label{eq:stat_dist}
-     p_{\infty}(x;\alpha) = C(\alpha)^{-1} \cdot
+     p_{\infty}(x;\norm{\alpha}) = C(\norm{\alpha})^{-1} \cdot
      x^{\theta-1}(1-x)^{\theta-1} 
      \exp\left[-\frac{\norm{\alpha}^2}{W_S}x(1-x) \right]
 \end{align}
 with the normalizing constant 
 \begin{align} \label{eq:norm_const}
-    C(\alpha) = \int_0^1 x^{\theta-1}(1-x)^{\theta-1} 
+    C(\norm{\alpha}) = \int_0^1 x^{\theta-1}(1-x)^{\theta-1} 
     \exp\left[-\frac{\norm{\alpha}^2}{W_S}x(1-x) \right] dx = B(\theta, \theta) 
     \cdot {_1F_1} \left(
     \theta; \theta + \frac{1}{2}; -\frac{\norm{\alpha}^2}{4W_S}
@@ -150,11 +150,11 @@ where $_1F_1(a;b;z)$ is the Kummer's hypergeometric function.
 Fortunately, $_1F_1(a;b;z) = 1 + \mathcal{O}(a)$, so we can ignore the factor as $\theta \rightarrow 0$ [cite].
 Hence,
 \begin{align}
-    p_{\infty}(x ; \alpha) \ \propto \
+    p_{\infty}(x ; \norm{\alpha}) \ \propto \
     x^{\theta-1}(1-x)^{\theta-1}
     \exp\left[-\frac{\norm{\alpha}^2}{W_S}x(1-x) \right]
 \end{align}
-after suppressing $C(\alpha) \approx B(\theta, \theta)$.
+after suppressing $C(\norm{\alpha}) \approx B(\theta, \theta)$.
 
 \subsection{Connecting evolution to mixed-effects models}
 
@@ -216,11 +216,11 @@ thereby we get $\var{\beta_j \mid G} = \E{\beta_j^2 \mid G}$.
 Then, we can derive $\E{\beta_j^2 \mid G}$ from
 \begin{align} \label{eq:goal2}
     \E{\beta_j^2 \mid G} = \E{\E{\beta_j^2 \mid G, \norm{\alpha_j}} \mid G} = \E{\E{\beta_j^2 \mid \norm{\alpha_j}} \mid G} = \int 
-    \E{\beta_j^2 \mid \norm{\alpha_j}} \cdot p(\alpha_j \mid G) d\alpha_j
+    \E{\beta_j^2 \mid \norm{\alpha_j}} \cdot p(\norm{\alpha_j} \mid G) d\norm{\alpha_j}
 \end{align}
 where $\alpha_j$ is the effect size \emph{vector} of the $j$-th locus (previously we used the subscript $i$ on $\alpha$ to denote the corresponding $i$-th trait).
 What is left is to determine $\E{\beta^2 \mid \norm{\alpha}}$, which measures how much the focal trait's effect $\beta$ is determined by the overall fitness effect $\alpha$,
-and $p(\alpha  \mid G)$, the likely value of overall fitness given the genotype data
+and $p(\norm{\alpha} \mid G)$, the likely value of overall fitness given the genotype data
 from a given evolutionary model.
 The following section will explain how this is done in the case of stabilizing selection.
 Once these steps are done, we can use restricted maximum likelihood (REML) estimator to estimate the parameters appearing the model.
@@ -295,13 +295,13 @@ The first term of the product is
     &=
     \int_0^1 
     p(G_j \mid x_j)
-    p_{\infty}(x_j \mid \alpha_j)
+    p_{\infty}(x_j \mid \norm{\alpha_j})
     dx_j \\
     &=
     \int_0^1 
     \binom{2n}{k_j} 
     x_j^{k_j}(1-x_j)^{2n-k_j}
-    \pinf(x_j \mid \alpha_j) 
+    \pinf(x_j \mid \norm{\alpha_j}) 
     dx_j \\
     & \ \propto \ \int_0^1   
     \binom{2n}{k_j} 
