@@ -8,9 +8,9 @@ Usage:
 
 Accepted DOI forms include bare DOIs, ``doi:...`` strings, and DOI URLs such
 as ``https://doi.org/...`` or ``http://dx.doi.org/...``. The script fetches the
-BibTeX entry through the installed ``doi2bib`` package and appends it to the
-target bibliography file unless an entry with the same BibTeX key or DOI is
-already present.
+BibTeX entry through the installed ``doi2bib`` package, adds it to the target
+bibliography file unless an entry with the same BibTeX key or DOI is already
+present, and then rewrites the file in author alphabetical order.
 """
 
 from __future__ import annotations
@@ -23,6 +23,8 @@ from pathlib import Path
 import bibtexparser
 from doi2bib.crossref import get_bib_from_doi
 
+from bibsort import load_bibliography, write_sorted_bibliography
+
 DOI_PATTERN = re.compile(r"(10\.\d{4,9}/[-._;()/:A-Z0-9]+)", re.IGNORECASE)
 
 
@@ -34,13 +36,6 @@ def extract_doi(raw: str) -> str:
         raise ValueError(f"Could not parse a DOI from: {raw!r}")
     doi = match.group(1).rstrip(").,;]}>\"'")
     return doi
-
-
-def load_bibliography(path: Path):
-    """Load an existing BibTeX file, or return an empty database if missing."""
-    if not path.exists() or path.stat().st_size == 0:
-        return bibtexparser.loads("")
-    return bibtexparser.loads(path.read_text(encoding="utf-8"))
 
 
 def existing_keys_and_dois(db) -> tuple[set[str], set[str]]:
@@ -65,8 +60,8 @@ def existing_keys_and_dois(db) -> tuple[set[str], set[str]]:
     return keys, dois
 
 
-def fetch_bibtex(raw_doi: str, abstract: bool = False) -> tuple[str, dict]:
-    """Fetch BibTeX for a DOI through ``doi2bib`` and return the raw entry plus parsed data."""
+def fetch_bibtex(raw_doi: str, abstract: bool = False) -> dict:
+    """Fetch BibTeX for a DOI through ``doi2bib`` and return the parsed entry."""
     doi = extract_doi(raw_doi)
     found, bibtex = get_bib_from_doi(doi, add_abstract=abstract)
     if not found or not bibtex.strip():
@@ -76,7 +71,7 @@ def fetch_bibtex(raw_doi: str, abstract: bool = False) -> tuple[str, dict]:
     if not getattr(db, "entries", []):
         raise RuntimeError(f"doi2bib returned no parsable entries for DOI: {raw_doi}")
 
-    return bibtex.strip(), db.entries[0]
+    return db.entries[0]
 
 
 def add_doi_to_bib(raw_doi: str, bib_path: Path, abstract: bool = False) -> bool:
@@ -91,7 +86,7 @@ def add_doi_to_bib(raw_doi: str, bib_path: Path, abstract: bool = False) -> bool
     ``bib_path``, the function reports the duplicate and skips appending it.
     Returns ``True`` when an entry is added and ``False`` when it is skipped.
     """
-    raw_bibtex, new_entry = fetch_bibtex(raw_doi, abstract=abstract)
+    new_entry = fetch_bibtex(raw_doi, abstract=abstract)
     new_key = (new_entry.get("ID") or "").strip()
     new_doi = ""
     for field in ("doi", "DOI"):
@@ -113,13 +108,8 @@ def add_doi_to_bib(raw_doi: str, bib_path: Path, abstract: bool = False) -> bool
         )
         return False
 
-    bib_path.parent.mkdir(parents=True, exist_ok=True)
-    with bib_path.open("a", encoding="utf-8") as handle:
-        if bib_path.exists() and bib_path.stat().st_size > 0:
-            handle.write("\n\n")
-        handle.write(raw_bibtex.rstrip())
-        handle.write("\n")
-
+    db.entries.append(new_entry)
+    write_sorted_bibliography(bib_path, db)
     print(f"Added {new_key or raw_doi} to {bib_path}")
     return True
 
@@ -156,6 +146,7 @@ def main() -> int:
         except Exception as exc:  # noqa: BLE001
             print(f"Failed to add {raw_doi!r}: {exc}", file=sys.stderr)
             return 1
+    write_sorted_bibliography(bib_path)
     return 0
 
 

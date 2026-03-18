@@ -8,8 +8,9 @@ Usage:
 Accepted ISBN forms include bare ISBN-10/ISBN-13 values, hyphenated strings,
 ``isbn:...`` prefixes, and text containing an ISBN. The script normalizes the
 input, looks up book metadata through public APIs, converts the result to a
-BibTeX ``@book`` entry, and appends it to the target bibliography unless an
-entry with the same BibTeX key or ISBN already exists.
+BibTeX ``@book`` entry, and adds it to the target bibliography unless an entry
+with the same BibTeX key or ISBN already exists. The bibliography is then
+rewritten in author alphabetical order.
 """
 
 from __future__ import annotations
@@ -21,8 +22,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-import bibtexparser
 import requests
+
+from bibsort import load_bibliography, write_sorted_bibliography
 
 OPEN_LIBRARY_URL = "https://openlibrary.org/api/books"
 GOOGLE_BOOKS_URL = "https://www.googleapis.com/books/v1/volumes"
@@ -132,13 +134,6 @@ def isbn_variants(raw: str) -> list[str]:
             seen.add(item)
             deduped.append(item)
     return deduped
-
-
-def load_bibliography(path: Path):
-    """Load an existing BibTeX file, or return an empty database if missing."""
-    if not path.exists() or path.stat().st_size == 0:
-        return bibtexparser.loads("")
-    return bibtexparser.loads(path.read_text(encoding="utf-8"))
 
 
 def existing_keys_and_isbns(db) -> tuple[set[str], set[str]]:
@@ -293,25 +288,14 @@ def bib_key(metadata: BookMetadata) -> str:
     return f"{first_author}{year}{title_bits}"
 
 
-def escape_bibtex(value: str) -> str:
-    """Escape a string for inclusion in a BibTeX field."""
-    return (
-        value.replace("\\", r"\\")
-        .replace("{", r"\{")
-        .replace("}", r"\}")
-        .replace("%", r"\%")
-        .replace("&", r"\&")
-    )
-
-
 def format_authors(authors: Iterable[str]) -> str:
     """Format authors in BibTeX's ``and``-separated style."""
     cleaned = [a.strip() for a in authors if a and a.strip()]
     return " and ".join(cleaned)
 
 
-def build_book_entry(metadata: BookMetadata) -> tuple[str, dict[str, str]]:
-    """Build a BibTeX ``@book`` entry and its parsed field dictionary."""
+def build_book_entry(metadata: BookMetadata) -> dict[str, str]:
+    """Build a BibTeX ``@book`` entry as a parsed field dictionary."""
     key = bib_key(metadata)
     fields: dict[str, str] = {
         "title": metadata.title,
@@ -327,12 +311,9 @@ def build_book_entry(metadata: BookMetadata) -> tuple[str, dict[str, str]]:
     if metadata.source_url:
         fields["url"] = metadata.source_url
 
-    lines = [f"@book{{{key},"]
-    for field in ("author", "title", "publisher", "year", "isbn", "url"):
-        if field in fields:
-            lines.append(f"  {field} = {{{escape_bibtex(fields[field])}}},")
-    lines.append("}")
-    return "\n".join(lines), {"ID": key, **fields}
+    entry = {"ENTRYTYPE": "book", "ID": key}
+    entry.update(fields)
+    return entry
 
 
 def add_isbn_to_bib(raw_isbn: str, bib_path: Path) -> bool:
@@ -348,11 +329,11 @@ def add_isbn_to_bib(raw_isbn: str, bib_path: Path) -> bool:
     Returns ``True`` when an entry is added and ``False`` when it is skipped.
     """
     metadata = fetch_book_metadata(raw_isbn)
-    raw_bibtex, new_entry = build_book_entry(metadata)
+    new_entry = build_book_entry(metadata)
 
     db = load_bibliography(bib_path)
     existing_keys, existing_isbns = existing_keys_and_isbns(db)
-    new_key = new_entry.get("ID", "").strip()
+    new_key = str(new_entry.get("ID", "")).strip()
     new_isbns = set(isbn_variants(metadata.isbn))
 
     if new_key in existing_keys or bool(new_isbns & existing_isbns):
@@ -363,14 +344,8 @@ def add_isbn_to_bib(raw_isbn: str, bib_path: Path) -> bool:
         )
         return False
 
-    bib_path.parent.mkdir(parents=True, exist_ok=True)
-    needs_separator = bib_path.exists() and bib_path.stat().st_size > 0
-    with bib_path.open("a", encoding="utf-8") as handle:
-        if needs_separator:
-            handle.write("\n\n")
-        handle.write(raw_bibtex.rstrip())
-        handle.write("\n")
-
+    db.entries.append(new_entry)
+    write_sorted_bibliography(bib_path, db)
     print(f"Added {new_key} to {bib_path}")
     return True
 
@@ -402,6 +377,7 @@ def main() -> int:
         except Exception as exc:  # noqa: BLE001
             print(f"Failed to add {raw_isbn!r}: {exc}", file=sys.stderr)
             return 1
+    write_sorted_bibliography(bib_path)
     return 0
 
 
