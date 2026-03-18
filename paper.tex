@@ -458,6 +458,18 @@ A temporary fix is to fit a model by assuming $\rho_{ab}=1$ and treat the result
 In the appendix, we found that this degrades the estimator's precision but has negligible impact on genetic prediction by BLUP.
 We also find that estimation of $\sigma_b^2$ remains stable despite this slight misspecification.
 
+\paragraph{Recovering the overall variance scale}
+An additional feature of the simulations is that the overall scale parameter $\sigma_b^2$ is much easier to estimate than the selection-sensitive ratio $\sigma_a^2/W_S$.
+This is reasonable because $\sigma_b^2$ controls the bulk magnitude of the covariance structure, whereas $\sigma_a^2/W_S$ only enters through a comparatively subtle modulation by allele frequency.
+Consequently, even when the shape of the frequency dependence is only weakly identified, the model can still match the aggregate phenotypic variance carried by the focal trait.
+This separation between a well-identified scale parameter and a weakly identified shape parameter may be useful in applications, since it suggests that some aspects of the architecture can remain estimable even when the evolutionary decomposition is only partially resolved.
+
+\paragraph{When the focal trait is decoupled from selection}
+The $\rho_{ab}^2=0$ regime also serves as a useful sanity check for the model.
+In that case, selection on the latent trait does not induce any frequency dependence in the focal trait, so the stabilizing-selection model effectively collapses to an approximately frequency-independent prior.
+This explains why the corresponding panels are uninformative for $\sigma_a^2/W_S$ and why the evolutionary fit and the $\alpha=0$ baseline perform similarly in prediction.
+More generally, this highlights that evidence for stabilizing selection in the focal trait can only be learned through its coupling to the selected background trait.
+
 \paragraph{Simplifying assumptions}
 In order to derive a simplistic formula, 
 we made various assumptions.
