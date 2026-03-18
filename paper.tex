@@ -88,7 +88,7 @@ The marginal selection coefficient $\seff$ acting on a given locus is
 \begin{align} \label{eq:seff}
     \seff(x) = \left(x-\frac{1}{2}\right)\frac{\norm{\alpha}^2}{V_S}
 \end{align}
-for a biallelic loci of frequency $x$ and effect size $\alpha=(\alpha_1, \ldots, \alpha_d)$ with each entry corresponding to $z_i$. \citep{Robertson1956againstextreme,Lande1976phenoevolution,Simons2018popgeninterpretation, Negm2024longrangeld}.
+for a biallelic loci of frequency $x$ and effect size $\alpha=(\alpha_1, \ldots, \alpha_d)$ with each entry corresponding to $z_i$. \citep{Robertson1956againstextreme,Lande1976phenoevolution,Simons2018popgeninterpretation, Negm_2026}.
 
 In a panmictic diploid population of size $N$,
 the diffusion approximation corresponding to equation~\ref{eq:seff} is
@@ -431,7 +431,7 @@ Empirical studies have shown that pleiotropy is pervasive in human complex trait
 In this framework, each axis of the multi-dimensional trait contributes equally to the fitness, 
 forcing the mutation's effect on a focal trait to spread evenly across axes.
 In equation~\ref{eq:alpha_to_beta}, we generalize this relationship to account for potentially non-isotropic relationship between a focal trait and the underlying fitness.
-One example is the jointly Gaussian mutational effects that has been considered in earlier theoretical works and in which we considered in our simulations [cite].
+One example is the jointly Gaussian mutational effects that has been considered in earlier theoretical works and in which we considered in our simulations \citep{Kimura_1964, B_rger_1986, burger2000themathematicaltheoryof, walsh2018evolutionandselectionof}.
 It would be interesting to investigate alternative models of pleiotropy that may lead to the relationship of equation~\ref{eq:alpha_to_beta}.
 
 % reml is moment-based so its okay
@@ -498,7 +498,7 @@ The result clearly shows that evolutionarily principled modeling of frequency-de
 The main text entirely ignores linkage disequilibrium (LD) and subsequently the Bulmer effect.
 We attribute the consistent under-estimation of $\sigma_a^2/W_S$ across parameter configurations to the Bulmer effect.
 In short, Bulmer effect creates dragging forces opposed to selection, weakening the effective strength of selection acting on the locus.
-This was formalized by a [Negm and Veller 2026, cite] who showed that the reduction of selective forces can be expressed as a multiplicative factor.
+This was formalized by \cite{Negm_2026} who showed that the reduction of selective forces can be expressed as a multiplicative factor.
 Hence, algebraically, this has the same effect as an increased value of selection width $W_S$, thereby smaller $\sigma_a^2 /W_S$.
 By expanding their formula with further approximations, we found that Bulmer effect precisely predicts the degree of under estimation.
 See appendix for more details.
@@ -544,7 +544,7 @@ where $\overline{c}_j$ and $\overline{c}$ are harmonic means of the recombinatio
     \quad \text{and} \quad
     \overline{c} = L(L-1) \bigg/ \sum_{j,k:i \neq j} \frac{1}{c_{jk}}
 \end{gather}
-and $V_g = 2\sum_j x_j(1-x_j)\alpha_j^2$ is the genic variance of $z$ as derived in [Negm and Veller 2026, cite].
+and $V_g = 2\sum_j x_j(1-x_j)\alpha_j^2$ is the genic variance of $z$ as derived in \cite{Negm_2026}.
 For simplicity, let $u_j$ be the normalized position of locus $j$ so that $Lu_j$ is the position in base pairs and write $h(u_j) = 1\, / \, 2\overline{c}_j$.
 
 The difficulty arising in equation~\ref{eq:seff_ld} is that $V_g$ is also a random variable as it's a function of $x_j$ that are random.
