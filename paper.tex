@@ -456,7 +456,7 @@ so $\rho_{ab}$ and $\sigma_a^2/W_S$ mostly appear as a product in the numerator
     \right) \hp_j(1-\hp_j).
 \end{align}
 A temporary fix is to fit a model by assuming $\rho_{ab}=1$ and treat the resulting estimate as $\rho_{ab}^2\sigma_a^2/W_S$.
-In the appendix, we found that this degrades the estimator's precision but has negligible impact on genetic prediction by BLUP.
+In Appendix~\ref{sec:meanfield_ld}, we found that this degrades the estimator's precision but has negligible impact on genetic prediction by BLUP.
 We also find that estimation of $\sigma_b^2$ remains stable despite this slight misspecification.
 
 \paragraph{Recovering the overall variance scale}
@@ -501,7 +501,7 @@ In short, Bulmer effect creates dragging forces opposed to selection, weakening 
 This was formalized by \citet{Negm_2026} who showed that the reduction of selective forces can be expressed as a multiplicative factor.
 Hence, algebraically, this has the same effect as an increased value of selection width $W_S$, thereby smaller $\sigma_a^2 /W_S$.
 By expanding their formula with further approximations, we found that Bulmer effect precisely predicts the degree of under estimation.
-See appendix for more details.
+See Appendix~\ref{sec:meanfield_ld} for more details.
 
 \section*{Acknowledgement}
 This work greatly benefited from the discussion with Joshua Schraiber (University of Southern California) and Guy Sella (Columbia University). 
@@ -522,6 +522,7 @@ and does not necessarily represent the official views of the NIH.
 \renewcommand{\theequation}{A\arabic{equation}}
 
 \section{Mean-field approach to linkage disequilibrium}
+\label{sec:meanfield_ld}
 
 So far, we completely ignored the effect of linkage which creates theoretical challenges.
 To analyze the dynamics of an individual locus in general,
