@@ -244,6 +244,7 @@ holds by symmetry (all $\alpha_i$ has the same expected magnitude) and
     \sum_{i=1}^d \E{\alpha_i^2 \mid \norm{\alpha}} = \norm{\alpha}^2
 \end{align}
 gives $\E{\beta^2 \mid \norm{\alpha}} = \norm{\alpha}^2 /d $ where $\beta$ is one of the $\alpha_i$.
+This corresponds to $\rho_{ab}=1$, $\sigma_b^2/\sigma_a^2 = 1/d$.
 
 Another scenario we may consider that yields equation~\ref{eq:alpha_to_beta} is when the fitness effect is drawn from a multivariate normal distribution
 \begin{gather} \label{eq:coa}
@@ -291,7 +292,7 @@ Then,
 The first term of the product is
 \begin{align}
     \begin{aligned}
-    p(G_j \mid \norm{\alpha_j}^2)    
+    p(G_j \mid \norm{\alpha_j})    
     &=
     \int_0^1 
     p(G_j \mid x_j)
