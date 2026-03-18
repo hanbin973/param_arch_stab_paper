@@ -375,14 +375,14 @@ The overall scale parameter $\sigma_b^2$ is considerably easier to recover. Figu
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blm_summary_sigma2_a_over_Ws.pdf}
-    \caption{REML estimates of $\sigma_a^2 / W_S$ across simulation replicates. Gray dotted lines denote the uncorrected target $\sigma_a^2 / W_S$, while red dotted lines denote the Bulmer-corrected reference derived in the appendix. The $\rho_{ab}^2=0$ panels are omitted because the focal trait then contains no information about selection on the latent trait.}
+    \caption{REML estimates of $\sigma_a^2 / W_S$ across forward-simulation replicates. Columns correspond to the true $\sigma_a^2$, rows correspond to the true $\rho_{ab}^2$, and the x-axis gives the true $W_S$. Gray dotted lines show the uncorrected target $\sigma_a^2 / W_S$, while red dotted lines show the Bulmer-corrected reference derived in the appendix. The $\rho_{ab}^2=0$ panels are unused because the focal trait then carries no information about selection on the latent trait.}
     \label{fig:blm_sigma2_a_over_ws}
 \end{figure}
 
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blm_summary_sigma2_a.pdf}
-    \caption{REML estimates of $\sigma_b^2$ across simulation replicates for varying $W_S$ and $\rho_{ab}^2$. Horizontal reference lines indicate the true values.}
+    \caption{REML estimates of $\sigma_b^2$ across forward-simulation replicates. Columns correspond to the true $W_S$, rows correspond to the true $\rho_{ab}^2$, and the x-axis gives the true $\sigma_b^2$. Horizontal reference lines indicate the true values.}
     \label{fig:blm_sigma2_b}
 \end{figure}
 
@@ -397,14 +397,14 @@ Appendix Figures~\ref{fig:blup_prediction_rho1_fixed} and~\ref{fig:sigma2_b_esti
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_summary_prediction.pdf}
-    \caption{Held-out BLUP validation $R^2$ for the evolutionary model and the $\alpha$-model baselines across the simulation grid.}
+    \caption{Held-out BLUP validation $R^2$ for the evolutionary model and the $\alpha$-model baselines. Columns correspond to the true $\sigma_a^2$, rows correspond to the true $\rho_{ab}^2$, and the x-axis gives the true $W_S$. Error bars summarize variation across replicate populations.}
     \label{fig:blup_prediction}
 \end{figure}
 
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_sigma2a_estimates.pdf}
-    \caption{Estimates of $\sigma_b^2$ obtained from the BLUP fits. The evolutionary model stays close to the true value across the grid, whereas the $\alpha$-model fits, especially $\alpha=0.5$ and $\alpha=1$, become downward biased when frequency dependence is present.}
+    \caption{Estimates of $\sigma_b^2$ obtained from the BLUP fits. Columns correspond to the true $\sigma_b^2$, rows correspond to the true $\rho_{ab}^2$, and the x-axis gives the true $W_S$. The dotted horizontal line marks the true value.}
     \label{fig:sigma2_b_estimates}
 \end{figure}
 
@@ -593,14 +593,14 @@ For the correction factors in Figure~\ref{fig:blm_sigma2_a_over_ws}, we used the
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_summary_prediction_rho1_fixed.pdf}
-    \caption{Held-out BLUP validation $R^2$ when the evolutionary model is fit with $\rho_{ab}^2$ fixed to $1$.}
+    \caption{Held-out BLUP validation $R^2$ when the evolutionary model is fit with $\rho_{ab}^2$ fixed to $1$. Columns correspond to the true $\sigma_a^2$, rows correspond to the true $\rho_{ab}^2$, and the x-axis gives the true $W_S$. Error bars summarize variation across replicate populations.}
     \label{fig:blup_prediction_rho1_fixed}
 \end{figure}
 
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_sigma2a_estimates_rho1_fixed.pdf}
-    \caption{Estimates of $\sigma_b^2$ when the evolutionary model is fit with $\rho_{ab}^2$ fixed to $1$.}
+    \caption{Estimates of $\sigma_b^2$ when the evolutionary model is fit with $\rho_{ab}^2$ fixed to $1$. Columns correspond to the true $\sigma_b^2$, rows correspond to the true $\rho_{ab}^2$, and the x-axis gives the true $W_S$. The dotted horizontal line marks the true value.}
     \label{fig:sigma2_b_estimates_rho1_fixed}
 \end{figure}
 
