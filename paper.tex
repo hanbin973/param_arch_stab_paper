@@ -366,46 +366,46 @@ To simulate apparent selection, for each population after total $15N$ generation
 This is same as sampling $\beta$ during SLiM simulation because $\beta$ has no effect on the simulation at all ($\alpha$ does the job).
 For $\sigma_b^2$ and $\rho_{ab}^2$, we chose it to be the same as $\sigma_a^2$ and in a grid of $\{0.00, 0.50, 1.00\}$, respectively.
 
-\textcolor{red}{Results section below is mostly fake GenAI stuff.}
-
 \subsection{Variance component estimation}
 
-A major advantage of theoretically grounding the linear mixed model in population genetics is that the variance components become directly interpretable as evolutionary parameters. To evaluate our approach, we employed forward-time simulations of polygenic trait evolution under stabilizing selection using SLiM framework. We then fit the explicit frequency-dependent variance model via restricted maximum likelihood (REML) across a varying grid of true mutational variances ($\sigma_a^2$) and selection widths ($W_s$).
+We first examined whether REML recovers the variance components implied by equation~\ref{eq:beta_cond_var}. Because the frequency-dependent part of the model is identified through the product $\rho_{ab}^2 \sigma_a^2 / W_S$, the most informative target is the ratio $\sigma_a^2 / W_S$ whenever $\rho_{ab}^2 > 0$. Figure~\ref{fig:blm_sigma2_a_over_ws} shows that the fitted values preserve the ordering of the true parameter combinations across the simulation grid, but they lie systematically below the naive reference $\sigma_a^2 / W_S$. The discrepancy is most visible when selection-induced frequency dependence is strongest. At the same time, the estimates are substantially closer to the Bulmer-corrected reference lines than to the uncorrected target, indicating that the main departure from the single-locus theory is consistent with attenuation from linkage disequilibrium rather than a failure of the functional form itself. As expected, the $\rho_{ab}^2=0$ panels are uninformative, because selection on the latent trait does not induce frequency dependence in the focal trait when the two traits are uncorrelated.
 
-We emphasize that the parameterization primarily permits joint estimation of the genetic architecture through combinations like the ratio $\sigma_a^2 / W_s$. Figure~\ref{fig:blm_sigma2_a_over_ws} demonstrates that the model faithfully recovers the unbiased ratio $\sigma_a^2 / W_s$ with low empirical variance irrespective of the specific true $\sigma_a^2$ regime. Furthermore, Figure~\ref{fig:blm_sigma2_a} confirms that the individual mutational variance $\sigma_a^2$ itself is unbiasedly characterized throughout our experimental grid of true stabilizing selection strengths. Combined, these results empirically validate the diffusion approximation detailed in our theory.
+The overall scale parameter $\sigma_b^2$ is considerably easier to recover. Figure~\ref{fig:blm_sigma2_b} shows that REML estimates of $\sigma_b^2$ remain centered near the true value across the full grid of $W_S$ and $\rho_{ab}^2$, with only modest replicate-to-replicate variability. Taken together, these results suggest that the focal-trait variance is well identified, whereas the selection-sensitive component is recovered chiefly through the combined quantity $\rho_{ab}^2 \sigma_a^2 / W_S$ and is therefore more sensitive to departures from the single-locus approximation.
 
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blm_summary_sigma2_a_over_Ws.pdf}
-    \caption{Recovery of the relative genetic architecture parameter. REML estimates of the ratio $\sigma_a^2 / W_s$ are presented across simulation replicates for varying underlying true configurations of stabilizing selection and variance.}
+    \caption{REML estimates of $\sigma_a^2 / W_S$ across simulation replicates. Gray dotted lines denote the uncorrected target $\sigma_a^2 / W_S$, while red dotted lines denote the Bulmer-corrected reference derived in the appendix. The $\rho_{ab}^2=0$ panels are omitted because the focal trait then contains no information about selection on the latent trait.}
     \label{fig:blm_sigma2_a_over_ws}
 \end{figure}
 
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blm_summary_sigma2_a.pdf}
-    \caption{Unbiased recovery of the mutational variance parameter. REML estimates of $\sigma_a^2$ tightly match the theoretical expectations (dashed lines) independently across different selection regimes ($W_s \in \{0.5, 1.0, 2.0\}$).}
-    \label{fig:blm_sigma2_a}
+    \caption{REML estimates of $\sigma_b^2$ across simulation replicates for varying $W_S$ and $\rho_{ab}^2$. Horizontal reference lines indicate the true values.}
+    \label{fig:blm_sigma2_b}
 \end{figure}
 
 \subsection{Genetic prediction}
 
-To assess whether the evolutionary derivation leads to tangible benefits in practical inference tasks, we benchmarked the predictive performance of best linear unbiased prediction (BLUP). Both the stabilized evolutionary model (derived in the previous section) and the standard $\alpha$-model were evaluated across a grid of parameter scenarios. Specifically, we varied the mutational variance parameter $\sigma_a^2$ and the intrinsic phenotypic selection width $W_s$, controlling the architecture's susceptibility to genetic drift versus strong stabilizing selection.
+We next compared held-out BLUP accuracy under the evolutionary model and three $\alpha$-model baselines. Figure~\ref{fig:blup_prediction} reports the validation $R^2$ across the same grid of simulation parameters. The strongest pattern is the poor performance of the $\alpha=1$ model, which underperforms substantially in every regime. The $\alpha=0.5$ model is closer, but still remains below the evolutionary fit throughout most of the grid. By contrast, the evolutionary model and the $\alpha=0$ model are often quite similar, especially when $\rho_{ab}^2=0$, where equation~\ref{eq:beta_cond_var} reduces to an approximately frequency-independent architecture. When the coupling between the focal and selected traits is stronger, the evolutionary model typically retains a small but repeatable advantage.
 
-Figure~\ref{fig:blup_prediction} presents the validation $R^2$ and correlation for the two models across independent simulation replicates. Our explicitly derived frequency-dependent architecture mitigates prediction errors associated with alleles subjected to strong selection where traditional $\alpha$-models systematically fail. As the intensity of selection increases relative to mutational variation (decreasing true $W_s$ and increasing $\sigma_a^2$), the baseline $\alpha$-model exhibits highly erratic, deteriorated predictive validation scores. Constrastingly, the theoretically grounded evolutionary architecture remains unbiased, preserving robust and tight predictive correlations and systematically outperforming the heuristic parameterization across all realistic regimes.
+The distinction is sharper when one examines the variance components obtained from the prediction fits. In Figure~\ref{fig:sigma2_b_estimates}, the evolutionary model remains close to the true $\sigma_b^2$ throughout the simulation grid. The $\alpha=0$ model is approximately unbiased only when $\rho_{ab}^2=0$ and becomes downward biased once the focal trait inherits frequency dependence from the selected trait. The $\alpha=0.5$ and $\alpha=1$ fits underestimate $\sigma_b^2$ much more severely in all scenarios. Hence, the similarity in predictive accuracy between the evolutionary model and $\alpha=0$ in some panels should not be interpreted as recovery of the same architecture: the heuristic model can predict reasonably well while still mischaracterizing the underlying variance components.
+
+Appendix Figures~\ref{fig:blup_prediction_rho1_fixed} and~\ref{fig:sigma2_b_estimates_rho1_fixed} examine a practical simplification in which the evolutionary fit fixes $\rho_{ab}^2=1$. Held-out prediction is nearly unchanged relative to Figure~\ref{fig:blup_prediction}, and estimation of $\sigma_b^2$ remains close to the full model, although with somewhat greater dispersion in some settings. This supports the reduced parameterization as a useful approximation when separate identification of $\rho_{ab}^2$ and $\sigma_a^2 / W_S$ is weak.
 
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_summary_prediction.pdf}
-    \caption{Benchmark of genetic prediction performance. Validation $R^2$ and correlation across simulated replicates are shown for varying configurations of true $\sigma_a^2$ and selection parameter $W_s$. The evolutionary parameterization systematically outperforms the standard $\alpha$-model, particularly in regimes characterized by strong relative stabilizing selection ($W_s=0.5$).}
+    \caption{Held-out BLUP validation $R^2$ for the evolutionary model and the $\alpha$-model baselines across the simulation grid.}
     \label{fig:blup_prediction}
 \end{figure}
 
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_sigma2a_estimates.pdf}
-    \caption{Benchmark of mutational variance $\sigma_b^2$ estimation.}
-    \label{fig:sigma2_a_estimates}
+    \caption{Estimates of $\sigma_b^2$ obtained from the BLUP fits. The evolutionary model stays close to the true value across the grid, whereas the $\alpha$-model fits, especially $\alpha=0.5$ and $\alpha=1$, become downward biased when frequency dependence is present.}
+    \label{fig:sigma2_b_estimates}
 \end{figure}
 
 \section{Discussion}
@@ -452,7 +452,7 @@ so $\rho_{ab}$ and $\sigma_a^2/W_S$ mostly appear as a product in the numerator
 \end{align}
 A temporary fix is to fit a model by assuming $\rho_{ab}=1$ and treat the resulting estimate as $\rho_{ab}^2\sigma_a^2/W_S$.
 In the appendix, we found that this degrades the estimator's precision but has negligible impact on genetic prediction by BLUP.
-We also find that $\sigma_a^2$ remains intact despite this slight misspecification.
+We also find that estimation of $\sigma_b^2$ remains stable despite this slight misspecification.
 
 \paragraph{Simplifying assumptions}
 In order to derive a simplistic formula, 
@@ -462,8 +462,8 @@ In the most general setting, the dynamics of a focal locus may depend on the rem
 This allowed us to reduce our analysis to a single locus.
 
 \paragraph{Frequency-dependence and genetic prediction}
-We found that the evolutionary model estimates the mutational variance correctly and achieves the best prediction in forward simulations.
-Interestingly, the $\alpha=0$ model shows near-identical prediction accuracy while degrading in mutational variance estimation.
+We found that the evolutionary model estimates the focal-trait variance parameter $\sigma_b^2$ correctly and achieves the best prediction in forward simulations.
+Interestingly, the $\alpha=0$ model shows near-identical prediction accuracy while degrading in $\sigma_b^2$ estimation.
 The first result can be explained by the low frequency of most variants, making $\E{\beta_j^2 \mid \hp_j} \approx \E{\beta_j^2}$.
 This holds more most variants, the genetic relatedness matrix (GRM) of the methods are almost identical up to a constant factor.
 As BLUP is invariant with respect to constant scaling of GRM, the two are likely to coincide.
@@ -593,19 +593,18 @@ For the correction factors in Figure~\ref{fig:blm_sigma2_a_over_ws}, we used the
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_summary_prediction_rho1_fixed.pdf}
-    \caption{Benchmark of mutational variance $\sigma_b^2$ estimation.}
-    \label{fig:sigma2_a_estimates}
+    \caption{Held-out BLUP validation $R^2$ when the evolutionary model is fit with $\rho_{ab}^2$ fixed to $1$.}
+    \label{fig:blup_prediction_rho1_fixed}
 \end{figure}
 
 \begin{figure}[htpb]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_sigma2a_estimates_rho1_fixed.pdf}
-    \caption{Benchmark of mutational variance $\sigma_b^2$ estimation.}
-    \label{fig:sigma2_a_estimates}
+    \caption{Estimates of $\sigma_b^2$ when the evolutionary model is fit with $\rho_{ab}^2$ fixed to $1$.}
+    \label{fig:sigma2_b_estimates_rho1_fixed}
 \end{figure}
 
 
 
 
 \end{document}
-
