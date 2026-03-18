@@ -31,14 +31,15 @@
 \maketitle
 
 \begin{abstract}
-    Recently, stabilizing selection has emerged as a central means of understanding complex trait architecture.
-    A typical approach is to derive the distribution of genome-wide association study (GWAS) summary statistics from a population genetic model and offer a \emph{post-hoc} interpretation of GWAS results 
-    which is derived from standard pipelines agnostic to the underlying evolutionary process.
-    In this paper, we work in the opposite direction:
-    we study how complex traits should be analyzed in the first place under stabilizing selection.
-    To this end, we propose a general framework to derive variance component models from evolutionary principles.
-    We show that this framework reduces to a linear mixed model with a novel frequency-dependent architecture under the equilibrium limit of stabilizing selection.
-    Next, we account for pleiotropy and show that functional annotations act on variance components through trait-fitness genetic correlation.
+    The effect sizes of trait-associated variants exhibit across many traits a common pattern of decreasing magnitude as a function of minor allele frequency.
+    This is assumed to be the result of negative selection where natural selection acts stronger against large effect variants, dragging their frequency downwards.
+    To account for this phenomenon, it is common to model the variance of effect sizes to be inversely proportional to heterozygosity, namely the $\alpha$-model.
+    Although the $\alpha$-model captures the inverse relationship of effect size and minor allele frequency to some extent,
+    the modeling choice is arbitrary and lacks a population genetic foundation.
+    To this end, we derive an alternative to the $\alpha$-model to address the frequency-dependent pattern of effect sizes from an evolutionary framework, whereby a focal trait is subject to selection indirectly due to a correlated trait experiencing stabilizing selection.
+    The new model consists of three interpretable parameters, namely the mutational variance, selection intensity, and mutational correlation.
+    These parameters split into two identifiable components that can be estimated conveniently through the restricted maximum likelihood estimator.
+    Furthermore, we demonstrate the practical utility of the model by showing that it improves genetic prediction by 10 to 20\% compared to $\alpha$-model in forward simulations. 
 \end{abstract}
 
 \vspace{1em} 
@@ -46,163 +47,122 @@
 
 \section{Introduction}
 
-With the rapid expansion of massive genomic datasets,
-a tremendous amount of genetic variants associated to complex traits have been discovered through genome-wide association studies (GWAS) [cite].
-Beyond identifying trait-associated loci, recent works have developed methods to aggregate signals under the statistical significance threshold.
-These methods have been used for various purposes including, but not limited to,
-heritability estimation, functional characterization, and natural selection detection [cite].
-Some of these methods aim to reveal the overall landscape of how genetic variants contribute to trait genetics, which is referred to as the \emph{genetic architecture}.
-At the heart of these methods lies a formula that describes the magnitude of variant effect sizes as a function of minor allele frequency (MAF), linkage disequilibrium (LD), and functional annotations among many others [cite].
-This magnitude of effect sizes is measured in average squared effect size in which the average is taken with respect to the \emph{random-effects model}.
+Stabilizing selection has recently emerged as a powerful theoretical framework to understand trait-associated loci in human genetics.
+By considering a special instance of Fisher's geometric model (FGM) with isotropically distributed mutational effects,
+[Simons et al 2018, cite] made predictions about the distribution of genome-wide association study (GWAS)-derived effect sizes.
+This meant that the contribution of complex traits to fitness can be estimated from GWAS data, which was done in a follow-up study by the same authors [cite].
+In another work utilizing FGM, [Koch et al 2024, cite] argued that stabilizing selection is a primary mode of selection acting on human traits and further estimated its strength.
+These works show that linking evolutionary theory directly to statistical genetics can unveil the evolutionary landscape of complex trait from data.
+The aforementioned studies propose ways to analyze GWAS results, 
+but does not explicitly tell how their models can be fit to raw genotype data.
 
-Linear models involving both fixed and random effects are called \emph{mixed-effects model} and has a long history of its use in quantitative genetics.
-Before the genomic era, mixed-models were generally used in conjunction with pedigree.
-In this setting, the random effects reflect the randomness driven by Mendelian segregation at each generation.
-As this randomness accumulates over time along the genealogical paths of the pedigree,
-individuals of the population appear correlated due to shared ancestry.
-This is the centerpiece of \emph{genetic relatedness} and the covariance matrix of individual traits, called the \emph{genetic relatedness matrix}, summarizes this notion [cite].
-Furthermore, pedigree can be viewed as a graph that can serve as a sparse data structure naturally suited for large scale computation with genetic data [cite].
+% opening
+From a more statistical genetics viewpoint, one notable finding from massive GWAS studies is the negative correlation between effect sizes and allele frequency [cite].
+This is usually understood in the context of negative selection where large effect variants are more likely to be removed from the population than small effect variants.
+A common modelling choice is the $\alpha$-model, where the variance of the effect size is inversely proportional to heterozygosity raised to the power $0\le \alpha \le 1$.
+This model first appeared in the setting of estimating genetic relatedness matrices from single nucleotide polymorphism (SNP) markers and has later been extended to explicitly detect negative selection [cite].
+Nevertheless, it is largely based on statistical curve-fitting and no population genetic model has yet been discovered to back this model.
 
-Nevertheless, a full pedigree record of observed individuals is rarely available outside of highly controlled experimental and agricultural settings.
-With the advent of high-throughput genotyping technology, people have developed ways to estimate the genetic relationship from genotype, bypassing the need of a full pedigree record.
-These genomic estimators of genetic relatedness appear in various forms with distinct theoretical and practical characters [cite].
-Interestingly enough, with the increasing genotyping density, various forms of estimated genetic relatedness have been found to be more powerful than the pedigree relatedness they aim to approximate in practical applications like heritability estimation and genetic prediction [cite]. 
-
-A key observation is that a Bayesian regression approach to trait-genotype relationship modeling often leads to the exact same formula as in linear mixed models equipped with genomic estimates of relatedness [cite]. 
-In this setting, a trait is modeled as a linear function of genotypes, i.e., the \emph{additive model}.
-Furthermore, the regression coefficient of the additive model is given a prior that follows a particular distribution.
-The choice of this prior distribution is the \emph{random-effects model}.
-In fact, if one assumes a Gaussian prior distribution and normalizes the genotype column-wise by its variance, the resulting covariance matrix of genetic values coincides with one of the genomic estimates of relatedness [cite].
-From this statistical line of reasoning, 
-various twists that adopt different distributions instead of a simple Gaussian have been proposed, 
-ranging from mixture models to semi-parametric Dirichlet process priors that demonstrate improved estimation and prediction performances [cite].
-
-Despite the success of statistical extensions of the classic linear mixed model,
-the interpretability remains a missing piece.
-Unlike the pedigree random-effects that represent Mendelian segregation,
-these Bayesian extensions lack biological interpretability in their priors: What biological and technical randomness do the random-effects represent [cite, Steinsaltz]?
-To answer this question, it is inevitable to dive into the population genetics literature and we will return to this issue soon.
-
-Another reason to consider population genetics in understanding trait's genetic architecture is because it is subject to evolutionary forces.
-Depending on how the trait influences fitness, the underlying variants may or may not be suited to survive and spread through the population.
-The study of complex trait evolution has a rich history [cite] and has been revived recently in the genomic era.
-A landmark study by [cite, Simons] adopted a stabilizing selection model coupled with pleiotropy to explain the distribution of observed GWAS effect sizes.
-Several follow-up studies have appeared and confirmed that stabilizing selection is a pivotal force in shaping the genetic architecture of human complex traits [cite].
-Nevertheless, these works mainly focus on the \emph{post-hoc} interpretation of GWAS outcomes and speak very little about how the genetic data should be processed in the first place.
-
-To this end, we develop a full probabilistic model of complex trait evolution and use it to derive an evolutionarily interpretable linear mixed model.
-In doing so, we first posit that the source of genetic random-effects as coming from mutations randomly hitting the genome,
-thereby sampling candidate segregating sites that appear in the genotyped samples.
-This is inspired by the earlier works of [cite, Kimura] which appears as [cite, continuum of alleles etc] in the literature.
-Subsequently, the prior distribution is characterized by the parameters governing the mutational landscape such as functional annotations. 
-Then, following recent works in stabilizing selection, we account for genetic drift and natural selection to further refine the random effects distribution.
-As a result, we obtain a random effects model naturally parameterized by evolutionary quantities underlying the population, naturally leading to interpretable estimates.
-
-We confirm that this model can be estimated using the conventional restricted maximum likelihood (REML) estimator through extensive forward simulations.
-With a correctly specified frequency-dependent formulation, 
-the new model offers noticeable improvements in genetic prediction.
+% apparent stabilizing selection
+In this work, 
+we propose a general procedure to combine an evolutionary model to mixed-effects models in statistical genetics,
+and apply it to populations under stabilizing selection.
+This yields a linear mixed model parameterized by evolutionary quantities that can be estimated through a conventional statistical method, namely the restricted maximum likelihood (REML) estimator.
+These quantities appear in the variance of random effects encoding the aforementioned frequency dependence of effect sizes that is distinct from the $\alpha$-model.
+Unlike the $\alpha$-model, the new formula does not diverge to infinity as the sample frequency approaches zero and allows unbiased estimation of mutational variance.
+Furthermore, as a mixed-effects model, it can estimate genetic values from best unbiased prediction (BLUP).
 
 \section{Theory and model}
 
-\subsection{The general framework}
+\subsection{Diffusion approximation for stabilizing selection}
 
-\begin{table}[htpb]
-    \centering
-    \caption{Key mathematical notations}
-    \label{tab:notation}
-    \vspace{0.5em}
-    \begin{tabular}{ll}
-        \hline
-        Symbol & Description \\
-        \hline
-        $y, z$ & Observed trait ($y$) and unobserved fitness-determining trait ($z$) \\
-        $G$ & Genotype matrix \\
-        $\alpha, \beta$ & Additive effect sizes of variants on fitness and observed trait \\
-        $\veps, \delta$ & Non-genetic environmental components for $y$ and $z$ \\
-        $\sigma_a^2, \sigma_b^2$ & Mutational variances of fitness and trait effect sizes \\
-        $\rho_{ab}$ & Mutational correlation between fitness and trait \\
-        $p_j, \hp_j$ & Population and sample minor allele frequency of locus $j$ \\
-        $V_S$ & Variance of the stabilizing selection fitness landscape \\
-        $W_S$ & Population-scaled selection parameter variance ($W_S = V_S / 2N$) \\
-        $\seff(x)$ & Marginal selection coefficient at population allele frequency $x$ \\
-        $N, \mu$ & Diploid population size and mutation rate \\
-        $\theta$ & Population-scaled mutation rate ($\theta = 4N\mu$) \\
-        $\pinf(x \mid \alpha)$ & Equilibrium density of allele frequency $x$ with fitness effect $\alpha$ \\
-        \hline
-    \end{tabular}
-\end{table}
-We consider an observed trait $y$ and an unobserved trait $z$ where the latter determines the fitness of an individual.
-We assume an \emph{additive model} whereby both $y$ and $z$ are weighted sums of genotypes [cite].
-\begin{gather}
-    \begin{gathered}
-        y_i = G_i\beta + \veps \\
-        z_i = G_i\alpha + \delta
-    \end{gathered}
-\end{gather}
-We assume the non-genetic component $\veps$ and $\delta$ to be normally distributed.
-More generally, we may write the above relationship in terms of conditional probability
-\begin{gather} \label{eq:trait_and_fitness}
-    \begin{gathered}
-        y_i \sim p(y_i \mid G_i, \beta) \\
-        z_i \sim p(z_i \mid G_i, \alpha)
-    \end{gathered}
-\end{gather}
-which means that $y$ and $z$'s distributions are determined by $G$ and the coefficients $\alpha, \beta$.
+Fisher's geometric model (FGM) assumes that 
+an individual's fitness is given by
+\begin{align} \label{eq:fitness}
+    \exp \left(
+        -\frac{\norm{z}^2}{2V_S} 
+    \right)
+\end{align}
+where $z=(z_1, \ldots, z_d)$ is an $d$-dimensional trait vector subject to stabilizing selection and $V_S$ controls selection intensity.
+The marginal selection coefficient $\seff$ acting on a given locus is
+\begin{align} \label{eq:seff}
+    \seff(x) = \left(x-\frac{1}{2}\right)\frac{\norm{\alpha}^2}{V_S}
+\end{align}
+for a biallelic loci of frequency $x$ and effect size $\alpha=(\alpha_1, \ldots, \alpha_d)$ with each entry corresponding to $z_i$. \citep{Robertson1956againstextreme,Lande1976phenoevolution,Simons2018popgeninterpretation, Negm2024longrangeld}.
 
-The key evolutionary consideration is the distribution of $G$ given $\alpha$ and $\beta$.
-Its distribution is determined by two factors.
-First, the samples are obtained from the population, then the population itself is evolving over time.
-If we write the state of the population as $P_t$,
-we can express $p(G \mid \alpha, \beta)$ as
-\begin{align} \label{eq:definetti}
+In a panmictic diploid population of size $N$,
+the diffusion approximation corresponding to equation~\ref{eq:seff} is
+\begin{align} \label{eq:wf_diffusion_raw}
     \begin{aligned}
-        p(G_i \mid \alpha, \beta) &=
-        \int p(G_i \mid \alpha, \beta ,P_t)
-        \cdot p(P_t \mid \alpha, \beta) dP_t \\
-        &=
-        \int p(G_i \mid P_t)
-        \cdot p(P_t \mid \alpha, \beta) dP_t \\
-        &=
-        \int \underbrace{p(G_i \mid P_t)}_{\text{Sampling}}
-        \cdot \underbrace{p(P_t \mid \alpha)}_{\text{Evolution}} dP_t
+    dX_t &= (\seff(X_t)X_t(1-X_t) + \mu(1-2X_t))dt + \sqrt{\frac{X_t(1-X_t)}{2N}}dB_t \\
+    &= \left[ X_t(1-X_t)\left(X_t-\frac{1}{2}\right)\frac{\norm{\alpha}^2}{V_S}
+    + \mu(1-2X_t) 
+    \right] 
+    dt + \sqrt{\frac{X_t(1-X_t)}{2N}}dB_t
     \end{aligned}
 \end{align}
-Here, $p(G \mid \alpha, \beta, P_t) = p(G \mid P_t)$ because once the population state $P_t$ is given, the distribution of $G$ is entirely determined by the study's sampling scheme.
-For instance, one can randomly sample genomes from the population with replacement.
-The second simplification $P(P_t \mid \alpha, \beta) = P(P_t \mid \alpha)$ comes from the fact that $z$ determines the fitness through equation~\ref{eq:trait_and_fitness}.
-As long as $\alpha$ is given, the evolution does not depend on $\beta$.
+where $B_t$ is the Brownian motion.
+We choose to measure $V_S$ in units of $2N$,
+so we write $V_S = 2N \cdot W_S$.
+Accordingly, we keep $\theta = 4N\mu$.
+By scaling equation~\ref{eq:wf_diffusion_raw} by the $2N$ factor,
+we obtain
+\begin{align} \label{eq:wf_diffusion_scaled}
+    dX_t = \left[
+    X_t(1-X_t)\left(X_t-\frac{1}{2}\right)\frac{\norm{\alpha}^2}{W_S} 
+    + \frac{1}{2}\theta(1-2X_t)
+    \right] 
+    dt + \sqrt{X_t(1-X_t)}dB_t   
+\end{align}
+with the forward Kolmogorov equation given by
+\begin{align} \label{eq:fwd_kolmogorov_scaled}
+    \begin{aligned}
+     \pard{p(x,t;\alpha)}{t} 
+     =& -\pard{}{x} 
+     \left[
+     \left(
+        x(1-x)\left(x-\frac{1}{2}\right)
+        \frac{\norm{\alpha}^2}{W_S}
+        + \frac{1}{2}\theta(1-2X_t)
+        \right)
+        p(x,t;\alpha)
+     \right] \\
+     &+\frac{1}{2} \pard[2]{}{x}[x(1-x)p(x,t;\alpha)].
+     \end{aligned}
+\end{align}
 
-Finally, the distributions of $\alpha$ and $\beta$ have to be considered.
-There are many loci in the genome, but only a fraction of them are segregating in the population.
-Mutation chooses randomly from these loci that ultimately appears to be the variants in the observed dataset.
-Furthermore, if the mutation rate is small enough, this process is effectively a \emph{sampling with replacement} scheme corresponding to the \emph{infinite-alleles} or the \emph{infinite-sites} assumption.
-This argument first appeared in [cite, Kimura] as the continuum-of-alleles (CoA) model in the infinite-alleles context.
-Hence, the distribution of $\alpha$ and $\beta$ in this paper refers to the random selection of effect sizes driven by mutation hitting random loci on the genome.
-To simplify computations,
-we assume normality
-\begin{gather} \label{eq:coa}
-\begin{pmatrix}
-        \alpha_j \\
-        \beta_j
-    \end{pmatrix}
-    \sim
-    N\left(
-    \begin{bmatrix}
-        0 \\
-        0
-    \end{bmatrix}
-    , 
-    \begin{pmatrix}
-        \sigma_{a,j}^2 & \rho_{ab,j}\sigma_{a,j}\sigma_{b,j} \\
-        \rho_{ab,j} \sigma_{a,j} \sigma_{b,j} & \sigma_{b,j}^2
-    \end{pmatrix} 
+We'll make use of the stationary density $p(x,t;\alpha)$ of equation~\ref{eq:fwd_kolmogorov_scaled}.
+This can be obtained by setting the left-hand side to zero, meaning that the density does not change with respect to $t$ \citep{Ewens2004mathpopgen}.
+\begin{align} \label{eq:stat_dist}
+     p_{\infty}(x;\alpha) = C(\alpha)^{-1} \cdot
+     x^{\theta-1}(1-x)^{\theta-1} 
+     \exp\left[-\frac{\norm{\alpha}^2}{W_S}x(1-x) \right]
+\end{align}
+with the normalizing constant 
+\begin{align} \label{eq:norm_const}
+    C(\alpha) = \int_0^1 x^{\theta-1}(1-x)^{\theta-1} 
+    \exp\left[-\frac{\norm{\alpha}^2}{W_s}x(1-x) \right] dx = B(\theta, \theta) 
+    \cdot {_1F_1} \left(
+    \theta; \theta + \frac{1}{2}; -\frac{\norm{\alpha}^2}{4W_S}
     \right)
-\end{gather}
-following the works of [cite, Lande].
+\end{align}
+where $_1F_1(a;b;z)$ is the Kummer's hypergeometric function.
+Fortunately, $_1F_1(a;b;z) = 1 + \mathcal{O}(a)$, so we can ignore the factor as $\theta \rightarrow 0$ [cite].
+Hence,
+\begin{align}
+    p_{\infty}(x ; \alpha) \ \propto \
+    x^{\theta-1}(1-x)^{\theta-1}
+    \exp\left[-\frac{\norm{\alpha}^2}{W_s}x(1-x) \right]
+\end{align}
+after suppressing $C(\alpha) \approx B(\theta, \theta)$.
 
-\subsection{Connection to mixed-effects models}
+\subsection{Connecting evolution to mixed-effects models}
 
 Genomic mixed-effects models mainly consider the conditional distribution of $y$ given $G$.
+If $y$ is the focal trait and $\beta$ is the corresponding effect size, we assume that
+\begin{align}
+    y = G\beta + \veps.
+\end{align}
 Accordingly, the variance decomposition of the trait is
 \begin{align}
     \begin{aligned}
@@ -220,11 +180,12 @@ A common model choice is the $\alpha$-model
     \begin{aligned}
         \Sigma_\beta = \textrm{diag}
         \left( 
-        \frac{h^2}{M } \cdot \frac{1}{[p_j(1-p_j)]^\alpha}
+        \frac{h^2}{M} \cdot \frac{1}{[p_j(1-p_j)]^\alpha}
         \right) 
     \end{aligned} 
 \end{align}
-where $M$ is the number of variants and $h^2$ is a positive constant often referred to as the SNP-heritability.
+where $M$ is the number of variants and $h^2$ is a positive constant often referred to as the single nucleotide polymorphism (SNP) heritability.
+Here, the effect of $G$ enters the formula by it's column-wise frequency $p_j$.
 
 In practice, we only have the sample frequency $\hp_j$ instead of $p_j$, so the estimate
 \begin{align} \label{eq:alpha}
@@ -241,259 +202,171 @@ Together with $G$, $G \widehat{\Sigma}_{\beta}G^T$ is a genomic estimate of gene
 For a more comprehensive review of different choices of $\Sigma_\beta$, see [cite].
 
 Despite its empirical success [cite], 
-equation~\ref{eq:alpha} and its variants have several shortcomings.
-In particular, the choice of $\Sigma_\beta = \var{\beta \mid G}$ was assumed making its parameters $h^2$ and $\alpha$ merely tuning parameters without an explicit biological interpretation, although heuristic arguments exist.
-For instance, a positive $\alpha$ partially captures the inverse relationship between minor allele frequency and effect size [cite].
-A notable pathological behavior is that $[p_j(1-p_j)]^{-\alpha}$ diverges to infinity as $p_j$ approaches zero, requiring heuristic GRM partitioning over multiple MAF bins [cite, Wainschtein].
-It is also unclear if the sample frequency $\hp_j$ can replace the true frequency $p_j$, especially in rare variants.
+equation~\ref{eq:alpha} and its variants have several theoretical and practical shortcomings.
+In particular, one assumes the formula $\Sigma_\beta = \var{\beta \mid G}$ at the beginning, 
+so the parameters $h^2$ and $\alpha$ are merely tuning parameters without an explicit biological interpretation, although heuristic arguments exist.
+For instance, a positive $\alpha>0$ partially captures the inverse relationship between minor allele frequency and effect size [cite].
+A notable pathological behavior is that $[p_j(1-p_j)]^{-\alpha}$ diverges to infinity as $p_j$ approaches zero, requiring heuristic GRM partitioning over multiple MAF bins if rare variants are involved [cite, Wainschtein].
+Also, it is unclear if the sample frequency $\hp_j$ can replace the true frequency $p_j$, especially in rare variants that tend to exhibit larger sampling variance.
 
 Our framework offers a principled solution to the aforementioned issues.
-From equations~\ref{eq:definetti} and~\ref{eq:coa}, we can determine $p(\beta \mid G)$ using the Bayes formula.
-\begin{align} \label{eq:goal1}
-    \begin{aligned}
-    p(\beta \mid G) & \ \propto \
-    p(G \mid \beta) \cdot p(\beta) \\
-    &= \int p(G \mid \alpha, \beta) \cdot p(\alpha \mid \beta) d\alpha \cdot p(\beta) \\
-    &= \int p(G \mid \alpha) \cdot p(\alpha \mid \beta) d\alpha \cdot p(\beta)
-    \end{aligned}
-\end{align}
-and compute
+The key is to \emph{deduce}, instead of assuming, a formula for $\Sigma_{\beta,j} = \var{\beta_j \mid G}$ from evolutionary theory where $j$ denotes the $j$-th locus.
+A common assumption in the literature is that $\beta_j$'s mean is zero,
+thereby we get $\var{\beta_j \mid G} = \E{\beta_j^2 \mid G}$.
+Then, we can derive $\E{\beta_j^2 \mid G}$ from
 \begin{align} \label{eq:goal2}
-    \var{\beta \mid G} = \int \beta^2 p(\beta \mid G) d\beta.
+    \E{\beta_j^2 \mid G} = \E{\E{\beta_j^2 \mid G, \norm{\alpha_j}} \mid G} = \E{\E{\beta_j^2 \mid \norm{\alpha_j}} \mid G} = \int 
+    \E{\beta_j^2 \mid \norm{\alpha_j}} \cdot p(\alpha_j \mid G) d\alpha_j
 \end{align}
-What is left is to find the appropriate formula of $p(\beta \mid G)$ to complete the formula.
-Since $p(G\mid\alpha)$ in equation~\ref{eq:goal1} contains evolutionary information,
-the final formula will be naturally expressed in terms of evolutionary parameters of the system.
+where $\alpha_j$ is the effect size \emph{vector} of the $j$-th locus (previously we used the subscript $i$ on $\alpha$ to denote the corresponding $i$-th trait).
+What is left is to determine $\E{\beta^2 \mid \alpha}$, which measures much the focal trait's effect $\beta$ is determined by the overall fitness effect $\alpha$,
+and $p(\alpha  \mid G)$, the likely value of overall fitness given the genotype data
+from a given evolutionary model.
+The following section will explain how this is done in the case of stabilizing selection.
+Once these steps are done, we can use restricted maximum likelihood (REML) estimator to estimate the parameters appearing the model.
 
-\subsection{Diffusion approximation for stabilizing selection}
+\subsection{Fitness effect and its influence on a focal trait}
 
-We assume that an individual's fitness is given by
+We'll assume in the rest of the paper the following:
+\begin{align} \label{eq:alpha_to_beta}
+    \E{\beta^2 \mid \norm{\alpha}} = \sigma_b^2 (1- \rho_{ab}^2) + \rho_{ab}^2 \cdot \frac{\sigma_b^2}{\sigma_a^2} \cdot \norm{\alpha}^2
+\end{align}
+for some constants $\sigma_a^2$, $\sigma_b^2$ and $\rho^2$.
+Although the choice looks arbitrary at first sight, 
+the relationship of [Simons et al, 2018]'s framework is a special instance of this parameterization.
+Under their isotopic FGM model,
 \begin{align}
-    \exp \left(
-        -\frac{z^2}{2V_S} 
-    \right)
+    \E{\alpha_1^2 \mid \norm{\alpha}} = \cdots =
+    \E{\alpha_d^2 \mid \norm{\alpha}}
 \end{align}
-where $z$ is the trait value subject to stabilizing selection and $V_S$ controls selection intensity.
-The marginal selection coefficient $\seff$ is given by
-\begin{align} \label{eq:seff}
-    \seff(x) = \left(x-\frac{1}{2}\right)\frac{\alpha^2}{V_S}
+holds by symmetry (all $\alpha_i$ has the same expected magnitude) and 
+\begin{align}
+    \sum_{i=1}^d \E{\alpha_i^2 \mid \norm{\alpha}} = \norm{\alpha}^2
 \end{align}
-for a biallelic loci of frequency $x$ and effect size $\alpha$ \citep{Robertson1956againstextreme,Lande1976phenoevolution,Simons2018popgeninterpretation, Negm2024longrangeld}.
-In a panmictic diploid population of size $N$,
-the diffusion approximation corresponding to equation~\ref{eq:seff} is
-\begin{align} \label{eq:wf_diffusion_raw}
-    \begin{aligned}
-    dX_t &= (\seff(X_t)X_t(1-X_t) + \mu(1-2X_t))dt + \sqrt{\frac{X_t(1-X_t)}{2N}}dB_t \\
-    &= \left[ X_t(1-X_t)\left(X_t-\frac{1}{2}\right)\frac{\alpha^2}{V_S}
-    + \mu(1-2X_t) 
-    \right] 
-    dt + \sqrt{\frac{X_t(1-X_t)}{2N}}dB_t
-    \end{aligned}
-\end{align}
-where $B_t$ is the Brownian motion.
-We choose to measure $V_S$ in units of $2N$,
-so we write $V_S = 2N \cdot W_S$.
-Accordingly, we keep $\theta = 4N\mu$.
-By scaling equation~\ref{eq:wf_diffusion_raw} by the $2N$ factor,
-we obtain
-\begin{align} \label{eq:wf_diffusion_scaled}
-    dX_t = \left[
-    X_t(1-X_t)\left(X_t-\frac{1}{2}\right)\frac{\alpha^2}{W_S} 
-    + \frac{1}{2}\theta(1-2X_t)
-    \right] 
-    dt + \sqrt{X_t(1-X_t)}dB_t   
-\end{align}
-with the forward Kolmogorov equation given by
-\begin{align} \label{eq:fwd_kolmogorov_scaled}
-    \begin{aligned}
-     \pard{p(x,t;\alpha)}{t} 
-     =& -\pard{}{x} 
-     \left[
-        x(1-x)\left(x-\frac{1}{2}\right)
-        \frac{\alpha^2}{W_S}
-        p(x,t;\alpha)
-        + \frac{1}{2}\theta(1-2X_t)
-     \right] \\
-     &+\frac{1}{2} \pard[2]{}{x}[x(1-x)p(x,t;\alpha)].
-     \end{aligned}
-\end{align}
+gives $\E{\beta^2 \mid \alpha} = \norm{\alpha}^2 /d $ where $\beta$ is one of the $\alpha_i$.
 
-We'll make use of the stationary density $p(x,t;\alpha)$ of equation~\ref{eq:fwd_kolmogorov_scaled}.
-This can be obtained by setting the left-hand side to zero, meaning that the density does not change with respect to $t$ \citep{Ewens2004mathpopgen}.
-\begin{align} \label{eq:stat_dist}
-     p_{\infty}(x;\alpha) = C(\alpha)^{-1} \cdot
-     x^{\theta-1}(1-x)^{\theta-1} 
-     \exp\left[-\frac{\alpha^2}{W_S}x(1-x) \right]
-\end{align}
-with the normalizing constant 
-\begin{align} \label{eq:norm_const}
-    C(\alpha) = \int_0^1 x^{\theta-1}(1-x)^{\theta-1} 
-    \exp\left[-\frac{\alpha^2}{W_s}x(1-x) \right] dx = B(\theta, \theta) 
-    \cdot {_1F_1} \left(
-    \theta; \theta + \frac{1}{2}; -\frac{\alpha_j^2}{4W_S}
+Another scenario we may consider that yields equation~\ref{eq:alpha_to_beta} is when the fitness effect is drawn from a multivariate normal distribution
+\begin{gather} \label{eq:coa}
+\begin{pmatrix}
+        \alpha \\
+        \beta
+    \end{pmatrix}
+    \sim
+    N\left(
+    \begin{bmatrix}
+        0 \\
+        0
+    \end{bmatrix}
+    , 
+    \begin{pmatrix}
+        \sigma_{a}^2 & \rho_{ab}\sigma_{a}\sigma_{b} \\
+        \rho_{ab} \sigma_{a} \sigma_{b} & \sigma_{b}^2
+    \end{pmatrix} 
     \right)
-\end{align}
-where $_1F_1(a;b;z)$ is the Kummer's hypergeometric function.
-Fortunately, $_1F_1(a;b;z) = 1 + \mathcal{O}(a)$, so we can ignore the factor as $\theta \rightarrow 0$.
+\end{gather}
+and selection is acting on a one-dimensional trait with fitness effect $\alpha$.
+Then, $\sigma_a^2 = \E{\norm{\alpha}^2}$, $\sigma_b^2=\E{\beta^2}$, and $\rho_{ab}^2 = \mathrm{corr}(\norm{\alpha}^2, \beta^2)$ from the property of multivariate normal distributions.
+
 
 \subsection{Deriving the approximate genetic architecture}
 
-We now return to deriving $p(\beta \mid G)$.
-The first approximation we apply to the expression is
-\begin{align} \label{eq:mean_field}
-    p(\beta \mid G) = \prod_j p(\beta_j \mid G_j)
-\end{align}
-and we expand $p(\beta_j \mid G_j)\ \propto \ p(G_j \mid \beta_j) \cdot p(\beta_j)$ with the results from the diffusion approximation.
-
-Let $\hp_j$ be the sample frequency computed from $G_j$. Then,
-\begin{align} \label{eq:xll}
-        p(G_j \mid \beta_j) 
-        = p(\hp_j \mid \beta_j) 
-        = \int_0^1 
-        \underbrace{\binom{2n}{k_j} x_j^{k_j}(1-x_j)^{2n-k_j}}_{\text{Binomial sampling}}
-        \ \cdot \ 
-        \underbrace{\vphantom{\binom{1}{k_j}}\pinf(x_j \mid \beta_j)}_{\text{Evolution}} dx_j
-\end{align}
-where $k_j$ is the number of the minor allele $j$ in the sample and $\pinf(x_j \mid \beta_j)$ is the equilibrium distribution of the population frequency $x_j$.
-One can see that this expression resembles the site frequency spectrum (SFS) [cite].
-
-We substitute 
+As we fixed $\E{\beta_j^2 \mid \norm{\alpha_j}}$ to be a linear function of $\norm{\alpha_j}^2$ from equation~\ref{eq:alpha_to_beta},
+completing equation~\ref{eq:goal2} reduces to finding
 \begin{align}
-    \pinf(x_j \mid \beta_j) 
-        =
-        \int \pinf(x_j \mid \alpha_j, \beta_j) \cdot p(\alpha_j \mid \beta_j) d\alpha_j 
-        = \int \pinf(x_j \mid \alpha_j) \cdot p(\alpha_j \mid \beta_j) d\alpha_j 
+    \E{\norm{\alpha_j}^2 \mid G}.
 \end{align}
-to equation~\ref{eq:xll} and swap integrations to get
-\begin{align} \label{eq:swapped}
+As in previous works, we assume linkage equilibrium and simplify the above to
+\begin{align}
+    \E{\norm{\alpha_j}^2 \mid G_j}
+\end{align}
+to relax the dependence of the effect size at locus $j$ only to the corresponding $j$-th column of $G$.
+Then,
+\begin{align} \label{eq:bayes_for_alpha}
     \begin{aligned}
-    p(G_j \mid \beta_j) &=
-    \int_0^1 \int 
-    \binom{2n}{k_j} x_j^{k_j}(1-x_j)^{2n-k_j}
-    \pinf(x_j \mid \alpha_j) p(\alpha_j \mid \beta_j) d\alpha_j dx_j \\
-    &= \int \int_0^1
-    \binom{2n}{k_j} x_j^{k_j}(1-x_j)^{2n-k_j}
-    \pinf(x_j \mid \alpha_j) p(\alpha_j \mid \beta_j) dx_j d\alpha_j  \\
-    &= \int p(\alpha_j \mid \beta_j)\int_0^1
-    \binom{2n}{k_j} x_j^{k_j}(1-x_j)^{2n-k_j}
-    \pinf(x_j \mid \alpha_j)  dx_j d\alpha_j. 
+        p(\norm{\alpha_j}^2 \mid G_j) \ \propto \
+        p(G_j \mid \norm{\alpha_j}^2) \cdot p(\norm{\alpha_j}^2).
     \end{aligned}
 \end{align}
 
-Although the inner integral looks complicated at first sight, 
-large sample asymptotics, namely $n \rightarrow \infty$ and $k_j/2n \rightarrow \hp_j$, greatly simplifies the integration.
-Due to the fact that the beta-binomial distribution collapses to a degenerate form with increasing sample size,
-\begin{align} \label{eq:beta_to_dirac}
-    \begin{aligned}
-        & \int_0^1 
-        \binom{2n}{k_j} 
-        x_j^{k_j}(1-x_j)^{2n-k_j}
-        \pinf(x_j \mid \alpha_j) 
-        dx_j \\
-        & \ \propto \ \int_0^1   
-        \binom{2n}{k_j} 
-        x_j^{k_j}(1-x_j)^{2n-k_j}
-        x_j^{\theta-1}(1-x_j)^{\theta-1}
-        \exp\left[-\frac{\alpha_j^2}{W_S}x_j(1-x_j) \right]dx_j \\
-        &\ \propto \ \exp\left[-\frac{\alpha_j^2}{W_S}\hp_j(1-\hp_j) \right]
-    \end{aligned}
-\end{align}
-where the integration turned into a substitution $x_j \leftarrow \hp_j$.
-Observe that the sample frequency $\hp_j$ naturally appears in the formula.
-Next, we put equation~\ref{eq:beta_to_dirac} back into equation~\ref{eq:swapped} to get
+The first term of the product is
 \begin{align}
     \begin{aligned}
-        p(G_j \mid \beta_j) 
-        &\ \propto \
-        \int p(\alpha_j \mid \beta_j) \cdot 
-        \exp\left[-\frac{\alpha_j^2}{W_S}\hp_j(1-\hp_j) \right] d\alpha_j \\
-        & \ \propto \ \int
-        \exp \left[ -\frac{\left( \alpha_j - \rho_{ab,j} \frac{\sigma_{a,j}}{\sigma_{b,j}} \beta_j \right)^2}{2 \sigma_{a,j}^2 (1 - \rho_{ab,j}^2)} \right]
-        \exp\left[-\frac{\alpha_j^2}{W_S}\hp_j(1-\hp_j) \right] d\alpha_j 
-        \\
-        & \ \propto \
-        \exp \left[ -\frac{\hat{p}_j(1 - \hat{p}_j) \rho_{ab,j}^2 \frac{\sigma_{a,j}^2}{\sigma_{b,j}^2} \beta_j^2}{W_s + 2\sigma_{a,j}^2(1 - \rho_{ab,j}^2)\hat{p}_j(1 - \hat{p}_j)} \right].
+    p(G_j \mid \norm{\alpha_j}^2)    
+    &=
+    \int_0^1 
+    p(G_j \mid x_j)
+    p_{\infty}(x_j \mid \alpha_j)
+    dx_j \\
+    &=
+    \int_0^1 
+    \binom{2n}{k_j} 
+    x_j^{k_j}(1-x_j)^{2n-k_j}
+    \pinf(x_j \mid \alpha_j) 
+    dx_j \\
+    & \ \propto \ \int_0^1   
+    \binom{2n}{k_j} 
+    x_j^{k_j}(1-x_j)^{2n-k_j}
+    x_j^{\theta-1}(1-x_j)^{\theta-1}
+    \exp\left[-\frac{\alpha_j^2}{W_S}x_j(1-x_j) \right]dx_j \\
+    &\ \propto \ \exp\left[-\frac{\alpha_j^2}{W_S}\hp_j(1-\hp_j) \right]
     \end{aligned}
 \end{align}
+where $k_j$ is the number of derived alleles and $n$ is the number of samples.
+This expression is identical to the site frequency spectrum (SFS).
 
-At last, we arrive at the formula for $p(\beta_j \mid G_j)$ by
+Equation~\ref{eq:bayes_for_alpha}'s second moment is easy to enumerate analytically if we assume that $\norm{\alpha_j}^2$ follows a $\chi^2$-distribution multiplied by $\sigma_a^2$.
+Then $\E{\norm{\alpha_j}^2} = \sigma_a^2$ and
 \begin{align}
-    p(\beta_j \mid G_j) &\ \propto \ 
-    \exp \left[ -\frac{\hat{p}_j(1 - \hat{p}_j) \rho_{ab,j}^2 \frac{\sigma_{a,j}^2}{\sigma_{b,j}^2} \beta_j^2}{W_s + 2\sigma_{a,j}^2(1 - \rho_{ab,j}^2)\hat{p}_j(1 - \hat{p}_j)} \right] \cdot p(\beta_j), 
+    p(\norm{\alpha_j}^2 \mid G_j) \ \propto \ \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}\hp_j(1-\hp_j) \right] \cdot
+    \frac{1}{\norm{\alpha_j}}\exp\left(-\frac{\norm{\alpha_j}^2}{2\sigma_a^2}\right).
 \end{align}
-a Gaussian density which has the variance of
+The desired quantity is then
+\begin{align} \label{eq:alpha2_cond_avg}
+    \E{\norm{\alpha_j}^2 \mid G_j} =
+    \frac{\sigma_a^2}{
+    1 + 2\frac{\sigma_a^2}{W_S}\hp_j(1-\hp_j)
+    }.
+\end{align}
+Lastly, we substitute equation~\ref{eq:alpha2_cond_avg} to equation~\ref{eq:alpha_to_beta}
 \begin{align} \label{eq:beta_cond_var}
-    \E{\beta_j^2 \mid G_j} = \E{\beta_j^2 \mid \hp_j} = 
-    \sigma_{b,j}^2 \cdot 
-    \left[
+    \E{\beta_j^2 \mid G_j} = 
+    \sigma_b^2 \cdot
+    \left(
+        1 - \rho_{ab}^2 \cdot 
         \frac{
-            1 + (1-\rho_{ab,j}^2) \cdot 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)}{
-            1 + 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
+        2 \frac{\sigma_a^2}{W_S}\hp_j(1-\hp_j) 
+        }{
+        1+ 2 \frac{\sigma_a^2}{W_S}\hp_j(1-\hp_j)
         }
-    \right]
-\end{align}
-with effectively three parameters $\sigma_b^2$, $\sigma_a^2 / W_S$, and $\rho$.
-Note that $W_S$ and $\sigma_a^2$ cannot be separately identified because the formula remains invariant with respect to a common scaling factor.
-
-The formula has several important properties.
-First, if the trait $y$ is uncorrelated with fitness $z$ ($\rho=0$), it reduces to $\sigma_b^2$ and has no dependence on the sample frequency $\hp_j$.
-Secondly, it is always bounded above by $\sigma_b^2$, so does not diverge to infinity regardless of the value of $\hp_j$.
-Nevertheless, it captures the negative correlation between $\hp_j$ and the magnitude of $\beta_j$.
-Finally, it captures the intuition from earlier studies that the relative ratio of mutational variance $\sigma_{a,j}^2$ and selection width $W_S$ determines the system [cite, Hayward].
-
-When majority of variants are small, equation~\ref{eq:beta_cond_var} carries an identification issue.
-To see this,
-\begin{align}
-    \begin{aligned}
-    \E{\beta_j^2 \mid \hp_j} &= 
-         \sigma_{b,j}^2 \cdot 
-    \left[
-        \frac{
-            1 + (1-\rho_{ab,j}^2) \cdot 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)}{
-            1 + 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
-        }
-    \right]  \\
-    &= \sigma_{b,j}^2 \cdot 
-    \left[
-    1 - 
-    \rho_{ab,j}^2 \cdot 
-        \frac{
-             2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)}{
-            1 + 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
-        }
-    \right] \\
-    &\approx \sigma_{b,j}^2 \cdot 
-    \left[
-    1 - 
-             2\frac{\rho_{ab,j}^2\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)
-    \right]
-    \end{aligned}
-\end{align}
-for small $\hp_j$.
-Hence, we essentially have only two parameters: $\sigma_{b}^2$ and $\frac{\rho^2_{ab}\sigma_a^2}{W_S}$.
-
-The above expression linearizes the formula, which we found to work poorly for estimation.
-We found that the following parameterization obtained from matching first-order Taylor expansion works the best in practice.
-\begin{align}
-    \begin{aligned}
-     \E{\beta_j^2 \mid \hp_j} &\approx
-     \sigma_{b,j}^2 \cdot
-     \frac{1}{1
-     +2 \frac{\rho_{ab,j}^2\sigma_a^2}{W_S}}.
-    \end{aligned} 
+    \right).
 \end{align}
 
 
 \section{Simulation and empirical study}
 
+\subsection{SLiM forward simulation}
 
-\textcolor{red}{Everything above is hand-written. All below is GENAI. Curious how people manage to write meaningful stuffs using it. Only the numbers are correct and mostly rubbish.}
+We evaluate all of our theory in forward simulations conducted by SLiM [Haller and Messer 2025, cite].
+This is in contrast to common practices benchmarking linear mixed models that use fixed genotypes with varying only the random effects and the residual noise of the regression model [cite].
+We do not simulate data directly from formula~\ref{eq:arch_final}.
+Instead, we conduct an individual-based simulation in SLiM that is under stabilizing selection according to the fitness function in equation~\ref{eq:fitness}.
+The simulation is based on equation~\ref{eq:coa} where a one-dimensional trait is subject to selection while the observed trait is correlated to it by its focal effect sizes.
 
-\subsection{SLiM simulation}
-We conducted forward-time, individual-based simulations using the SLiM simulation framework to generate population genetic datasets under an infinite-sites quantitative trait model subject to stabilizing selection. Our foundational scenario simulated a panmictic demographic history with a constant diploid population size of $N=10{,}000$ individuals. To correctly capture the macro-level genetic architecture and linkage blocks, we simulated sequences scaled up to $L=10^6$ loci. Simulation parameters were appropriately scaled from a reference configuration ($L_{\text{ref}}=50{,}000$, $N_{\text{ref}}=10{,}000$) to the active genome sequence to maintain intended target architecture constraints. An aggregate reference mutation rate of $U_{\text{ref}} = 0.01$ yielded a per-locus mutation rate of $\mu = (U_{\text{ref}}/L) \times (N_{\text{ref}}/N) = 10^{-8}$, and the uniform per-generation recombination rate was scaled to $r = 10^{-3} \times (L_{\text{ref}}/L) = 5 \times 10^{-5}$.
+The precise simulation configuration is as follows.
+The population followed a panmictic demographic history with a constant diploid population size of $N=10{,}000$ individuals. 
+Each genome was of length $L=2 \times 10^6$ with mutation rate of $\mu=10^{-8}$ and recombination rate of $r=10^{-5}$.
+The configuration was borrowed from [Hayward and Sella, 2022] to set $L\mu=0.02$ mutation per genome per generation, $2NL\mu = 400 \gg 1$ to ensure polygenicity, and $r/\mu = 10^3$ for low linkage disequilibrium.
+The mutational effect sizes $\alpha$ were simulated from $\sigma_a^2 \in \{0.5, 1.0, 2.0\}$ and the selection width $W_S= V_S/2N =\{1.0, 2.0, 4.0\}$.
+As $V_S$ is of scale $\mathcal{O}(N)$, the environmental variance $V_E$ and the genetic variance $V_G$ were negligible.
+Hence, the fitness function~\ref{eq:fitness} was used in the simulations.
+For each pair of $\sigma_a^2$ and $W_S$, 
+a single burn-in of $10N$ generations were taken followed by 20 separate replicates of $5N$ generations.
 
-The trait architecture was framed by a strictly additive genetic model without environmental variance ($V_E = 0$). Mutational effect sizes were drawn from a zero-centered Gaussian prior with an expected mutational variance $\sigma_a^2$. The fitness dynamics were governed by evaluating individuals' centered additive trait values against an optimizing Gaussian fitness landscape where the parameter $V_S$ dictates selection strength. Specifically, we assessed a systematic parameter grid of $50$ independent simulation replicates per configuration. We varied the population-scaled selection parameter $W_S = V_S / 2N \in \{0.5, 1.0, 2.0\}$ and the genetic variation scalar $\sigma_a^2 \in \{0.5, 1.0, 2.0\}$. All population paths underwent a preliminary burn-in period of $10N$ generations ($\approx 100{,}000$ generations) to reach equilibrium site frequency dynamics, followed by $40{,}000$ further generations simulating the active observational regime.
+To simulate apparent selection, for each population after total $15N$ generations, we drew the observed effect sizes $\beta$ conditional on $\alpha$ according to the joint distribution in equation~\ref{eq:coa}.
+This is same as sampling $\beta$ during SLiM simulation because $\beta$ has no effect on the simulation at all ($\alpha$ does the job).
+For $\sigma_b^2$ and $\rho_{ab}^2$, we chose it to be the same as $\sigma_a^2$ and in a grid of $\{0.00, 0.50, 1.00\}$, respectively.
 
+\textcolor{red}{Results section below is mostly fake GenAI stuff.}
 
 \subsection{Variance component estimation}
 
@@ -528,281 +401,211 @@ Figure~\ref{fig:blup_prediction} presents the validation $R^2$ and correlation f
     \label{fig:blup_prediction}
 \end{figure}
 
-\subsection{Post-hoc analysis of GWAS summary statistics}
-We can essentially copy and paste from Yuval's 2025 paper but is it necessary?
-Maybe if we aim higher impact factors?
+\begin{figure}[htpb]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_sigma2a_estimates.pdf}
+    \caption{Benchmark of mutational variance $\sigma_b^2$ estimation.}
+    \label{fig:sigma2_a_estimates}
+\end{figure}
 
 \section{Discussion}
+% opening
 
+We presented a general procedure to derive evolution-aware mixed-effects model.
+We applied the framework to stabilizing selection with pleiotropy and 
+found a novel frequency-dependence formula of effect sizes expressed in terms of evolutionary parameters.
+The parameters can be estimated by restricted maximum likelihood (REML) informing the underlying fitness landscape of the trait.
+Practically, common applications of mixed-effects models such as genetic prediction by best linear unbiased predictor (BLUP) can be performed.
+When applied to forward simulations,
+our model performed better than the conventional $\alpha$-model across $\alpha$-values in prediction tasks, 
+further supporting the utility of the model.
 
+\paragraph{The pleiotropy model}
+Empirical studies have shown that pleiotropy is pervasive in human complex traits.
+[Simons et al 2018, cite] models it using Fisher's geometric model (FGM) with isotropic mutations effects.
+In this framework, each axis of the multi-dimensional trait contributes equally to the fitness, 
+forcing the mutation's effect on a focal trait to spread evenly across axes.
+In equation~\ref{eq:alpha_to_beta}, we generalize this relationship to account for potentially non-isotropic relationship between a focal trait and the underlying fitness.
+One example is the jointly Gaussian mutational effects that has been considered in earlier theoretical works and in which we considered in our simulations [cite].
+It would be interesting to investigate alternative models of pleiotropy that may lead to the relationship of equation~\ref{eq:alpha_to_beta}.
 
-
-
-
-\newpage
-
-
-\textcolor{red}{Everything below is scrible notes}
-
-
-
-
-One can further consider the sample statistics under this model.
-Suppose that we obtained $k$ derived allele copies out of $n$ samples.
-Assume that $n \rightarrow \infty$ and $k/n \rightarrow \hp \in (0,1)$.
-\begin{align} \label{eq:sample_freq_spectrum}
-    \begin{aligned}
-        &p(\text{$k$ out of $n$ copies}; \alpha) \approx p(\hp; \alpha)  \\
-        &= \lim_{n,k \rightarrow \infty}
-        \int_0^1 \binom{n}{k} x^{k} (1-x)^{n-k}
-        C(\alpha)^{-1} \cdot
-     x^{\theta-1}(1-x)^{\theta-1} 
-     \exp\left[-\frac{\alpha^2}{W_s}x(1-x) \right] dx\\
-     &= \lim_{n,k \rightarrow \infty} 
-     C(\alpha)^{-1} \frac{1}{n+1}
-     \frac{B(k+\theta, n-k + \theta)}{B(k+1,n-k+1)} \\
-     &\,\cdot\int_0^1 \frac{1}{B(k+\theta,n-k+\theta)} x^{k+\theta-1}(1-x)^{n-k+\theta-1}
-     \exp\left[-\frac{\alpha^2}{W_s}x(1-x)\right] dx \\
-     &= \lim_{n,k \rightarrow \infty}
-     C(\alpha)^{-1} \frac{1}{n+1}
-     \frac{B(k+\theta, n-k + \theta)}{B(k+1,n-k+1)}
-     \cdot \E[x \sim B(k+\theta,n-k+\theta)]{
-        \exp\left(-\frac{\alpha^2}{W_s}x(1-x)\right)
-     } \\
-     &= C(\alpha)^{-1} \cdot 
-     \exp\left[-\frac{\alpha^2}{W_s}\hp(1-\hp)\right]
-     \cdot \lim_{n,k \rightarrow \infty} 
-     \frac{1}{n+1}
-     \frac{B(k+\theta, n-k + \theta)}{B(k+1,n-k+1)} \\
-     &\approx C(\alpha)^{-1} \cdot 
-     \exp\left[-\frac{\alpha^2}{W_s}\hp(1-\hp)\right]
-     \cdot \mathcal{O}(n^{-1})
-    \end{aligned}
-\end{align}
-giving the sample probability given the effect size $\alpha$.
-
-\subsection{Modelling evolution in linear mixed models}
-The sample frequency spectrum derived in equation~\ref{eq:sample_freq_spectrum} can be used in the context of linear mixed models.
-Suppose that $\balpha \sim N(0, \sigma_a^2\bI)$ is the vector of effect sizes,
-$\bG \in \real^{n \times p}$ is the genotype matrix, and $\bz \in \real^n$ is the vector of fitness.
-
-The joint likelihood of $\bz$, $\bG$ and $\balpha$ is
-\begin{align} \label{eq:joint_like_fitness}
-    \begin{aligned}
-        p(\bz, \bG, \balpha) &= p(\bz \mid \bG, \balpha)
-        \cdot p(\bG \mid \balpha) 
-        \cdot p(\balpha) \\
-    \end{aligned}
-\end{align}
-with the negative logarithm being
+% reml is moment-based so its okay
+\paragraph{Identifiability and estimation}
+In checking REML's ability to estimate parameters,
+we found that jointly estimating $\rho_{ab}$ and $\sigma_a^2/W_S$ is very difficult.
+This is because $\hp_j(1-\hp_j)$ are usually too small and not variable enough due to the $U$-shaped distribution of allele frequencies.
+To see this, the denominator of equation~\ref{eq:beta_cond_var} is mostly
 \begin{align}
-    \begin{aligned}
-        - \log p (\bz, \bG, \balpha)
-        &= - \log p(\bz \mid \bG, \balpha) - \log p(\bG \mid \balpha) - \log p (\balpha) \\
-        &= \frac{n}{2}\log(\sigma_e^2) + \frac{1}{2\sigma_e^2}\norm{\by - \bG \balpha}_2^2 \\
-        &+ \sum_{j=1}^pC(\alpha_j) + \frac{\hp_j(1-\hp_j)}{W_s} \alpha_j^2 \\
-        &+ \frac{p}{2}\log(\sigma_a^2) + \frac{1}{2\sigma_a^2}\sum_{j=1}^p \alpha_j^2
-    \end{aligned}
+    1 + 2\frac{\sigma_a^2}{W_S}\hp_j(1-\hp_j) \approx 1,
 \end{align}
-after discarding the constants.
-
-We generally integrate over $\balpha$ to obtain the marginal likelihood $p(\bz, \bG)$ that serves as an optimization target,
-but this is not analytically tractable due to $C(\alpha_j)$.
-Hence, we focus on the second moment.
+so $\rho_{ab}$ and $\sigma_a^2/W_S$ mostly appear as a product in the numerator
 \begin{align}
-    \begin{aligned}
-        p(\alpha_j \mid \hp_j) 
-        &\ \propto \ p(\hp_j \mid \alpha_j) \cdot p(\alpha_j) \\
-        &= \cdots \\
-        &= \frac{1}{ _1F_1\left(\theta; \theta+\frac{1}{2};-\frac{\alpha_j^2}{4W_S}\right)} 
-        \cdot 
-        \exp\left[
-        -\alpha_j^2\left(
-        \frac{\hp_j(1-\hp_j)}{W_S}
-         + \frac{1}{2\sigma_a^2}
-        \right)
-        \right]
-    \end{aligned} 
-\end{align}
-where $_1F_1(a;b;z)$ is the Kummer's hypergeometric function.
-The second moment is 
-\begin{align}
-    \E{\alpha_j^2 \mid \hp_j} =
-    \frac{1}{2\left( \frac{\hp_j(1-\hp_j)}{W_S} + \frac{1}{2\sigma_a^2} \right)} 
-    + \frac{\theta}{4W_S \left( \frac{\hp_j(1-\hp_j)}{W_S} + \frac{1}{2\sigma_a^2} \right)^2}
-\end{align}
-accounting for the first order expansion of $_1F_1$.
-\begin{align}
-    _1 F_1(a;b;z) \approx 1 + \frac{a}{b}z + \mathcal{O}(z^2)
-\end{align}
-
-The genetic relatedenss matrix is
-\begin{align}
-    \bG \cdot 
-    \begin{bmatrix}
-        \E{\alpha_1^2 \mid \hp_j} & \cdots & 0 \\
-        0 & \ddots & 0 \\
-        0 & \cdots & \E{\alpha_p^2 \mid \hp_j}
-    \end{bmatrix}
-    \bG^T
-\end{align}
-which can be plugged into restricted maximum likelihood (REML).
-Although common approaches derive REML from multivariate normal models,
-the point estimate is consistent as long as the variance is correctly specified.
-
-\subsection{Functional annotation as a proxy for fitness}
-% have to mention pleiotropy
-
-Let $\by$ and $\bbeta$ be the trait and the effect size of $\by$.
-Then the likelihood similar to equation~\ref{eq:joint_like_fitness} is
-\begin{align}
-    \begin{aligned}
-    p(\by, \bG, \bbeta) 
-    &= 
-    p(\by \mid \bG, \bbeta) \cdot p(\bG \mid \bbeta) \cdot p(\bbeta)  \\
-    &= 
-    p(\by \mid \bG, \bbeta) \cdot \int p(\bG, \balpha \mid \bbeta) d\balpha \cdot p(\bbeta)  \\
-    &=
-    p(\by \mid \bG, \bbeta) \cdot \int p(\bG, \mid \balpha ,\bbeta) p(\balpha \mid \bbeta) d\balpha \cdot p(\bbeta)  \\
-    &=
-    p(\by \mid \bG, \bbeta) \cdot \int p(\bG \mid \balpha) p(\balpha \mid \bbeta) d\balpha \cdot p(\bbeta)  \\
-    \end{aligned}
-\end{align}
-The last line is because the dynamics of $\bG$ is determined by the fitness effect size $\balpha$ and not the trait effect size $\bbeta$, 
-giving $p(\bG \mid \balpha) = p(\bG \mid \balpha, \bbeta)$.
-
-Observe that $p(\balpha \mid \bbeta) = p(\balpha)$ if $\balpha \indep \bbeta$, i.e., no genetic correlation exists between fitness and the trait.
-For the sake of analytic ease,
-assume that
-\begin{align}
-    \begin{pmatrix}
-        \alpha_j \\
-        \beta_j
-    \end{pmatrix}
-    \sim
-    N\left(
-    \begin{bmatrix}
-        0 \\
-        0
-    \end{bmatrix}
-    , 
-    \begin{pmatrix}
-        \sigma_{a,j}^2 & \rho_{ab,j}\sigma_{a,j}\sigma_{b,j} \\
-        \rho_{ab,j} \sigma_{a,j} \sigma_{b,j} & \sigma_{b,j}^2
-    \end{pmatrix} 
-    \right)
-\end{align}
-Here, the parameters indexed by $j$ on the right-hand side are potentially a function of functional annotations of locus $j$.
-We return to this point later.
-
-Recall that
-\begin{align}
-    p(\bG_j ; \alpha_j) = p(\hp_j ; \alpha_j) \approx
-    C(\alpha_j)^{-1} \cdot 
-    \exp \left[
-        -\frac{\alpha_j^2}{W_s}\hp_j(1-\hp_j)
-    \right] \cdot \mathcal{O}(n^{-1})
-\end{align}
-Hence,
-\begin{align}
-    p(\bG_j; \beta_j) = p(\hp_j ; \beta_j) &= \int p(\bG_j \mid \alpha_j) p(\alpha_j \mid \beta_j) d\alpha_j \\
-    &= 
-    \mathcal{O}(n^{-1}) \cdot
-    \int 
-    C(\alpha_j)^{-1} \cdot
-    \exp \left[
-        -\frac{\alpha_j^2}{W_s}\hp_j(1-\hp_j)    
-    \right]
-    \cdot
-    p(\alpha_j \mid \beta_j) d\alpha_j \\
-    &\approx
-    \mathcal{O}(n^{-1}) \cdot
-    \int 
-    \exp \left[
-        -\frac{\alpha_j^2}{W_s}\hp_j(1-\hp_j)    
-    \right]
-    \cdot
-    p(\alpha_j \mid \beta_j) d\alpha_j
-\end{align}
-where we took advantage of $C(\alpha_j) / B(\theta, \theta) \rightarrow 1$ along $\theta \rightarrow 0$.
-
-\begin{align}
-    p(\alpha_j \mid \beta_j) 
-    = \frac{1}{\sqrt{2\pi \sigma_{a,j}^2 (1 - \rho_{ab,j}^2)}} 
-    \exp \left( -\frac{\left( \alpha_j - \rho_{ab,j} \frac{\sigma_{a,j}}{\sigma_{b,j}} \beta_j \right)^2}{2 \sigma_{a,j}^2 (1 - \rho_{ab,j}^2)} \right)
-\end{align}
-
-\begin{align}
-    I = 
-    \left( 1 + \frac{2\sigma_{a,j}^2(1 - \rho_{ab,j}^2)\hat{p}_j(1 - \hat{p}_j)}{W_s} \right)^{-\frac{1}{2}} \exp \left( -\frac{\hat{p}_j(1 - \hat{p}_j) \rho_{ab,j}^2 \frac{\sigma_{a,j}^2}{\sigma_{b,j}^2} \beta_j^2}{W_s + 2\sigma_{a,j}^2(1 - \rho_{ab,j}^2)\hat{p}_j(1 - \hat{p}_j)} \right)
-\end{align}
-
-\begin{align}
-    \begin{aligned}
-    p(\beta) \ \propto \
-        \exp
-        \left(
-        -
+    \rho_{ab}^2 \cdot 
     \frac{
-        p(1-p)\rho^2 \frac{\sigma_a^2}{\sigma_b^2}\beta^2 
+    2 \frac{\sigma_a^2}{W_S}\hp_j(1-\hp_j) 
     }{
-        W_S + 2\sigma_a^2 (1-\rho^2)p(1-p) 
-    }
-        \right) \cdot
-        \exp 
-        \left(
-            -\frac{\beta^2}{2\sigma_b^2}
-        \right)
-    \end{aligned}
+    1+ 2 \frac{\sigma_a^2}{W_S}\hp_j(1-\hp_j)
+    } \approx
+    2 \left(
+    \frac{\rho_{ab}^2\sigma_a^2}{W_S}
+    \right) \hp_j(1-\hp_j).
 \end{align}
+A temporary fix is to fit a model by assuming $\rho_{ab}=1$ and treat the resulting estimate as $\rho_{ab}^2\sigma_a^2/W_S$.
+In the appendix, we found that this degrades the estimator's precision but has negligible impact on genetic prediction by BLUP.
+We also find that $\sigma_a^2$ remains intact despite this slight misspecification.
 
+\paragraph{Simplifying assumptions}
+In order to derive a simplistic formula, 
+we made various assumptions.
+These include genotype likelihood factorization mirroring composite likelihood, population reaching stationarity, low mutation rate, and weak selection relative to recombination.
+In the most general setting, the dynamics of a focal locus may depend on the remaining loci through linkage (we ignore epistasis as we focus on a strictly additive model), which is ignored by the factorization.
+This allowed us to reduce our analysis to a single locus.
+
+\paragraph{Frequency-dependence and genetic prediction}
+We found that the evolutionary model estimates the mutational variance correctly and achieves the best prediction in forward simulations.
+Interestingly, the $\alpha=0$ model shows near-identical prediction accuracy while degrading in mutational variance estimation.
+The first result can be explained by the low frequency of most variants, making $\E{\beta_j^2 \mid \hp_j} \approx \E{\beta_j^2}$.
+This holds more most variants, the genetic relatedness matrix (GRM) of the methods are almost identical up to a constant factor.
+As BLUP is invariant with respect to constant scaling of GRM, the two are likely to coincide.
+The reduction in $\sigma_b^2$ is also expected because population's genetic variance is reduced by selection.
+Since $\alpha=0$ has no frequency-dependence encoded into the model, the model compensates the reduced genetic variance by lowering its $\sigma_b^2$ estimate.
+
+The two nonzero $\alpha$-models shows notable degradation in prediction accuracy and $\sigma_b^2$ inference.
+The result clearly shows that evolutionarily principled modeling of frequency-dependence has an advantage over statistical heuristics.
+
+
+
+
+
+\paragraph{Linkage disequlibrium and the Bulmer effect}
+The main text entirely ignores linkage disequilibrium (LD) and subsequently the Bulmer effect.
+We attribute the consistent under-estimation of $\sigma_a^2/W_S$ across parameter configurations to the Bulmer effect.
+In short, Bulmer effect creates dragging forces opposed to selection, weakening the effective strength of selection acting on the locus.
+This was formalized by a [Negm and Veller 2026, cite] who showed that the reduction of selective forces can be expressed as a multiplicative factor.
+Hence, algebraically, this has the same effect as an increased value of selection width $W_S$, thereby smaller $\sigma_a^2 /W_S$.
+By expanding their formula with further approximations, we found that Bulmer effect precisely predicts the degree of under estimation.
+See appendix for more details.
+
+\section*{Acknowledgement}
+This work greatly benefited from the discussion with Joshua Schraiber (University of Southern California) and Guy Sella (Columbia University). 
+I thank the attendees of New York Area Population Genetics 26 for valuable comments.
+This research was supported in part by the National Institute of General Medical Sciences of the
+NIH under award number R35GM151145. The content is solely the responsibility of the authors
+and does not necessarily represent the official views of the NIH.
+
+
+\appendix
+\setcounter{figure}{0}
+\setcounter{equation}{0}
+
+\renewcommand{\thefigure}{A\arabic{figure}}
+\renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\theequation}{A\arabic{equation}}
+
+\section{Mean-field approach to linkage disequilibrium}
+
+So far, we completely ignored the effect of linkage which creates theoretical challenges.
+To analyze the dynamics of an individual locus in general,
+we have to consider the countless number of interactions with other loci that exhibit randomness.
+To simplify the problem, we adopt the \emph{mean-field} approximation where the locus is assumed to interact with the rest of the system in a simplified fashion.
+Here, the field is the rest of the genome, or the genetic background, with which the focal locus interacts.
+Because this background consists of a huge number of loci,
+although being stochastic in principle, we instead treat it as a deterministic \emph{average} which gives rise to the term mean-field.
+
+By working with each locus while leaving all else as a deterministic aggregate, 
+it gives rise to the factorized probability in equation~\ref{eq:mean_field}.
+Under this framework, one can further refine equation~\ref{eq:seff} as (after scaling by $2N$)
+\begin{align} \label{eq:seff_ld}
+    \seff(x_j) = \left(x_j-\frac{1}{2}\right)\cdot \left( 
+    1- \frac{1}{2\overline{c}_j}\frac{V_g}{V_S}
+    \right)^2 \cdot \frac{\alpha_j^2}{W_S} 
+\end{align}
+where $\overline{c}_j$ and $\overline{c}$ are harmonic means of the recombination fraction given by
+\begin{gather}
+    \overline{c}_j = (L-1) \bigg/ \sum_{k:k \neq j} \frac{1}{c_{jk}}
+    \quad \text{and} \quad
+    \overline{c} = L(L-1) \bigg/ \sum_{j,k:i \neq j} \frac{1}{c_{jk}}
+\end{gather}
+and $V_g = 2\sum_j x_j(1-x_j)\alpha_j^2$ is the genic variance of $z$ as derived in [Negm and Veller 2026, cite].
+For simplicity, let $u_j$ be the normalized position of locus $j$ so that $Lu_j$ is the position in base pairs and write $h(u_j) = 1\, / \, 2\overline{c}_j$.
+
+The difficulty arising in equation~\ref{eq:seff_ld} is that $V_g$ is also a random variable as it's a function of $x_j$ that are random.
+We take another round of mean-field approximation so that $V_g = 2L \cdot \E{x(1-x)\alpha^2}$ is a constant.
+By further assuming that mutation rate is uniform, otherwise we can rescale the genome,
+we arrive at
+\begin{gather}
+    \begin{gathered}
+        \alpha \sim N(0, \sigma_a^2) \\
+        u \sim \mathrm{Uniform}[1/L,(L-1)/L] \\
+        x \mid \alpha, u \sim x^{\theta-1}(1-x)^{\theta-1}
+        \exp\left[
+            - \left(
+            1- h(u) \cdot \frac{V_g}{V_S}
+            \right)^2 \cdot 
+            \frac{\alpha^2}{W_S}
+            x(1-x)
+        \right] \\
+        V_g = 2L \cdot \E{x(1-x)\alpha^2}.
+    \end{gathered}
+\end{gather}
+under stationarity as before.
+Solving for $V_g$ with $h(u) V_g \ll V_S$ gives
 \begin{align}
-    \E[]{\beta^2 \mid \hp} = 
-    \sigma_b^2 \cdot
+    V_g = \frac{2L\theta \sigma_a^2}{2 + \frac{\sigma_a^2}{W_S}}.
+\end{align}
+which means that the shape of $h$ is irrelevant under the $V_g \ll V_S$ approximation.
+A locus-level equivalent is derived in [Keightley and Hill 1988, cite].
+With diminishing selection $W_S \rightarrow \infty$, the formula reduces to the classic neutral result $V_G = L\theta\sigma_a^2 = 4NL\mu\sigma_a^2$ [Lynch 1986, cite].
+
+We now follow the same steps as before to deduce
+\begin{align} \label{eq:arch_final}
+    \begin{aligned}
+        \E{\beta_j^2 \mid \hp_j, u_j}
+    &= \sigma_{b,j}^2 \cdot 
     \left[
+    1 - 
+    \rho_{ab,j}^2 \cdot 
         \frac{
-            W_S + (1-\rho^2) \cdot 2\sigma_a^2 \hp(1-\hp)
-        }{
-            W_S + 2\sigma_a^2 \hp(1-\hp)
+             2\left(1-h(u_j)\frac{V_g}{V_S}\right)^2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)}{
+            1 + 2\left(1-h(u_j)\frac{V_g}{V_S}\right)^2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
         }
     \right]
-\end{align}
-
-\textcolor{red}{It would be beneficial to argue $\sigma_a^2, \sigma_b^2 \rightarrow 0 $ for highly polygenic trait}
-
-
-
-Integrating over the distribution of annotation categories gives the mixture model proposed by \citet{OConnor2021fourier, OConnor2025polygenicity}.
-
-
-We deduce $\pinf(x_j \mid \beta_j)$ from equation~\ref{eq:stat_dist}.
-\begin{align}
-    \begin{aligned}
-        &\pinf(x_j \mid \beta_j) \\
-        &=
-        \int \pinf(x_j \mid \alpha_j, \beta_j) \cdot p(\alpha_j \mid \beta_j) d\alpha_j \\
-        &= \int \pinf(x_j \mid \alpha_j) \cdot p(\alpha_j \mid \beta_j) d\alpha_j \\
-        &\ \propto \
-        x_j^{\theta-1}(1-x_j)^{\theta-1} 
-        \int
-        \exp\left[
-        -\frac{\alpha_j^2}{W_S}x_j(1-x_j) 
-        \right] \cdot 
-        \exp \left[ -\frac{\left( \alpha_j - \rho_{ab,j} \frac{\sigma_{a,j}}{\sigma_{b,j}} \beta_j \right)^2}{2 \sigma_{a,j}^2 (1 - \rho_{ab,j}^2)} \right] d\alpha_j \\
-        & \ \propto \
-        x_j^{\theta-1}(1-x_j)^{\theta-1}
     \end{aligned}
 \end{align}
-\subsection{Extending theory through simulations}
-% bulmer effect!
-% non-equilibrium
+which reduces to
+\begin{align}
+    \begin{aligned}
+        \E{\beta_j^2 \mid \hp_j, u_j}
+    &=   
+        \frac{
+        \sigma_{b,j}^2
+             }{
+            1 + 2\left(1-h(u_j)\frac{V_g}{V_S}\right)^2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
+        }
+    \end{aligned}
+\end{align}
+if $\rho=1$, a perfect correlation between $\alpha$ and $\beta$.
+As before, if $\rho=0$, it simply becomes $\sigma_{b,j}^2$ as selection on $z$ has no influence on $y$ at all.
+For the correction factors in Figure~\ref{fig:blm_sigma2_a_over_ws}, we used the global harmonic mean of recombination fraction.
+
+\section{Identification issues of \texorpdfstring{$\rho_{ab}^2\sigma_a^2/W_S$}{}}
+
+\begin{figure}[htpb]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_summary_prediction_rho1_fixed.pdf}
+    \caption{Benchmark of mutational variance $\sigma_b^2$ estimation.}
+    \label{fig:sigma2_a_estimates}
+\end{figure}
+
+\begin{figure}[htpb]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_sigma2a_estimates_rho1_fixed.pdf}
+    \caption{Benchmark of mutational variance $\sigma_b^2$ estimation.}
+    \label{fig:sigma2_a_estimates}
+\end{figure}
 
 
-\section{Results}
 
-\subsection{Evolutionary heuristics for genetic prediction}
-
-\section{Discussion}
 
 \end{document}
 

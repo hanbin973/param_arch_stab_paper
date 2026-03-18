@@ -1,4 +1,55 @@
 
+When majority of variants are small, equation~\ref{eq:beta_cond_var} carries an identification issue.
+To see this,
+\begin{align}
+    \begin{aligned}
+    \E{\beta_j^2 \mid \hp_j} &= 
+         \sigma_{b,j}^2 \cdot 
+    \left[
+        \frac{
+            1 + (1-\rho_{ab,j}^2) \cdot 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)}{
+            1 + 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
+        }
+    \right]  \\
+    &= \sigma_{b,j}^2 \cdot 
+    \left[
+    1 - 
+    \rho_{ab,j}^2 \cdot 
+        \frac{
+             2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)}{
+            1 + 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
+        }
+    \right] \\
+    &\approx \sigma_{b,j}^2 \cdot 
+    \left[
+    1 - 
+             2\frac{\rho_{ab,j}^2\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)
+    \right]
+    \end{aligned}
+\end{align}
+for small $\hp_j$.
+Hence, we essentially have only two parameters: $\sigma_{b}^2$ and $\frac{\rho^2_{ab}\sigma_a^2}{W_S}$.
+
+The above expression linearizes the formula, which we found to work poorly for estimation.
+We found that the following parameterization obtained from matching first-order Taylor expansion works the best in practice.
+\begin{align}
+    \begin{aligned}
+     \E{\beta_j^2 \mid \hp_j} &\approx
+     \sigma_{b,j}^2 \cdot
+     \frac{1}{1
+     +2 \frac{\rho_{ab,j}^2\sigma_a^2}{W_S}\hp_j(1-\hp_j)}.
+    \end{aligned} 
+\end{align}
+
+A more general relationship between $\alpha_j$ and $\beta_j$ can be obtained by the tower property
+\begin{align}
+    \begin{aligned}
+        \E{\beta_j^2 \mid \hp_j}
+        &= \E{\E{\beta_j^2 \mid \alpha_j} \mid \hp_j}
+    \end{aligned}
+\end{align}
+which only requires $\E{\beta_j^2 \mid \alpha_j}$ instead of the full joint distribution.
+
 
 % ---------------
 We reuse the expensive quantities to reduce computation.
@@ -239,6 +290,214 @@ One can instead estimate the mutational heritability $h^2_m = \sigma_m^2 / \sigm
     \caption{Mutational and additive genetic variances. 10 freely recombining loci were simulated with mutation rate $\mu=10^{-4}$ and a constant population size $N_e=1000$ were simulated 100 times. (A) Additive variance $\var{\bg}$ and \texttt{tslmm} $\widehat{\tau}^2$ can both estimate the mutational variance. (B) The correlation between additive variance and \texttt{tslmm} is weak.}
     \label{fig:mutationalvariance}
 \end{figure}
+
+
+
+
+
+We now return to deriving $\E{\beta^2 \mid G}$ where we approximate it by a product of separate loci,
+\begin{align} \label{eq:mean_field}
+    p(\beta \mid G) = \prod_j p(\beta_j \mid G_j),
+\end{align}
+and expand $p(\beta_j \mid G_j)\ \propto \ p(G_j \mid \beta_j) \cdot p(\beta_j)$ with the results from the diffusion approximation.
+
+Let $\hp_j$ be the sample frequency computed from $G_j$. Then,
+\begin{align} \label{eq:xll}
+        p(G_j \mid \beta_j) 
+        = p(\hp_j \mid \beta_j) 
+        = \int_0^1 
+        \underbrace{\binom{2n}{k_j} x_j^{k_j}(1-x_j)^{2n-k_j}}_{\text{Binomial sampling}}
+        \ \cdot \ 
+        \underbrace{\vphantom{\binom{1}{k_j}}\pinf(x_j \mid \beta_j)}_{\text{Evolution}} dx_j
+\end{align}
+where $k_j = 2n \hp_j$ is the number of the minor allele $j$ in the sample and $\pinf(x_j \mid \beta_j)$ is the equilibrium distribution of the population frequency $x_j$.
+One can see that this expression resembles the site frequency spectrum (SFS) [cite].
+
+We substitute 
+\begin{align}
+    \pinf(x_j \mid \beta_j) 
+        =
+        \int \pinf(x_j \mid \alpha_j, \beta_j) \cdot p(\alpha_j \mid \beta_j) d\alpha_j 
+        = \int \pinf(x_j \mid \alpha_j) \cdot p(\alpha_j \mid \beta_j) d\alpha_j 
+\end{align}
+to equation~\ref{eq:xll} and swap integrations to get
+\begin{align} \label{eq:swapped}
+    \begin{aligned}
+    p(G_j \mid \beta_j) &=
+    \int_0^1 \int 
+    \binom{2n}{k_j} x_j^{k_j}(1-x_j)^{2n-k_j}
+    \pinf(x_j \mid \alpha_j) p(\alpha_j \mid \beta_j) d\alpha_j dx_j \\
+    &= \int \int_0^1
+    \binom{2n}{k_j} x_j^{k_j}(1-x_j)^{2n-k_j}
+    \pinf(x_j \mid \alpha_j) p(\alpha_j \mid \beta_j) dx_j d\alpha_j  \\
+    &= \int p(\alpha_j \mid \beta_j)\int_0^1
+    \binom{2n}{k_j} x_j^{k_j}(1-x_j)^{2n-k_j}
+    \pinf(x_j \mid \alpha_j)  dx_j d\alpha_j. 
+    \end{aligned}
+\end{align}
+
+Although the inner integral looks complicated at first sight, 
+large sample asymptotics, namely $n \rightarrow \infty$ and $k_j/2n \rightarrow \hp_j$, greatly simplifies the integration.
+Due to the fact that the beta-binomial distribution collapses to a degenerate form with increasing sample size,
+\begin{align} \label{eq:beta_to_dirac}
+    \begin{aligned}
+        & \int_0^1 
+        \binom{2n}{k_j} 
+        x_j^{k_j}(1-x_j)^{2n-k_j}
+        \pinf(x_j \mid \alpha_j) 
+        dx_j \\
+        & \ \propto \ \int_0^1   
+        \binom{2n}{k_j} 
+        x_j^{k_j}(1-x_j)^{2n-k_j}
+        x_j^{\theta-1}(1-x_j)^{\theta-1}
+        \exp\left[-\frac{\alpha_j^2}{W_S}x_j(1-x_j) \right]dx_j \\
+        &\ \propto \ \exp\left[-\frac{\alpha_j^2}{W_S}\hp_j(1-\hp_j) \right]
+    \end{aligned}
+\end{align}
+where the integration turned into a substitution $x_j \leftarrow \hp_j$.
+Observe that the sample frequency $\hp_j$ naturally appears in the formula.
+Next, we put equation~\ref{eq:beta_to_dirac} back into equation~\ref{eq:swapped} to get
+\begin{align}
+    \begin{aligned}
+        p(G_j \mid \beta_j) 
+        &\ \propto \
+        \int p(\alpha_j \mid \beta_j) \cdot 
+        \exp\left[-\frac{\alpha_j^2}{W_S}\hp_j(1-\hp_j) \right] d\alpha_j \\
+        & \ \propto \ \int
+        \exp \left[ -\frac{\left( \alpha_j - \rho_{ab,j} \frac{\sigma_{a,j}}{\sigma_{b,j}} \beta_j \right)^2}{2 \sigma_{a,j}^2 (1 - \rho_{ab,j}^2)} \right]
+        \exp\left[-\frac{\alpha_j^2}{W_S}\hp_j(1-\hp_j) \right] d\alpha_j 
+        \\
+        & \ \propto \
+        \exp \left[ -\frac{\hat{p}_j(1 - \hat{p}_j) \rho_{ab,j}^2 \frac{\sigma_{a,j}^2}{\sigma_{b,j}^2} \beta_j^2}{W_s + 2\sigma_{a,j}^2(1 - \rho_{ab,j}^2)\hat{p}_j(1 - \hat{p}_j)} \right].
+    \end{aligned}
+\end{align}
+
+At last, we arrive at the formula for $p(\beta_j \mid G_j)$ by
+\begin{align}
+    p(\beta_j \mid G_j) &\ \propto \ 
+    \exp \left[ -\frac{\hat{p}_j(1 - \hat{p}_j) \rho_{ab,j}^2 \frac{\sigma_{a,j}^2}{\sigma_{b,j}^2} \beta_j^2}{W_s + 2\sigma_{a,j}^2(1 - \rho_{ab,j}^2)\hat{p}_j(1 - \hat{p}_j)} \right] \cdot p(\beta_j), 
+\end{align}
+a Gaussian density which has the variance of
+\begin{align} \label{eq:beta_cond_var}
+    \E{\beta_j^2 \mid G} = \E{\beta_j^2 \mid \hp_j} = 
+    \sigma_{b,j}^2 \cdot 
+    \left[
+    1 - \rho_{ab,j}^2 \cdot
+        \frac{
+             2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)}{
+            1 + 2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
+        }
+    \right]
+\end{align}
+with effectively three parameters $\sigma_b^2$, $\sigma_a^2 / W_S$, and $\rho_{ab}$.
+Note that $W_S$ and $\sigma_a^2$ cannot be separately identified because the formula remains invariant with respect to a common scaling factor.
+In plain words, $\sigma_b^2$ controls the overall magnitude of $\beta$, $\sigma_a^2/W_S$ determines the strength of stabilizing selection on $z$, and $\rho_{ab}$ measures how strongly $y$ and $z$ are correlated.
+
+The formula has several important properties.
+First, if the trait $y$ is uncorrelated with fitness $z$ ($\rho=0$), it reduces to $\sigma_b^2$ and has no dependence on the sample frequency $\hp_j$.
+Secondly, it is always bounded above by $\sigma_b^2$, so does not diverge to infinity regardless of the value of $\hp$.
+Nevertheless, it captures the negative correlation between $\hp$ and the magnitude of $\beta$.
+Finally, it captures the intuition from earlier studies that the relative ratio of mutational variance $\sigma_{a}^2$ and selection width $W_S$ determines the system [cite, Hayward].
+
+
+
+
+\subsection{The general framework}
+
+\begin{table}[htpb]
+    \centering
+    \caption{Key mathematical notations}
+    \label{tab:notation}
+    \vspace{0.5em}
+    \begin{tabular}{ll}
+        \hline
+        Symbol & Description \\
+        \hline
+        $y, z$ & Observed trait ($y$) and unobserved fitness-determining trait ($z$) \\
+        $G$ & Genotype matrix \\
+        $\alpha, \beta$ & Additive effect sizes of variants on fitness and observed trait \\
+        $\veps, \delta$ & Non-genetic environmental components for $y$ and $z$ \\
+        $\sigma_a^2, \sigma_b^2$ & Mutational variances of fitness and trait effect sizes \\
+        $\rho_{ab}$ & Mutational correlation between fitness and trait \\
+        $x_j, \hp_j$ & Population and sample minor allele frequency of locus $j$ \\
+        $V_S$ & Variance of the stabilizing selection fitness landscape \\
+        $W_S$ & Population-scaled selection parameter variance ($W_S = V_S / 2N$) \\
+        $N, \mu$ & Diploid population size and mutation rate \\
+        $\theta$ & Population-scaled mutation rate ($\theta = 4N\mu$) \\
+        \hline
+    \end{tabular}
+\end{table}
+We consider an observed trait $y$ and an (potentially) unobserved trait $z$ where the latter determines the fitness of an individual.
+We assume an \emph{additive model} whereby both $y$ and $z$ are weighted sums of genotypes [cite].
+\begin{gather}
+    \begin{gathered}
+        y_i = G_i\beta + \veps \\
+        z_i = G_i\alpha + \delta
+    \end{gathered}
+\end{gather}
+We assume the non-genetic component $\veps$ and $\delta$ to be normally distributed.
+More generally, we may write the above relationship in terms of conditional probability
+\begin{gather} \label{eq:trait_and_fitness}
+    \begin{gathered}
+        y_i \sim p(y_i \mid G_i, \beta) \\
+        z_i \sim p(z_i \mid G_i, \alpha)
+    \end{gathered}
+\end{gather}
+which means that $y$ and $z$'s distributions are determined by $G$ and the coefficients $\alpha, \beta$.
+
+The key evolutionary consideration is the distribution of $G$ given $\alpha$ and $\beta$.
+Its distribution is determined by two factors.
+First, the samples are obtained from the population, then the population itself is evolving over time.
+If we write the state of the population as $P_t$,
+we can express $p(G \mid \alpha, \beta)$ as
+\begin{align} \label{eq:definetti}
+    \begin{aligned}
+        p(G \mid \alpha, \beta) &=
+        \int p(G \mid \alpha, \beta ,P_t)
+        \cdot p(P_t \mid \alpha, \beta) dP_t \\
+        &=
+        \int p(G \mid P_t)
+        \cdot p(P_t \mid \alpha, \beta) dP_t \\
+        &=
+        \int \underbrace{p(G \mid P_t)}_{\text{Sampling}}
+        \cdot \underbrace{p(P_t \mid \alpha)}_{\text{Evolution}} dP_t
+    \end{aligned}
+\end{align}
+Here, $p(G \mid \alpha, \beta, P_t) = p(G \mid P_t)$ because once the population state $P_t$ is given, the distribution of $G$ is entirely determined by the study's sampling scheme.
+For instance, one can randomly sample genomes from the population with replacement.
+The second simplification $P(P_t \mid \alpha, \beta) = P(P_t \mid \alpha)$ comes from the fact that $z$ determines the fitness through equation~\ref{eq:trait_and_fitness}.
+As long as $\alpha$ is given, evolution of $P_t$ does not depend on $\beta$ anymore.
+
+Finally, the distributions of $\alpha$ and $\beta$ have to be considered.
+There are many loci in the genome, but only a fraction of them are segregating in the population.
+Mutation chooses randomly from these loci that ultimately appears to be the variants in the observed dataset.
+Furthermore, if the mutation rate is small enough, this process is effectively a \emph{sampling with replacement} scheme corresponding to the \emph{infinite-alleles} or the \emph{infinite-sites} assumption.
+This argument first appeared in [cite, Kimura] as the continuum-of-alleles (CoA) model in the infinite-alleles context.
+Hence, the distribution of $\alpha$ and $\beta$ in this paper refers to the random selection of effect sizes driven by mutation hitting random loci on the genome.
+To simplify computations,
+we assume normality
+\begin{gather} \label{eq:coa}
+\begin{pmatrix}
+        \alpha_j \\
+        \beta_j
+    \end{pmatrix}
+    \sim
+    N\left(
+    \begin{bmatrix}
+        0 \\
+        0
+    \end{bmatrix}
+    , 
+    \begin{pmatrix}
+        \sigma_{a,j}^2 & \rho_{ab,j}\sigma_{a,j}\sigma_{b,j} \\
+        \rho_{ab,j} \sigma_{a,j} \sigma_{b,j} & \sigma_{b,j}^2
+    \end{pmatrix} 
+    \right)
+\end{gather}
+following the works of [cite, Lande].
+
+
+
 
 
 
