@@ -51,10 +51,10 @@ Stabilizing selection has recently emerged as a powerful theoretical framework t
 By considering a special instance of Fisher's geometric model (FGM) with isotropically distributed mutational effects,
 \citet{Simons2018popgeninterpretation} made predictions about the distribution of genome-wide association study (GWAS)-derived effect sizes.
 This meant that the contribution of complex traits to fitness can be estimated from GWAS data, which was done in a follow-up study by the same authors \citep{Simons2025scalinglaw}.
-In another work utilizing FGM, \citet{Koch2024} argued that stabilizing selection is a primary mode of selection acting on human traits and further estimated its strength.
+In another work using FGM, \citet{Koch2024} argued that stabilizing selection is a primary mode of selection acting on human traits and further estimated its strength.
 These works show that linking evolutionary theory directly to statistical genetics can unveil the evolutionary landscape of complex trait from data.
 The aforementioned studies propose ways to analyze GWAS results, 
-but does not explicitly tell how their models can be fit to raw genotype data.
+but do not explicitly explain how their models can be fit to raw genotype data.
 
 % opening
 From a more statistical genetics viewpoint, one notable finding from massive GWAS studies is the negative correlation between effect sizes and allele frequency \citep{Zeng_2018, Schoech_2019, Priv__2020}.
@@ -65,12 +65,12 @@ Nevertheless, it is largely based on statistical curve-fitting and no population
 
 % apparent stabilizing selection
 In this work, 
-we propose a general procedure to combine an evolutionary model to mixed-effects models in statistical genetics,
+we propose a general procedure to combine an evolutionary model with mixed-effects models in statistical genetics,
 and apply it to populations under stabilizing selection.
 This yields a linear mixed model parameterized by evolutionary quantities that can be estimated through a conventional statistical method, namely the restricted maximum likelihood (REML) estimator.
 These quantities appear in the variance of random effects encoding the aforementioned frequency dependence of effect sizes that is distinct from the $\alpha$-model.
 Unlike the $\alpha$-model, the new formula does not diverge to infinity as the sample frequency approaches zero and allows unbiased estimation of mutational variance.
-Furthermore, as a mixed-effects model, it can estimate genetic values from best unbiased prediction (BLUP).
+Furthermore, as a mixed-effects model, it can estimate genetic values from the best linear unbiased predictor (BLUP).
 
 \section{Theory and model}
 
@@ -83,7 +83,7 @@ an individual's fitness is given by
         -\frac{\norm{z}^2}{2V_S} 
     \right)
 \end{align}
-where $z=(z_1, \ldots, z_d)$ is an $d$-dimensional trait vector subject to stabilizing selection and $V_S$ controls selection intensity \citep{fisher1999thegeneticaltheoryof, Tenaillon_2014}.
+where $z=(z_1, \ldots, z_d)$ is a $d$-dimensional trait vector subject to stabilizing selection and $V_S$ controls selection intensity \citep{fisher1999thegeneticaltheoryof, Tenaillon_2014}.
 The marginal selection coefficient $\seff$ acting on a given locus is
 \begin{align} \label{eq:seff}
     \seff(x) = \left(x-\frac{1}{2}\right)\frac{\norm{\alpha}^2}{V_S}
@@ -185,7 +185,7 @@ A common model choice is the $\alpha$-model
     \end{aligned} 
 \end{align}
 where $M$ is the number of variants and $h^2$ is a positive constant often referred to as the single nucleotide polymorphism (SNP) heritability.
-Here, the effect of $G$ enters the formula by it's column-wise frequency $p_j$.
+Here, the effect of $G$ enters the formula through its column-wise frequency $p_j$.
 
 In practice, we only have the sample frequency $\hp_j$ instead of $p_j$, so the estimate
 \begin{align} \label{eq:alpha}
@@ -211,7 +211,7 @@ Also, it is unclear if the sample frequency $\hp_j$ can replace the true frequen
 
 Our framework offers a principled solution to the aforementioned issues.
 The key is to \emph{deduce}, instead of assuming, a formula for $\Sigma_{\beta,j} = \var{\beta_j \mid G}$ from evolutionary theory where $j$ denotes the $j$-th locus.
-A common assumption in the literature is that $\beta_j$'s mean is zero,
+A common assumption in the literature is that the mean of $\beta_j$ is zero,
 thereby we get $\var{\beta_j \mid G} = \E{\beta_j^2 \mid G}$.
 Then, we can derive $\E{\beta_j^2 \mid G}$ from
 \begin{align} \label{eq:goal2}
@@ -223,7 +223,7 @@ What is left is to determine $\E{\beta^2 \mid \norm{\alpha}}$, which measures ho
 and $p(\norm{\alpha} \mid G)$, the likely value of overall fitness given the genotype data
 from a given evolutionary model.
 The following section will explain how this is done in the case of stabilizing selection.
-Once these steps are done, we can use restricted maximum likelihood (REML) estimator to estimate the parameters appearing the model.
+Once these steps are done, we can use the restricted maximum likelihood (REML) estimator to estimate the parameters appearing in the model.
 
 \subsection{Fitness effect and its influence on a focal trait}
 
@@ -351,12 +351,12 @@ We evaluate all of our theory in forward simulations conducted by SLiM \citep{Ha
 This is in contrast to common practices benchmarking linear mixed models that use fixed genotypes with varying only the random effects and the residual noise of the regression model \citep{Priv__2020, Gazal_2019, Speed2017}.
 We do not simulate data directly from formula~\ref{eq:arch_final}.
 Instead, we conduct an individual-based simulation in SLiM that is under stabilizing selection according to the fitness function in equation~\ref{eq:fitness}.
-The simulation is based on equation~\ref{eq:coa} where a one-dimensional trait is subject to selection while the observed trait is correlated to it by its focal effect sizes.
+The simulation is based on equation~\ref{eq:coa} where a one-dimensional trait is subject to selection while the observed trait is correlated with it through its focal effect sizes.
 
 The precise simulation configuration is as follows.
 The population followed a panmictic demographic history with a constant diploid population size of $N=10{,}000$ individuals. 
 Each genome was of length $L=2 \times 10^6$ with mutation rate of $\mu=10^{-8}$ and recombination rate of $r=10^{-5}$.
-The configuration was borrowed from \citet{Hayward_2022} to set $L\mu=0.02$ mutation per genome per generation, $2NL\mu = 400 \gg 1$ to ensure polygenicity, and $r/\mu = 10^3$ for low linkage disequilibrium.
+The configuration was borrowed from \citet{Hayward_2022} to set $L\mu=0.02$ mutations per genome per generation, $2NL\mu = 400 \gg 1$ to ensure polygenicity, and $r/\mu = 10^3$ for low linkage disequilibrium.
 The mutational effect sizes $\alpha$ were simulated from $\sigma_a^2 \in \{0.5, 1.0, 2.0\}$ and the selection width $W_S= V_S/2N =\{1.0, 2.0, 4.0\}$.
 As $V_S$ is of scale $\mathcal{O}(N)$, the environmental variance $V_E$ and the genetic variance $V_G$ were negligible.
 Hence, the fitness function~\ref{eq:fitness} was used in the simulations.
@@ -364,8 +364,8 @@ For each pair of $\sigma_a^2$ and $W_S$,
 a single burn-in of $10N$ generations were taken followed by 20 separate replicates of $5N$ generations.
 
 To simulate apparent selection, for each population after total $15N$ generations, we drew the observed effect sizes $\beta$ conditional on $\alpha$ according to the joint distribution in equation~\ref{eq:coa}.
-This is same as sampling $\beta$ during SLiM simulation because $\beta$ has no effect on the simulation at all ($\alpha$ does the job).
-For $\sigma_b^2$ and $\rho_{ab}^2$, we chose it to be the same as $\sigma_a^2$ and in a grid of $\{0.00, 0.50, 1.00\}$, respectively.
+This is the same as sampling $\beta$ during the SLiM simulation because $\beta$ has no effect on the simulation at all ($\alpha$ does the job).
+For $\sigma_b^2$ and $\rho_{ab}^2$, we chose them to be the same as $\sigma_a^2$ and to take values in the grid $\{0.00, 0.50, 1.00\}$, respectively.
 
 \subsection{Variance component estimation}
 
@@ -419,8 +419,8 @@ Appendix Figures~\ref{fig:blup_prediction_rho1_fixed} and~\ref{fig:sigma2_b_esti
 We presented a general procedure to derive evolution-aware mixed-effects model.
 We applied the framework to stabilizing selection with pleiotropy and 
 found a novel frequency-dependence formula of effect sizes expressed in terms of evolutionary parameters.
-The parameters can be estimated by restricted maximum likelihood (REML) informing the underlying fitness landscape of the trait.
-Practically, common applications of mixed-effects models such as genetic prediction by best linear unbiased predictor (BLUP) can be performed.
+The parameters can be estimated by restricted maximum likelihood (REML), thereby informing the underlying fitness landscape of the trait.
+Practically, common applications of mixed-effects models such as genetic prediction by best linear unbiased prediction (BLUP) can be performed.
 When applied to forward simulations,
 our model performed better than the conventional $\alpha$-model across $\alpha$-values in prediction tasks, 
 further supporting the utility of the model.
@@ -431,7 +431,7 @@ Empirical studies have shown that pleiotropy is pervasive in human complex trait
 In this framework, each axis of the multi-dimensional trait contributes equally to the fitness, 
 forcing the mutation's effect on a focal trait to spread evenly across axes.
 In equation~\ref{eq:alpha_to_beta}, we generalize this relationship to account for potentially non-isotropic relationship between a focal trait and the underlying fitness.
-One example is the jointly Gaussian mutational effects that has been considered in earlier theoretical works and in which we considered in our simulations \citep{Kimura_1964, B_rger_1986, burger2000themathematicaltheoryof, walsh2018evolutionandselectionof}.
+One example is the jointly Gaussian mutational effects that has been considered in earlier theoretical works and that we considered in our simulations \citep{Kimura_1964, B_rger_1986, burger2000themathematicaltheoryof, walsh2018evolutionandselectionof}.
 It would be interesting to investigate alternative models of pleiotropy that may lead to the relationship of equation~\ref{eq:alpha_to_beta}.
 
 % reml is moment-based so its okay
@@ -482,11 +482,11 @@ This allowed us to reduce our analysis to a single locus.
 We found that the evolutionary model estimates the focal-trait variance parameter $\sigma_b^2$ correctly and achieves the best prediction in forward simulations.
 Interestingly, the $\alpha=0$ model shows near-identical prediction accuracy while degrading in $\sigma_b^2$ estimation.
 The first result can be explained by the low frequency of most variants, making $\E{\beta_j^2 \mid \hp_j} \approx \E{\beta_j^2}$.
-This holds more most variants, the genetic relatedness matrix (GRM) of the methods are almost identical up to a constant factor.
-As BLUP is invariant with respect to constant scaling of GRM, the two are likely to coincide.
-The reduction in $\sigma_b^2$ is also expected because population's genetic variance is reduced by selection.
+For most variants, the genetic relatedness matrices (GRMs) of the methods are almost identical up to a constant factor.
+As BLUP is invariant with respect to constant scaling of the GRM, the two are likely to coincide.
+The reduction in $\sigma_b^2$ is also expected because the population's genetic variance is reduced by selection.
 Since $\alpha=0$ has no frequency-dependence encoded into the model, the model compensates the reduced genetic variance by lowering its $\sigma_b^2$ estimate.
-The two nonzero $\alpha$-models shows notable degradation in prediction accuracy and $\sigma_b^2$ inference.
+The two nonzero $\alpha$-models show notable degradation in prediction accuracy and $\sigma_b^2$ inference.
 The result clearly shows that evolutionarily principled modeling of frequency-dependence has an advantage over statistical heuristics.
 
 
@@ -494,12 +494,12 @@ The result clearly shows that evolutionarily principled modeling of frequency-de
 
 
 \paragraph{Linkage disequlibrium and the Bulmer effect}
-The main text entirely ignores linkage disequilibrium (LD) and subsequently the Bulmer effect.
+The main text entirely ignores linkage disequilibrium (LD) and, consequently, the Bulmer effect.
 We attribute the consistent under-estimation of $\sigma_a^2/W_S$ across parameter configurations to the Bulmer effect.
-In short, Bulmer effect creates dragging forces opposed to selection, weakening the effective strength of selection acting on the locus.
-This was formalized by \citet{Negm_2026} who showed that the reduction of selective forces can be expressed as a multiplicative factor.
-Hence, algebraically, this has the same effect as an increased value of selection width $W_S$, thereby smaller $\sigma_a^2 /W_S$.
-By expanding their formula with further approximations, we found that Bulmer effect precisely predicts the degree of under estimation.
+In short, the Bulmer effect creates dragging forces opposed to selection, weakening the effective strength of selection acting on the locus.
+This was formalized by \citet{Negm_2026}, who showed that the reduction of selective forces can be expressed as a multiplicative factor.
+Hence, algebraically, this has the same effect as an increased value of selection width $W_S$, thereby making $\sigma_a^2 /W_S$ smaller.
+By expanding their formula with further approximations, we found that the Bulmer effect precisely predicts the degree of underestimation.
 See Appendix~\ref{sec:meanfield_ld} for more details.
 
 \section*{Acknowledgement}
@@ -545,9 +545,9 @@ where $\overline{c}_j$ and $\overline{c}$ are harmonic means of the recombinatio
     \overline{c} = L(L-1) \bigg/ \sum_{j,k:i \neq j} \frac{1}{c_{jk}}
 \end{gather}
 and $V_g = 2\sum_j x_j(1-x_j)\alpha_j^2$ is the genic variance of $z$ as derived in \citet{Negm_2026}.
-For simplicity, let $u_j$ be the normalized position of locus $j$ so that $Lu_j$ is the position in base pairs and write $h(u_j) = 1\, / \, 2\overline{c}_j$.
+For simplicity, let $u_j$ be the normalized position of locus $j$ so that $Lu_j$ is the position in base pairs, and write $h(u_j) = 1\, / \, 2\overline{c}_j$.
 
-The difficulty arising in equation~\ref{eq:seff_ld} is that $V_g$ is also a random variable as it's a function of $x_j$ that are random.
+The difficulty arising in equation~\ref{eq:seff_ld} is that $V_g$ is also a random variable because it is a function of the random variables $x_j$.
 We take another round of mean-field approximation so that $V_g = 2L \cdot \E{x(1-x)\alpha^2}$ is a constant.
 By further assuming that mutation rate is uniform, otherwise we can rescale the genome,
 we arrive at
@@ -603,7 +603,7 @@ which reduces to
     \end{aligned}
 \end{align}
 if $\rho=1$, a perfect correlation between $\alpha$ and $\beta$.
-As before, if $\rho=0$, it simply becomes $\sigma_{b,j}^2$ as selection on $z$ has no influence on $y$ at all.
+As before, if $\rho=0$, it simply becomes $\sigma_{b,j}^2$ because selection on $z$ has no influence on $y$ at all.
 For the correction factors in Figure~\ref{fig:blm_sigma2_a_over_ws}, we used the global harmonic mean of recombination fraction.
 
 \section{Identification issues of \texorpdfstring{$\rho_{ab}^2\sigma_a^2/W_S$}{}}
