@@ -49,9 +49,9 @@
 
 Stabilizing selection has recently emerged as a powerful theoretical framework to understand trait-associated loci in human genetics.
 By considering a special instance of Fisher's geometric model (FGM) with isotropically distributed mutational effects,
-[Simons et al 2018, cite] made predictions about the distribution of genome-wide association study (GWAS)-derived effect sizes.
-This meant that the contribution of complex traits to fitness can be estimated from GWAS data, which was done in a follow-up study by the same authors [cite].
-In another work utilizing FGM, [Koch et al 2024, cite] argued that stabilizing selection is a primary mode of selection acting on human traits and further estimated its strength.
+\citet{Simons2018popgeninterpretation} made predictions about the distribution of genome-wide association study (GWAS)-derived effect sizes.
+This meant that the contribution of complex traits to fitness can be estimated from GWAS data, which was done in a follow-up study by the same authors \citep{Simons2025scalinglaw}.
+In another work utilizing FGM, \cite{Koch2024} argued that stabilizing selection is a primary mode of selection acting on human traits and further estimated its strength.
 These works show that linking evolutionary theory directly to statistical genetics can unveil the evolutionary landscape of complex trait from data.
 The aforementioned studies propose ways to analyze GWAS results, 
 but does not explicitly tell how their models can be fit to raw genotype data.
@@ -60,7 +60,7 @@ but does not explicitly tell how their models can be fit to raw genotype data.
 From a more statistical genetics viewpoint, one notable finding from massive GWAS studies is the negative correlation between effect sizes and allele frequency [cite].
 This is usually understood in the context of negative selection where large effect variants are more likely to be removed from the population than small effect variants.
 A common modelling choice is the $\alpha$-model, where the variance of the effect size is inversely proportional to heterozygosity raised to the power $0\le \alpha \le 1$.
-This model first appeared in the setting of estimating genetic relatedness matrices from single nucleotide polymorphism (SNP) markers and has later been extended to explicitly detect negative selection [cite].
+This model first appeared in the setting of estimating genetic relatedness matrices from single nucleotide polymorphism (SNP) markers and has later been extended to explicitly detect negative selection \citep{Zeng_2018, Schoech_2019}.
 Nevertheless, it is largely based on statistical curve-fitting and no population genetic model has yet been discovered to back this model.
 
 % apparent stabilizing selection
@@ -347,7 +347,7 @@ Lastly, we substitute equation~\ref{eq:alpha2_cond_avg} to equation~\ref{eq:alph
 
 \subsection{SLiM forward simulation}
 
-We evaluate all of our theory in forward simulations conducted by SLiM [Haller and Messer 2025, cite].
+We evaluate all of our theory in forward simulations conducted by SLiM \cite{Haller_2025}.
 This is in contrast to common practices benchmarking linear mixed models that use fixed genotypes with varying only the random effects and the residual noise of the regression model [cite].
 We do not simulate data directly from formula~\ref{eq:arch_final}.
 Instead, we conduct an individual-based simulation in SLiM that is under stabilizing selection according to the fitness function in equation~\ref{eq:fitness}.
