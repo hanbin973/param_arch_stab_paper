@@ -53,7 +53,7 @@ The canonical example of a fitness landscape function is Fisher's geometric mode
     \right)
 \end{align}
 where $z=(z^1, \ldots, z^d)$ is a $d$-dimensional trait vector subject to stabilizing selection and $V_S$ controls selection intensity \citep{fisher1999thegeneticaltheoryof,Tenaillon_2014}. 
-Originally proposed by R.A.~Fisher almost a century ago, the past decade has seen renewed interested in FGM as a theoretical framework to understand trait-associated loci in genome-wide association studies (GWAS).
+Originally proposed by R.A.~Fisher almost a century ago, the past decade has seen renewed interest in FGM as a theoretical framework for understanding trait-associated loci in genome-wide association studies (GWAS).
 By considering a special instance of FGM with isotropically distributed mutational effects, \citet{Simons2018popgeninterpretation} made predictions about the distribution of (GWAS)-derived effect sizes.  
 A follow-up study used this framework to estimate the contribution of complex traits to fitness in actual GWAS data \citep{Simons2025scalinglaw}.
 Using predictions derived from FGM, \citet{Koch2024} further argued that stabilizing selection is a primary mode of selection acting on human traits, and gave estimates as to its strength.
@@ -65,7 +65,7 @@ Generally, this correlation is ascribed to purifying selection, where large effe
 To model this relationship, a common choice is the so-called $\alpha$-model, by which the variance of the effect size is inversely proportional to allelic heterozygosity raised to the power $0\le \alpha \le 1$.
 This model first appeared in the setting of estimating genetic relatedness matrices from single nucleotide polymorphism (SNP) markers and has later been extended to explicitly detect negative selection \citep{Zeng_2018, Schoech_2019}.
 
-Although it captures the underlying relationship well, the $\alpha$-model is largely based on statistical curve-fitting. To the best of our knowledege, a population genetic model which predicts this relationship has yet to be developed \citep{Sella_2019,Koch_2021}.
+Although it captures the underlying relationship well, the $\alpha$-model is largely based on statistical curve-fitting. To the best of our knowledge, a population genetic model that predicts this relationship has yet to be developed \citep{Sella_2019,Koch_2021}.
 In this work, we fill that gap by proposing a general procedure for combining an evolutionary model with mixed-effects models in statistical genetics. 
 This yields a linear mixed model parameterized by evolutionary quantities that can be estimated through a conventional statistical method, namely the restricted maximum likelihood (REML) estimator \citep{Johnson_1995}.
 These quantities appear in the variance of random effects encoding the aforementioned frequency dependence of effect sizes that is distinct from the $\alpha$-model.
@@ -259,7 +259,7 @@ p(\norm{\alpha_j}^2 \mid G) =
     p(\norm{\alpha_j}^2 \mid G_j)\,\propto\,
         p(G_j \mid \norm{\alpha_j}^2) \cdot p(\norm{\alpha_j}^2).
 \end{equation}
-For first term on on the right, $p(G_j \mid \norm{\alpha_j}^2)$, assume that
+For the first term on the right, $p(G_j \mid \norm{\alpha_j}^2)$, assume that
 there are $k_j$ derived alleles observed in $G_j$. By exchangeability of the $2n$ samples,
 \begin{align*}
     p(G_j \mid \norm{\alpha_j})    
@@ -281,7 +281,7 @@ there are $k_j$ derived alleles observed in $G_j$. By exchangeability of the $2n
     \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}x_j(1-x_j) \right]dx_j \\
     &\ \propto \ \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}\hp_j(1-\hp_j) \right].
 \end{align*}
-Note that the integration over $[0,1]$ collapsed to substitution $x_j \leftarrow \hp_j$ because the beta-binomial distribution degenerates to the sample frequency in large samples ($n \rightarrow \infty$).
+Note that the integration over $[0,1]$ collapses to the substitution $x_j \leftarrow \hp_j$ because the beta-binomial distribution degenerates to the sample frequency in large samples ($n \rightarrow \infty$).
 For the prior term $p(\norm{\alpha_j}^2)$, we assume $\norm{\alpha_j}^2$ follows a $\chi^2$-distribution multiplied by $\sigma_a^2$.
 Then $\E{\norm{\alpha_j}^2} = \sigma_a^2$ and
 \begin{equation*}
@@ -313,7 +313,7 @@ Substituting \eqref{eq:alpha2_cond_avg} into \eqref{eq:alpha_to_beta}, we obtain
 
 \subsection{SLiM forward simulation}
 To evaluate our theoretical model, we conducted forward simulations using SLiM \citep{Haller_2025}. Our individual-based simulations assume that stabilizing selection acts according to the fitness function in equation \eqref{eq:fitness}.
-The simulation is based on \eqref{eq:coa} where a one-dimensional trait is subject to selection while the observed trait is correlated with it through its focal effect sizes (precise details are given in Appendix \ref{sec:simulations}).
+The simulation is based on \eqref{eq:coa}, where a one-dimensional trait is subject to selection while the observed trait is correlated with it through its focal effect sizes (precise details are given in Appendix \ref{sec:simulations}).
 Notably, this simulation setup differs from most other LMM benchmarking studies, which typically condition on fixed genotypes and only vary the random effects and the residual noise of the regression model \citep{Speed2017, Gazal_2019, Priv__2020}.
 
 
@@ -351,7 +351,7 @@ which underperforms substantially in every regime.
 The $\alpha=0.5$ model is closer, but still remains below the evolutionary fit throughout most of the grid. 
 By contrast, the evolutionary model and the $\alpha=0$ model are often quite similar, especially when $\rho_{ab}^2=0$, 
 where equation \ref{eq:beta_cond_var} reduces to an approximately frequency-independent architecture. 
-When the coupling between the focal and selected traits is stronger, the evolutionary model typically retains nearly unnoticeable advantage.
+When the coupling between the focal and selected traits is stronger, the evolutionary model typically retains a nearly unnoticeable advantage.
 
 
 The distinction is sharper when one examines the variance components obtained from the prediction fits. 
@@ -359,7 +359,7 @@ In Figure \ref{fig:sigma2_b_estimates}, the evolutionary model remains close to 
 The $\alpha=0$ model is approximately unbiased only when $\rho_{ab}^2=0$ and becomes downward biased once the focal trait inherits frequency dependence from the selected trait. 
 The $\alpha=0.5$ and $\alpha=1$ fits underestimate $\sigma_b^2$ much more severely in all scenarios. 
 Hence, the similarity in predictive accuracy between the evolutionary model and $\alpha=0$ in some panels should not be interpreted as recovery of the same architecture: the heuristic model can predict reasonably well while still mischaracterizing the underlying variance components.
-Overall, it shows that the $\alpha$-model fails to capture the frequency-dependent genetic architecture properly.
+Overall, this shows that the $\alpha$-model fails to capture the frequency-dependent genetic architecture properly.
 
 Figures \ref{fig:blup_prediction_rho1_fixed} and \ref{fig:sigma2_b_estimates_rho1_fixed} repeat the same training/validation pipeline but fix the evolutionary fit at $\rho_{ab}^2=1$. 
 Held-out prediction is nearly unchanged relative to Figure \ref{fig:blup_prediction}, 
@@ -495,13 +495,13 @@ For the correction factors in Figure \ref{fig:blm_sigma2_a_over_ws}, we used the
 The population followed a panmictic demographic history with a constant diploid population size of $N=10{,}000$ individuals. 
 Each genome was of length $L=2 \times 10^6$ with mutation rate of $\mu=10^{-8}$ and recombination rate of $r=10^{-5}$.
 The configuration was borrowed from \citet{Hayward_2022} to set $L\mu=0.02$ mutations per genome per generation, $2NL\mu = 400 \gg 1$ to ensure polygenicity, and $r/\mu = 10^3$ for low linkage disequilibrium (see Appendix~\ref{sec:meanfield_ld}).
-The mutational effect sizes $\alpha$ were simulated from $\sigma_a^2 \in \{0.5, 1.0, 2.0\}$ and the selection width $W_S= V_S/2N =\{1.0, 2.0, 4.0\}$ (see Appendix for details).
+The mutational effect sizes $\alpha$ were simulated from $\sigma_a^2 \in \{0.5, 1.0, 2.0\}$ and the selection width $W_S = V_S/2N = \{1.0, 2.0, 4.0\}$ (see Appendix for details).
 As $V_S$ is of scale $\mathcal{O}(N)$, the environmental variance $V_E$ and the genetic variance $V_G$ were negligible.
 Hence, the fitness function \eqref{eq:fitness} was used in the simulations.
 For each pair of $\sigma_a^2$ and $W_S$, 
-a single burn-in of $10N$ generations were taken followed by 20 separate replicates of $5N$ generations.
+a single burn-in of $10N$ generations was followed by 20 separate replicates of $5N$ generations.
 
-To simulate pleitropic selection, for each population after total $15N$ generations, we drew the observed effect sizes $\beta$ conditional on $\alpha$ according to the joint distribution in equation  \eqref{eq:coa}.
+To simulate pleiotropic selection, for each population after a total of $15N$ generations, we drew the observed effect sizes $\beta$ conditional on $\alpha$ according to the joint distribution in equation \eqref{eq:coa}.
 This is the same as sampling $\beta$ during the SLiM simulation because $\beta$ has no effect on the simulation at all ($\alpha$ does the job).
 For $\sigma_b^2$ and $\rho_{ab}^2$, we chose them to be the same as $\sigma_a^2$ and to take values in the grid $\{0.00, 0.50, 1.00\}$, respectively.
 
