@@ -320,7 +320,7 @@ Notably, this simulation setup differs from most other LMM benchmarking studies,
 \subsection{Variance component estimation}
 
 We evaluated equation \eqref{eq:beta_cond_var} by simulating traits with small non-genetic noise $\sigma_e^2$.
-For each replicate, we fit the evolutionary mixed model to the full genotype matrix after removing monomorphic sites and computing the sample allele frequencies $\hat p_j$ from the remaining dosage columns. These frequencies were inserted into the variance formula in equation \eqref{eq:beta_cond_var}, and the phenotype was analyzed after adding Gaussian noise of fixed variance $\sigma_e^2=10$. With $\rho_{ab}$ fixed to its simulation value, we then maximized the restricted marginal likelihood over the two log-transformed parameters $\log(\sigma_a^2/W_S)$ and the overall prior scale parameter $\log(\sigma_b^2)$ using an L-BFGS-B optimizer implemented in \texttt{scipy} \citep{Virtanen2020}.
+For each replicate, we fit the evolutionary mixed model to the full genotype matrix after removing monomorphic sites and computing the sample allele frequencies $\hat p_j$ from the remaining dosage columns. These frequencies were inserted into the variance formula in equation \eqref{eq:beta_cond_var}, and the phenotype was analyzed after adding Gaussian noise of fixed variance $\sigma_e^2=10$. With $\rho_{ab}$ fixed to its simulation value, we then maximized the marginal likelihood over the two log-transformed parameters $\log(\sigma_a^2/W_S)$ and the overall prior scale parameter $\log(\sigma_b^2)$ using an L-BFGS-B optimizer implemented in \texttt{scipy} \citep{Virtanen2020}.
 
 We first examined whether REML recovers the variance components implied by equation \eqref{eq:beta_cond_var}. 
 Figure \ref{fig:blm_sigma2_a_over_ws} shows that the fitted values preserve the ordering of the true parameter combinations across the simulation grid, but they lie systematically below the naive reference $\sigma_a^2 / W_S$. 
@@ -332,6 +332,7 @@ The $\rho_{ab}^2=0$ panels are uninformative, because selection on the latent tr
 Formally, one can see in equation \eqref{eq:beta_cond_var} that the frequency-dependent term entirely vanishes when $\rho_{ab}^2=0$.
 
 The overall scale parameter $\sigma_b^2$ is considerably easier to recover. Figure \ref{fig:blm_sigma2_b} shows that REML estimates of $\sigma_b^2$ remain centered near the true value across the full grid of $W_S$ and $\rho_{ab}^2$, with only modest replicate-to-replicate variability. 
+This further supports the robustness of the functional form of equation~\eqref{eq:beta_cond_var}.
 Taken together, these results suggest that the focal-trait variance is well identified, 
 whereas the selection-sensitive component is recovered chiefly through the combined quantity $\sigma_a^2 / W_S$ and is therefore more sensitive to departures from the single-locus approximation.
 
@@ -357,6 +358,7 @@ When the coupling between the focal and selected traits is stronger, the evoluti
 The distinction is sharper when one examines the variance components obtained from the prediction fits. 
 In Figure \ref{fig:sigma2_b_estimates}, the evolutionary model remains close to the true $\sigma_b^2$ throughout the simulation grid. 
 The $\alpha=0$ model is approximately unbiased only when $\rho_{ab}^2=0$ and becomes downward biased once the focal trait inherits frequency dependence from the selected trait. 
+The degradation is more pronounced in smaller values of $W_S$ corresponding to stronger selection.
 The $\alpha=0.5$ and $\alpha=1$ fits underestimate $\sigma_b^2$ much more severely in all scenarios. 
 Hence, the similarity in predictive accuracy between the evolutionary model and $\alpha=0$ in some panels should not be interpreted as recovery of the same architecture: the heuristic model can predict reasonably well while still mischaracterizing the underlying variance components.
 Overall, this shows that the $\alpha$-model fails to capture the frequency-dependent genetic architecture properly.
