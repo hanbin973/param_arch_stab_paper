@@ -45,294 +45,205 @@ GENETICS-2026-309276.
 % Major comments:
 
 \begin{point}{} % \revpoint{1}{1} in paper.tex
-The only major addition I would like to see in the manuscript, and I do not think it is necessary, is a more explicit comparison to using the SNP-GRM for the same approaches. The authors bring up that it's slightly odd to ``ignore'' the SNPs when using the ARG-GRM, but state that in some cases (e.g. sparse SNP datasets) there is evidence that it outperforms the SNP-GRM. I'm probably fine with the authors leaving it at that, and referencing other papers, but it could make this paper stronger and more self-contained to make those comparisons explicitly. 
+The authors actually do two distinct things – they present a general method to go from a
+population genetic model to a mixed effect model. That is, given a distribution of
+selection effect $p(s)$, a distribution of allele frequencies $p(x\mid s)$, and the expectation of
+the squared effect size given the selection coefficient $\E{\beta^2 \mid s}$ they get
+\begin{align*}
+    \E{\beta^2 \mid x} = 
+    \frac{\int \E{\beta^2 \mid s}p(x \mid s) p(s)ds}{\int p(x \mid s) p(s) ds}
+\end{align*}
+While this seems like a trivial and unexciting result, it is vital for formulating population
+genetic models (such as the Simons model) as mixed effects models. Therefore, seeing
+it explicitly explained and justified in print is extremely important.
+The second thing done by the author is present a specific model to which they apply
+this method. They assume that $p(s)$ is a chi-squared distribution, $p(x \mid s)$ follows its
+constant-population-size under-dominant-selection low-mutation-rate form, and suggest
+a new form for $\E{\beta^2 \mid s}$ as a mix of constant effect and selection dependent effect
+(similar to Simons et al). These assumptions, together, result in equation 19.
+I think the paper needs a restructuring in which the general method is separated from
+the particular model. This will greatly strengthen the paper because it will emphasize
+that future work can make other assumptions and derive analytic (or numeric) versions
+of equation 19 for their model. The simulation and inference section can then serve as a
+proof of concept of how to go from pop-gen model to mixed model to inference.
 \end{point}
 
 \reply{
-We added a SNP genotype GRM to the comparison with the definition following the standard formula:
-\begin{align*}
-    \mathrm{GRM}_{ij} = \frac{1}{M}\sum_{k=1}^M
-    \frac{(x_{ik}-2p_k)(x_{jk}-2p_k)}{2p_k(1-p_k)}
-\end{align*}
-We filtered out variants with sample frequency lower than 0.005 to avoid large denominators.
-The result is presented in Figure~\ref{fig:pedigree}, 
-and described at \revref.
-
-Like with pedigree and Monte-Carlo ARG-GRMs, 
-we fitted the variance component using a custom \nloptr-based script.
-The algorithm is from \citet{meyer1985mlemvr} and \citet{lippert2011linear},
-where we rotate the trait and the covariates by the eigenvectors of the GRM.
+Thank you for the comments! (placeholder)
 }
 
 \begin{point}{} % \revpoint{1}{2} in paper.tex
-Similarly, the authors could compare running time of fast methods for variance component inference from the SNP-GRM (e.g. BOLT-LMM) to their approach. Again, I do not think that this is an essential addition to the manuscript, but it would merely be nice.
+There is an obvious gap in developing such a model, running simulations to show its
+use, but not applying it to data. One option is to apply it to UK biobank data and
+compare the results to alpha model results. However, that would very much change the
+focus of the paper. The alternative is to use the discussion to explain why they did not
+apply it to data and what do they expect to see if it were fit to data.
 \end{point}
 
 \reply{
-We added runtime comparison between \tslmm and \texttt{BOLT-LMM}.
-The comparison shows that runtime of \tslmm scales more gradually than that of \texttt{BOLT-LMM}. 
-See Figure~\ref{fig:runtime_boltlmm} and \revref.
-However, we've been careful not to present this as a careful comparison with modern genotype-based methods;
-doing justice to that work falls to another paper.
+Placeholder
 }
 
 % Minor comments:
 
 \begin{point}{} % \revpoint{1}{3} in paper.tex
-In the paragraph starting \revref, % line 120,
-especially due to the reference to phylogenetic models of Brownian motion, it might be appropriate to cite \citet{schraiber2024unifying}. % Schraiber et al (2024). 
+The introduction starts quite abruptly. I feel there is a need for an introductory
+paragraph.
 \end{point}
 
 \reply{
-Good suggestion; we have cited this paper. \revref
+Placeholder
 }
 
-\begin{point}{\revref} % Line 152, \revpoint{1}{4} in paper.tex
-I think it's probably worth emphasizing here that this is (implicitly) a neutral model. The authors highlight this later, but I think being up front about it is useful here, too. 
+\begin{point}{} % Line 152, \revpoint{1}{4} in paper.tex
+Notation. The authors introduce much notation and maybe some simplification could be
+achieved. Some examples:
+\begin{enumerate}
+    \item[(a)] Allele frequency is represented as both x and p. This is particularly confusing in
+the integral in section 2.4 where both are used in the same equation and p is also
+used to denote probability distributions.
+    \item[(b)] Beta and alpha are both effect sizes and it’s not completely clear what the
+distinction is.
+    \item[(c)] Is $\alpha$ actually needed? Can it not be replaced by $s_j = \frac{\norm{\alpha_j}^2}{W_S}$?
+\end{enumerate}
 \end{point}
 
 \reply{
-We added a sentence to the paper to mention this. \revref
+placeholder
 }
 
 \begin{point}{} % \revpoint{1}{5} in paper.tex
-In some presentations of the ARG-GRM, it's ``standardized'' by something that's
-the ARG-equivalent of p(1-p), e.g. in Fan et al's approach. The authors do
-bring this up in the paragraph at \llname{alpha_discussion}, % on 591,
-but I think it might be worth bringing
-up earlier (e.g. the definition of $B$ at \llname{B_defn}). % below line 164).
-It'd also be useful to
-know if this kind of standardization can be done in their framework (I think
-so?) 
+$\E{\beta^2 \mid s}$ (equation 13) kind of drops out of thin air. It would be better to justify it before it
+appears. One could first introduce the simple model of equation 16, and then suggest to
+use the resulting $\E{\beta^2 \mid s}$ more generally. One could also motivate it by a probabilistic
+model in which each variant has either no pleiotropic fitness effects with probability $\rho^2$ or
+has pleiotropic fitness effects (and behaves similarly to Simons et al with $\beta^2 \propto \, s$ with probability $\rho^2$.
 \end{point}
 
 \reply{
-Good idea; the short answer to this is that
-    yes, we can incorporate frequency normalization, but have not,
-    essentially because this normalization doesn't stem from a generative model.
-    We have added a note about this
-    at \revref.
+placeholder
 }
 
 \begin{point}{}% \revpoint{1}{6} in paper.tex
-In the paragraph starting \revref, % line 182,
-I think a citation to \cite{schraiber2015sensitivity} and \cite{koch2019effects}
-%    ,Schraiber and Landis (2015) and Koch (2019)
-would be appropriate, as they discuss a similar neutral
-model in detail (while averaging over the genealogy). 
+When doing that it would be a great opportunity to give some intuition into the meaning
+of $\sigma_a^2$, $\sigma_b^2$, and $\rho^2$.
+within section 2.3. Such intuition does appear downstream, but, on first
+read, I felt it was sorely needed in section 2.3.
 \end{point}
 
 \reply{
-Again, good ideas; this is done. \revref
+placeholder
 }
 
 \begin{point}{} % \revpoint{1}{7} in paper.tex
-The authors point out the trace cancellation in the calculation of the
-average information, as if it is a lucky thing in their specific case, but my
-memory of how AI works is that the trace cancellation is the whole point and
-happens generally? I assume the authors know this and this is just a quirk of
-my reading of their writing, but it might be nice to clarify (or else point out
-that I am mistaken). 
+In equation 13, I think it’s better to write the right hand term as $\rho^2 \cdot \sigma_b^2 \cdot \frac{\norm{\alpha}^2}{\sigma_a^2}$.
+Since $\E{\frac{\norm{\alpha}^2}{\sigma_a^2}}=1$
+this emphasize that $\sigma_b^2$
+determines the scale of effect sizes and the coupling
+to selection just effect how they depend on selection.
 \end{point}
 
 \reply{
-    This is true. The whole point of AI-REML is the trace cancellation which holds
-    whenever the total covariance matrix is a linear combination of parameters.
-    Interestingly, although not directly related to the paper, empirical evidence
-    and heuristics suggest that AI-REML still works even if the linearity of the
-    covariance matrix doesn’t hold. See \citet{zhu2018essential}.
-    We updated the text to reflect this \revref. 
+   Placeholder. 
 }
 
-\begin{point}{\revref} % Line 313, \revpoint{1}{8} in paper.tex
-``criteria'' -> ``criterion'' 
+\begin{point}{} % Line 313, \revpoint{1}{8} in paper.tex
+Can we get a figure that shows the behavior of equation 19? I had to plot it myself to get
+a sense of it.
 \end{point}
 
 \reply{
-Thank you for spotting this error. We’ve corrected it. \revref
+placeholder
 }
 
-\begin{point}{Figure~\ref{fig:prediction}} % Figure 4, % \revpoint{1}{9} in paper.tex
-I think that making the green line actually a different line type than the other lines would be useful to indicate that it is fundamentally different from the blue and orange lines, and represents a maximum possible accuracy, would help the readability of the figure. 
+\begin{point}{} % Figure 4, % \revpoint{1}{9} in paper.tex
+Speaking of which, the plots I plotted look very similar to Supplementary Figure 4 of
+Schoech 2019 (which is often overlooked and should have been the basis of an
+independent paper). Since this figure was trying to show that the alpha model cannot
+describe realistic genetic architectures, it would be nice to show that this model can
+achieve that and can match the architectures simulated by Schoech.
 \end{point}
 
 \reply{
-We changed it to a dotted black line (Figure~\ref{fig:prediction}).
+Placeholder
 }
 
-\begin{point}{\revref} % \revpoint{1}{10} in paper.tex
-In the ``more realistic simulations'' with a spatial model, the spatial model is only active for 150 time units, before being recapitated. I would think that means that almost all the time in the coalescent tree is in the recapitation, which very little signal due to the spatial model. Is that accurate?
-\end{point}
-
-\reply{
-Good question;
-one answer to your question is to note that in Figure~\ref{fig:pedigree}A,
-we can see lots of local correlation in trait value,
-which indicates shared ancestry relevant to trait prediction.
-It is true that most ``coalescent time'' is before this,
-but nonetheless we expect that the top few PCs to reflect geography after this period,
-and there to be potentially more smaller spatial structure
-(i.e., clusters of close relatives).
-This was the main motivation for the experiment:
-since having ``different'' eigenstructure for the covariance matrix
-can lead to different convergence properties for the randomized linear algebra
-methods we're using.
-We have added an additional few sentences that point this out more explicitly
-\llname{spatial_reasons}.
-}
+\newpage
 
 %%%%%%%%%%%%%%
 \reviewersection{2}
 
 \begin{point}{} % \revpoint{2}{1} in paper.tex
-From a linear mixed model perspective, both ARGs and GRMs enter the model as covariance structures; and under standard additive assumptions and sufficiently dense markers, a GRM can be viewed as an empirical approximation to the covariance implied by the underlying ARG. ARG is a different parameterization of relatedness rather than providing fundamentally new inferential power. The paper could benefit from explicitly discussing when and why ARG-based covariance is expected to theoretically outperform GRMs, and when the two are expected to yield nearly identical prediction performance. 
+I find the results presented in figures 3 and 4 somewhat confusing. Both indicate that the alpha=0 model implying no relationship between effect size and frequency is closer to the simulated model of selection than either alpha>0 model. This demands a clear explanation given that when alpha models have been fit in practice estimates are consistently significantly greater than zero. Moreover, the simulation results also show particularly poor performance for alpha=1. Given that this is the standard parameterization in the field, and methods do not perform exceedingly poorly, it begs the question of whether the simulations are particularly realistic, at least for humans. The explanation in the discussion that the good performance of alpha=0 is partly due to rare variants where the dependency disappears is also concerning because (again, in humans) rare variants don't contribute massively to heritability. I wonder if the restriction to simulating a single trait under stabilizing selections is contributing to some of this. This all needs a clearer explanation before a strong preference for evolutionary derived models can be claimed off of the results. Also, Schraiber et al 2024 showed that alpha=1/standard GRM corresponded to mutation-selection balance, and this should be noted. 
 \end{point}
 
 \reply{
-We agree that this is an important point and common question readers will have.
-We have updated our Discussion to (hopefully) more directly address this point \revref.
-In particular, we've tried to make the points that \citet{zhu2024fastvariancecomponent}
-has obtained good empirical results in this direction
-(that ARG-based GRMs can add additional power in some circumstances),
-but more empirical work is needed.
+placeholder
 }
 
-\begin{point}{\revref} % Line 658, \revpoint{2}{2} in paper.tex
-The authors state that ARGs provide a ``time axis'' that leads to more interpretable results \revref. % (L658).
-It may be true in principle, it is not clear how this advantage is actually
-exploited in the current model. The model does not incorporate time-related
-effects explicitly. It reads more like the time axis is a latent property of
-the data structure. 
+\begin{point}{} % Line 658, \revpoint{2}{2} in paper.tex
+Previous work on this topic noted the importance of the DFE (e.g. Schoech et al.) in shaping the effect given frequency function. The authors should note explicitly that the prior term in eq 17 is the DFE. Given the demonstrated importance of the DFE in prior work the sensitivity of 19 to the assumed chi2 DFE should be investigated.
 \end{point}
 
 \reply{
-We agree that our comment wasn't clear enough.
-Now, we have reminded the reader that the time axis is useful in this paper
-because it is reflected in the units of $\tau^2$ \revref.
+placeholder
 }
 
 \begin{point}{} % \revpoint{2}{3} in paper.tex
-The paper relies heavily on randomized Haseman-Elston (HE) regression for
-variance component estimation, but may not explain sufficiently how this choice
-is motivated. 
+It would seriously improve reader understanding if eq 19 were plotted under a reasonable range of scenarios and compared to alpha models.
 \end{point}
 
 \reply{
-We've added a sentence giving the motivation for using this as a starting location
-at \revref.
-(We don't think that our use of it is particularly crucial, however;
-also see discussion of HE in the Introduction, around \llname{haseman}.)
+placeholder
 }
 
 \begin{point}{} % \revpoint{2}{4} NOT NEEDED in paper.tex
-The paper demonstrates that ARG-based BLUP is feasible, but it is less clear
-that it provides meaningful advantages for genomic prediction accuracy. The
-strong advantage of ARGs may be in variance decomposition and interpretability.
+It isn't really clear what eqs 3 and 4 actually add here given that eq 6 can be obtained from drift and selection terms alone.
 \end{point}
 
 \reply{
-We agree generally, but also think that there may be advantages for accuracy
-in some situations (e.g., when genotyping data is incomplete,
-as observed for GWAS by \cite{zhu2024fastvariancecomponent}).
-We have mentioned this in the Discussion
-(see point above and section at \revreffull{2}{1}).
-An explicit comparison to the usual SNP-GRM (genotype GRM) was also added to Figure~\ref{fig:pedigree}.
+placeholder
 }
 
-%%%%%%%%%%%%%%
-\reviewersection{3}
-
-\begin{point}{} % \revpoint{3}{1} in paper.tex
-As inferred ARGs will necessarily be used in real data practices, I would like
-to see some more discussions on the comparison between ARG inference methods.
-For example, Relate could be run for 2000 sequences, and ARG-Needle/Threads
-could be run for more. It would be useful for the authors to compare the
-performance between these methods and given general guidelines to the potential
-users; 
+\begin{point}{}
+   The derivation of eq 7 parallels Bulmer 1972, which should be cited. 
 \end{point}
 
 \reply{
-This would be an excellent thing to explore,
-but we believe it is beyond the scope of this paper.
-For instance, the strengths and weaknesses of different methods
-are expected to be different at different sample sizes
-and in different situations (data quality; structure; etcetera),
-so that an informative exploration would make this paper far too long.
-There's an ongoing effort to measure how sensitive ARG-based methods are to ARG inference methods, e.g. \citet{peng2025evalarg}. 
-We have added some more discussion of this point
-to \revref.
+placeholder
 }
 
-\begin{point}{} % \revpoint{3}{2} NOT NEEDED in paper.tex
-Another aspect which is generally missing from the article is that the
-benchmark has not compared the performance using whole genome sequences versus
-ARGs (true and inferred). The benchmark as of now focuses on compare the
-performance between inferred and true ARGs and make the point that the loss is
-not significant. While that seems to be true, there is one fundamental question
-which remains unanswered: does ARG-based inference provide additional benefit
-other than computational efficiency? If the ARG-based computation only saves a
-tolerable runtime but results in worse accuracy, I hardly think people will use
-it. I would like the authors to make the comparison between using whole genomes
-and inferred ARGs, to address the above concern; 
+\begin{point}{}
+Given that h2 is intended to be an estimator of the narrow sense heritability explained by SNPs, and that this is a quantity of considerable interested, it should be noted whether such a quantity can also be derived from your model.
 \end{point}
 
 \reply{
-We agree -- the question of how and when it is beneficial to use ARGs
-is a significant open question in the field
-(and which needs some empirical work, in our opinion).
-To give a bit more information about this,
-we have added a comparison (see Figure~\ref{fig:pedigree}) to the usual SNP-GRM (the genotype GRM),
-showing that we do not have worse results,
-even with inferred ARGs.
-The SNP set used to compute the genotype GRM contains all true causal variants alongside non-causal ones,
-with filtering to avoid large denominators in constructing the GRM.
-Furthermore, we now discuss in more detail around \revreffull{2}{1},
-other situations in which ARG-based methods might provide an advantage
-to SNP-based methods.
+placeholder
 }
 
-\begin{point}{} % \revpoint{3}{3} NOT NEEDED in paper.tex
-There is something non-intuitive in Figure \ref{fig:estimation} and \ref{fig:prediction}.
-In Figure \ref{fig:prediction}, %.4,
-the authors shows that the sample correlation performance using inferred ARGs is getting
-closer with using true ARGs. However, in figure \ref{fig:estimation}, %3,
-the MSE gap (blue vs green) seems to get larger with large sample sizes.
-Can the author explain this obvious inconsistency? 
+
+\begin{point}{}
+More care needs to be taken to explain the distinction between alpha and beta for the focal and pleiotropic traits.
+
 \end{point}
 
 \reply{
-This is an interesting observation,
-but after thinking hard about it,
-we don't think we can confidently say anything useful about this pattern.
-There are only two sample sizes (2,000 and 50,000) in Figure~\ref{fig:estimation},
-and the latter sample size is below the largest sample size in
-Figure~\ref{fig:prediction};
-and furthermore although the gap seen in Figure~\ref{fig:estimation}
-does not get smaller, both blue and green bars in that figure do get smaller.
-It would be interesting to understand more,
-but the point of this paper is to describe the method,
-not to benchmark the behavior in different ARG inference situations.
+placeholder
 }
 
-\begin{point}{} % \revpoint{3}{4} in paper.tex
-Since the method relies on building ARGs from data, it would also be good to discuss the difference between using genotype array data and whole genome sequences, as they hugely impact the ARG inference accuracy. It would also be nice to discuss the robustness of ARG-based estimator and genotype-based estimator in these 2 cases; 
+\begin{point}{}
+Eq 13 needs greater explanation. The manuscript states that the key is to deduce the relationship between effect and frequency, but 13 feels ad hoc as a generalization to the Simons et al. model. Models of this nature also have a tendency to produce a genetic architecture with large effect variants at high frequencies.
 \end{point}
 
 \reply{
-Again, we definitely agree, and would love to explore this,
-but we can't get too deep on this here, since it would be very speculative.
-We do point to the work by \cite{zhu2024fastvariancecomponent} in a few more places,
-who more directly study this exact question.
-We now refer more directly to this point at
-\revref
-and around \revreffull{2}{1}.
+placeholder
 }
 
-\begin{point}{} % \revpoint{3}{5} in paper.tex
-It would be nice to say something about the memory use of their method at different data sizes. I am sure that is a benefit of the method.
+\begin{point}{}
+Does the derivation leading to eq 18 include a large sample size limit? It isn't clear from the text.
+
 \end{point}
 
 \reply{
-The memory scaling is given by the product of the number of nodes and test vectors used in trace estimation.
-We have updated the text at \revref.
+placeholder
 }
