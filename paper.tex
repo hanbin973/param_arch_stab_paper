@@ -256,7 +256,7 @@ Assuming linkage equilibrium, we have
 \begin{equation}
  \label{eq:bayes_for_alpha}
 p(\norm{\alpha_j}^2 \mid G) = 
-    p(\norm{\alpha_j}^2 \mid G_j)\,\propto\,
+    p(\norm{\alpha_j}^2 \mid G_j)\ \propto\ 
         p(G_j \mid \norm{\alpha_j}^2) \cdot p(\norm{\alpha_j}^2).
 \end{equation}
 For the first term on the right, $p(G_j \mid \norm{\alpha_j}^2)$, assume that
@@ -295,7 +295,7 @@ yielding
     1 + 2\frac{\sigma_a^2}{W_S}\hp_j(1-\hp_j)
     }.
 \end{equation}
-Substituting \eqref{eq:alpha2_cond_avg} into \eqref{eq:alpha_to_beta}, we obtain
+Substituting \eqref{eq:alpha2_cond_avg} and \eqref{eq:beta_cond_var} into \eqref{eq:goal2}, we obtain
 \begin{equation} \label{eq:beta_cond_var}
     \E{\beta_j^2 \mid G_j} = 
     \sigma_b^2 \cdot
