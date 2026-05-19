@@ -9,6 +9,33 @@ from pathlib import Path
 import bibtexparser
 from bibtexparser.bwriter import BibTexWriter
 
+MONTH_ALIASES = {
+    "jan": "1",
+    "january": "1",
+    "feb": "2",
+    "february": "2",
+    "mar": "3",
+    "march": "3",
+    "apr": "4",
+    "april": "4",
+    "may": "5",
+    "jun": "6",
+    "june": "6",
+    "jul": "7",
+    "july": "7",
+    "aug": "8",
+    "august": "8",
+    "sep": "9",
+    "sept": "9",
+    "september": "9",
+    "oct": "10",
+    "october": "10",
+    "nov": "11",
+    "november": "11",
+    "dec": "12",
+    "december": "12",
+}
+
 
 def load_bibliography(path: Path):
     """Load a BibTeX file, or return an empty database if the file is missing."""
@@ -63,6 +90,34 @@ def sort_bibliography(db):
     return db
 
 
+def _normalize_month_value(value: str) -> str:
+    """Convert recognized BibTeX month values to integer month strings."""
+    cleaned = str(value).strip()
+    if not cleaned:
+        return cleaned
+
+    # Accept legacy names, abbreviations, and quoted month macros.
+    token = re.sub(r"[^a-z]", "", cleaned.lower())
+    if token in MONTH_ALIASES:
+        return MONTH_ALIASES[token]
+
+    if cleaned.isdigit():
+        month_number = int(cleaned)
+        if 1 <= month_number <= 12:
+            return str(month_number)
+
+    return cleaned
+
+
+def normalize_month_fields(db):
+    """Normalize recognized month fields across all bibliography entries."""
+    for entry in getattr(db, "entries", []):
+        month = entry.get("month")
+        if month is not None:
+            entry["month"] = _normalize_month_value(month)
+    return db
+
+
 def write_sorted_bibliography(path: Path, db=None) -> bool:
     """Write a bibliography file sorted by author order.
 
@@ -74,6 +129,7 @@ def write_sorted_bibliography(path: Path, db=None) -> bool:
     if not getattr(db, "entries", None) and not getattr(db, "comments", None) and not getattr(db, "preambles", None):
         return False
 
+    normalize_month_fields(db)
     sort_bibliography(db)
     writer = BibTexWriter()
     writer.order_entries_by = None
