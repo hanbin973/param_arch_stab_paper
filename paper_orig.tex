@@ -143,7 +143,7 @@ For fixed $b,z$ we have $_1F_1(a;b;z) = 1 + \mathcal{O}(a)$. Hence, as $\theta \
     x_j^{\theta-1}(1-x_j)^{\theta-1}
     \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}x_j(1-x_j) \right]
 \end{align}
-after suppressing $C(\norm{\alpha_j}) \approx B(\theta, \theta)$ which is independent of $\alpha_j$.
+after suppressing $C(\norm{\alpha_j}) \approx B(\theta, \theta)$ which is independent of both $\alpha_j$ and $\theta$.
 
 \subsection{Connecting evolution to mixed-effects models}
 Genomic mixed-effects models assume the conditional distribution of $y$ given $G$ is 
@@ -296,9 +296,7 @@ yielding
     1 + 2\frac{\sigma_a^2}{W_S}\hp_j(1-\hp_j)
     }.
 \end{equation}
-Substituting 
-\eqref{eq:alpha_to_beta} and
-\eqref{eq:alpha2_cond_avg}  into \eqref{eq:goal2}, we obtain
+Substituting \eqref{eq:alpha2_cond_avg} and \eqref{eq:beta_cond_var} into \eqref{eq:goal2}, we obtain
 \begin{equation} \label{eq:beta_cond_var}
     \E{\beta_j^2 \mid G_j} = 
     \sigma_b^2 \cdot
@@ -566,9 +564,5 @@ For $\sigma_b^2$ and $\rho_{ab}^2$, we chose them to be the same as $\sigma_a^2$
     \caption{Estimates of $\sigma_b^2$ when the evolutionary model is fit with $\rho_{ab}^2$ fixed to $1$. Columns correspond to the true $\sigma_b^2$, rows correspond to the true $\rho_{ab}^2$, and the x-axis gives the true $W_S$. The dotted horizontal line marks the true value.}
     \label{fig:sigma2_b_estimates_rho1_fixed}
 \end{figure}
-
-\newpage
-
-\input{review-responses}
 
 \end{document}
