@@ -1,0 +1,1 @@
+$pdflatex = "latexdiff paper_orig.tex paper.tex > paper_diff.tex; pdflatex %O  paper"
