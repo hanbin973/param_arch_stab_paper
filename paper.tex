@@ -295,6 +295,7 @@ there are $k_j$ derived alleles observed in $G_j$. By exchangeability of the $2n
     \end{aligned}
 \end{align}
 Note that the integration over $[0,1]$ collapses to the substitution $x_j \leftarrow \hx_j$ because the beta-binomial distribution degenerates to the sample frequency in large samples $n \rightarrow \infty$ (see Appendix~\ref{apx:bb_large}).
+
 For the prior term $p(\norm{\alpha_j}^2)$, we assume $\norm{\alpha_j}^2$ follows a $\chi^2$-distribution multiplied by $\sigma_a^2$.
 Then $\E{\norm{\alpha_j}^2} = \sigma_a^2$ and
 \begin{equation*}
@@ -422,7 +423,8 @@ In other words, the empirical success of the $\alpha$-model is largely driven by
 Even with that added flexibility, however, the main advantages of the framework developed here remain twofold.
 First, the evolutionary model is computationally more parsimonious: the stratified $\alpha$-model requires one additional $h^2_{\mathrm{bin}}$ parameter for every extra MAF bin.
 Second, the evolutionary model is more interpretable, because it estimates the raw mutational scale $\sigma_b^2$ directly.
-By contrast, the stratified model's $h^2_{\mathrm{bin}}$ parameters are best viewed as tuning constants chosen to match the binned curve to the underlying evolutionary relationship (Figure \ref{fig:blup_binned_sigma2a_alpha_1}; Appendix Figures \ref{fig:blup_binned_sigma2a_alpha_0_appendix} and \ref{fig:blup_binned_sigma2a_alpha_0p5_appendix}).
+By contrast, the stratified model's $h^2_{\mathrm{bin}}$ parameters are best viewed as tuning knobs chosen to match the binned curve to the underlying evolutionary relationship (Figures \ref{fig:blup_binned_sigma2a_alpha_1}, \ref{fig:blup_binned_sigma2a_alpha_0_appendix}, 
+and \ref{fig:blup_binned_sigma2a_alpha_0p5_appendix}).
 
 \section{Discussion}
 % opening
@@ -626,7 +628,7 @@ Moreover, $0 \le g(X_n) \le 1$, so bounded convergence implies
 Therefore,
 \begin{align}
     p(G_j \mid \norm{\alpha_j})
-    \propto
+    \, \propto \,
     \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}\hx_j(1-\hx_j)\right]
 \end{align}
 for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\theta)$ does not depend on $\norm{\alpha_j}$ and is absorbed into the proportionality constant.
@@ -672,7 +674,7 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_beta2_by_maf_alpha_1.pdf}
-    \caption{Frequency-stratified $\alpha$-model with $\alpha=1$: relationship between allele frequency and $\E{\beta^2 \mid x}$. The binned model closely tracks the evolutionary curve over the MAF range shown. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Appendix Figure \ref{fig:blup_beta2_by_maf_alpha_0_appendix} and Figure \ref{fig:blup_beta2_by_maf_alpha_0p5_appendix}.}
+    \caption{Relationship between allele frequency and $\E{\beta^2 \mid x}$ with $\alpha=1$. The binned model closely tracks the evolutionary curve over the MAF range shown. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_beta2_by_maf_alpha_0_appendix} and \ref{fig:blup_beta2_by_maf_alpha_0p5_appendix}.}
     \label{fig:blup_beta2_by_maf_alpha_1}
 \end{figure}
 
@@ -680,7 +682,7 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_binned_cumulative_genic_variance_alpha_1.pdf}
-    \caption{Frequency-stratified $\alpha$-model with $\alpha=1$: cumulative genic variance across MAF bins. Most of the variance is concentrated in the higher-frequency bins where the binned approximation is strongest. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Appendix Figure \ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix} and Figure \ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}.}
+    \caption{Cumulative genic variance across MAF bins with $\alpha=1$. Most of the variance is concentrated in the higher-frequency bins where the binned approximation is strongest. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix} and \ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}.}
     \label{fig:blup_binned_cumulative_genic_variance_alpha_1}
 \end{figure}
 
@@ -696,7 +698,7 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_binned_sigma2a_alpha_1.pdf}
-    \caption{Frequency-stratified $\alpha$-model with $\alpha=1$: fitted bin-specific variance parameters. These parameters act as flexible tuning terms that adapt the stratified curve to the underlying evolutionary relationship. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Appendix Figure \ref{fig:blup_binned_sigma2a_alpha_0_appendix} and Figure \ref{fig:blup_binned_sigma2a_alpha_0p5_appendix}.}
+    \caption{Frequency-stratified $\alpha$-model with $\alpha=1$: fitted bin-specific variance parameters. These parameters act as flexible tuning terms that adapt the stratified curve to the underlying evolutionary relationship. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_binned_sigma2a_alpha_0_appendix} and \ref{fig:blup_binned_sigma2a_alpha_0p5_appendix}.}
     \label{fig:blup_binned_sigma2a_alpha_1}
 \end{figure}
 
