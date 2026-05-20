@@ -538,7 +538,70 @@ For $\sigma_b^2$ and $\rho_{ab}^2$, we chose them to be the same as $\sigma_a^2$
 \label{apx:bb_large}
 
 We elaborate on the large $n$ asymptotics used in equation~\eqref{eq:fwd_alpha_to_g}.
-\textcolor{red}{elaborate}
+After absorbing all terms that do not depend on $\norm{\alpha_j}$ into the proportionality constant, the integral in \eqref{eq:fwd_alpha_to_g} becomes
+\begin{align}
+    \int_0^1
+    x_j^{k_j+\theta-1}(1-x_j)^{2n-k_j+\theta-1}
+    \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}x_j(1-x_j)\right]dx_j.
+\end{align}
+The polynomial factor can be normalized into a Beta density, yielding
+\begin{align}
+    \begin{aligned}
+    &
+    \int_0^1
+    x_j^{k_j+\theta-1}(1-x_j)^{2n-k_j+\theta-1}
+    \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}x_j(1-x_j)\right]dx_j \\
+    &=
+    B(k_j+\theta,\,2n-k_j+\theta)
+    \E{
+    \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}X_n(1-X_n)\right]
+    },
+    \end{aligned}
+\end{align}
+where
+\begin{align}
+    X_n \sim \mathrm{Beta}(k_j+\theta,\;2n-k_j+\theta).
+\end{align}
+The mean and variance of $X_n$ are
+\begin{align}
+    \E{X_n} = \frac{k_j+\theta}{2n+2\theta},
+    \qquad
+    \var{X_n}
+    =
+    \frac{(k_j+\theta)(2n-k_j+\theta)}
+    {(2n+2\theta)^2(2n+2\theta+1)}.
+\end{align}
+Writing $\hx_j = k_j/(2n)$, we obtain
+\begin{align}
+    \E{X_n} = \hx_j + \mathcal{O}(n^{-1}),
+    \qquad
+    \var{X_n} = \mathcal{O}(n^{-1}).
+\end{align}
+Hence, if $k_j/(2n) \to x^\star$, then Chebyshev's inequality implies that $X_n \xrightarrow{P} x^\star$.
+In the notation of the main text, this means that the Beta distribution concentrates around the observed sample frequency $\hx_j$ as $n \to \infty$.
+
+Now define
+\begin{align}
+    g(x)=\exp\left[-\frac{\norm{\alpha_j}^2}{W_S}x(1-x)\right].
+\end{align}
+Since $g$ is continuous on $[0,1]$, the continuous mapping theorem gives
+\begin{align}
+    g(X_n) \xrightarrow{P}
+    \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}\hx_j(1-\hx_j)\right].
+\end{align}
+Moreover, $0 \le g(X_n) \le 1$, so bounded convergence implies
+\begin{align}
+    \E{g(X_n)}
+    \to
+    \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}\hx_j(1-\hx_j)\right].
+\end{align}
+Therefore,
+\begin{align}
+    p(G_j \mid \norm{\alpha_j})
+    \propto
+    \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}\hx_j(1-\hx_j)\right]
+\end{align}
+for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\theta)$ does not depend on $\norm{\alpha_j}$ and is absorbed into the proportionality constant.
 
 \clearpage
 
