@@ -373,7 +373,7 @@ For the prediction experiments, we first added Gaussian noise of variance $\sigm
 then split individuals into equally sized training and validation sets using the replicate identifier as the random seed.
 All fits were carried out on the training set after centering by the training mean. Under the evolutionary model, 
 we jointly estimated $\sigma_a^2/W_S$, the overall variance scale $\sigma_b^2$, and $\sigma_e^2$ by REML. 
-For the $\alpha$-model baselines with $\alpha \in \{0, 0.5, 1\}$, we instead fit the variance scale and $\sigma_e^2$ by REML using per-variant prior variances proportional to $[\hat p_j(1-\hat p_j)]^{-\alpha}$. 
+For the $\alpha$-model baselines with $\alpha \in \{0, 0.5, 1\}$, we instead fit the variance scale and $\sigma_e^2$ by REML using per-variant prior variances proportional to $[\hx_j(1-\hx_j)]^{-\alpha}$. 
 The fitted prior variances were then used to form posterior mean BLUP effect estimates on the training set, which were evaluated on the held-out individuals by $R^2$.
 
 We next compared held-out BLUP accuracy under the evolutionary model and three $\alpha$-model baselines. 
@@ -399,6 +399,30 @@ Held-out prediction is nearly unchanged relative to Figure \ref{fig:blup_predict
 and estimation of $\sigma_b^2$ remains close to the full model, 
 although with somewhat greater dispersion in some settings. 
 This supports the reduced parameterization as a useful approximation when separate identification of $\rho_{ab}^2$ and $\sigma_a^2 / W_S$ is weak.
+
+\subsection{Frequency stratification in \texorpdfstring{$\alpha$}{}-model}
+
+The $\alpha$-model baselines considered so far perform substantially worse than the evolutionary model,
+which seems at odds with the empirical success of the $\alpha$-model in the literature.
+Here we show that much of this success can be explained by the minor allele frequency (MAF) stratification used in many modern implementations \citep{Lee_2013, Yang_2015, Gazal_2017, Speed2017}.
+The MAF-stratified, or binned, $\alpha$-model fits
+\begin{align}
+    \label{eq:bin_spec_alpha}
+    \E{\beta^2 \mid x} = \frac{h_{\mathrm{bin}}^2}{[x(1-x)]^\alpha}
+\end{align}
+with bin-specific $h_{\mathrm{bin}}^2$ and a shared $\alpha$ across bins.
+Because each curve~\eqref{eq:bin_spec_alpha} only needs to describe a narrow MAF interval, the stratified model is much more flexible than the vanilla $\alpha$-model in capturing the relationship between $\E{\beta^2 \mid x}$ and allele frequency.
+Indeed, with sufficiently fine bins, this piecewise construction can approximate an arbitrary frequency-dependent curve, since over a short enough segment many candidate curves become nearly indistinguishable.
+
+Figure \ref{fig:blup_beta2_by_maf_alpha_1} illustrates this point under stabilizing selection: the stratified $\alpha$-model tracks the evolutionary curve for $\E{\beta^2 \mid x}$ far better than the vanilla $\alpha$-model.
+The agreement is especially strong in the higher-MAF bins, which account for most of the genic variance of the trait (Figure \ref{fig:blup_binned_cumulative_genic_variance_alpha_1}).
+This closer match translates into substantially better BLUP performance than the vanilla $\alpha$-model (Figure \ref{fig:blup_binned_summary_prediction}).
+In other words, the empirical success of the $\alpha$-model is largely driven by MAF binning, which allows it to mimic the true evolutionary frequency dependence.
+
+Even with that added flexibility, however, the main advantages of the framework developed here remain twofold.
+First, the evolutionary model is computationally more parsimonious: the stratified $\alpha$-model requires one additional $h^2_{\mathrm{bin}}$ parameter for every extra MAF bin.
+Second, the evolutionary model is more interpretable, because it estimates the raw mutational scale $\sigma_b^2$ directly.
+By contrast, the stratified model's $h^2_{\mathrm{bin}}$ parameters are best viewed as tuning constants chosen to match the binned curve to the underlying evolutionary relationship (Figure \ref{fig:blup_binned_sigma2a_alpha_1}; Appendix Figures \ref{fig:blup_binned_sigma2a_alpha_0_appendix} and \ref{fig:blup_binned_sigma2a_alpha_0p5_appendix}).
 
 \section{Discussion}
 % opening
@@ -645,6 +669,38 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \end{figure}
 
 \clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_beta2_by_maf_alpha_1.pdf}
+    \caption{Frequency-stratified $\alpha$-model with $\alpha=1$: relationship between allele frequency and $\E{\beta^2 \mid x}$. The binned model closely tracks the evolutionary curve over the MAF range shown. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Appendix Figure \ref{fig:blup_beta2_by_maf_alpha_0_appendix} and Figure \ref{fig:blup_beta2_by_maf_alpha_0p5_appendix}.}
+    \label{fig:blup_beta2_by_maf_alpha_1}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_binned_cumulative_genic_variance_alpha_1.pdf}
+    \caption{Frequency-stratified $\alpha$-model with $\alpha=1$: cumulative genic variance across MAF bins. Most of the variance is concentrated in the higher-frequency bins where the binned approximation is strongest. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Appendix Figure \ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix} and Figure \ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}.}
+    \label{fig:blup_binned_cumulative_genic_variance_alpha_1}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_binned_summary_prediction.pdf}
+    \caption{Held-out BLUP validation $R^2$ under the frequency-stratified $\alpha$-model. MAF binning substantially improves prediction relative to the vanilla $\alpha$-model by allowing a closer approximation to the evolutionary frequency dependence.}
+    \label{fig:blup_binned_summary_prediction}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_binned_sigma2a_alpha_1.pdf}
+    \caption{Frequency-stratified $\alpha$-model with $\alpha=1$: fitted bin-specific variance parameters. These parameters act as flexible tuning terms that adapt the stratified curve to the underlying evolutionary relationship. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Appendix Figure \ref{fig:blup_binned_sigma2a_alpha_0_appendix} and Figure \ref{fig:blup_binned_sigma2a_alpha_0p5_appendix}.}
+    \label{fig:blup_binned_sigma2a_alpha_1}
+\end{figure}
+
+\clearpage
 \renewcommand{\thefigure}{A\arabic{figure}}
 \renewcommand{\theHfigure}{A\arabic{figure}}
 \setcounter{figure}{0}
@@ -662,6 +718,54 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
     \includegraphics[width=\textwidth]{figs/blup_sigma2a_estimates_rho1_fixed.pdf}
     \caption{Estimates of $\sigma_b^2$ when the evolutionary model is fit with $\rho_{ab}^2$ fixed to $1$. Columns correspond to the true $\sigma_b^2$, rows correspond to the true $\rho_{ab}^2$, and the x-axis gives the true $W_S$. The dotted horizontal line marks the true value.}
     \label{fig:sigma2_b_estimates_rho1_fixed}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_beta2_by_maf_alpha_0.pdf}
+    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0$: relationship between allele frequency and $\E{\beta^2 \mid x}$.}
+    \label{fig:blup_beta2_by_maf_alpha_0_appendix}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_beta2_by_maf_alpha_0p5.pdf}
+    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0.5$: relationship between allele frequency and $\E{\beta^2 \mid x}$.}
+    \label{fig:blup_beta2_by_maf_alpha_0p5_appendix}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_binned_cumulative_genic_variance_alpha_0.pdf}
+    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0$: cumulative genic variance across MAF bins.}
+    \label{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_binned_cumulative_genic_variance_alpha_0p5.pdf}
+    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0.5$: cumulative genic variance across MAF bins.}
+    \label{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_binned_sigma2a_alpha_0.pdf}
+    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0$: fitted bin-specific variance parameters.}
+    \label{fig:blup_binned_sigma2a_alpha_0_appendix}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_binned_sigma2a_alpha_0p5.pdf}
+    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0.5$: fitted bin-specific variance parameters.}
+    \label{fig:blup_binned_sigma2a_alpha_0p5_appendix}
 \end{figure}
 
 \newpage

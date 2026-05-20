@@ -36,12 +36,16 @@ MONTH_ALIASES = {
     "december": "12",
 }
 
+MONTH_FIELD_PATTERN = re.compile(
+    r'(?i)(\bmonth\s*=\s*)(\{[^{}]*\}|"[^"]*"|[^,\n}]+)'
+)
+
 
 def load_bibliography(path: Path):
     """Load a BibTeX file, or return an empty database if the file is missing."""
     if not path.exists() or path.stat().st_size == 0:
         return bibtexparser.loads("")
-    return bibtexparser.loads(path.read_text(encoding="utf-8"))
+    return parse_bibtex_text(path.read_text(encoding="utf-8"))
 
 
 def _normalize_sort_text(text: str) -> str:
@@ -90,6 +94,10 @@ def sort_bibliography(db):
     return db
 
 
+def _month_token(value: str) -> str:
+    return re.sub(r"[^a-z]", "", value.lower())
+
+
 def _normalize_month_value(value: str) -> str:
     """Convert recognized BibTeX month values to integer month strings."""
     cleaned = str(value).strip()
@@ -97,7 +105,7 @@ def _normalize_month_value(value: str) -> str:
         return cleaned
 
     # Accept legacy names, abbreviations, and quoted month macros.
-    token = re.sub(r"[^a-z]", "", cleaned.lower())
+    token = _month_token(cleaned)
     if token in MONTH_ALIASES:
         return MONTH_ALIASES[token]
 
@@ -112,10 +120,42 @@ def _normalize_month_value(value: str) -> str:
 def normalize_month_fields(db):
     """Normalize recognized month fields across all bibliography entries."""
     for entry in getattr(db, "entries", []):
-        month = entry.get("month")
-        if month is not None:
-            entry["month"] = _normalize_month_value(month)
+        normalize_month_entry(entry)
     return db
+
+
+def normalize_month_entry(entry: dict):
+    """Normalize the month field for a single BibTeX entry in place."""
+    month = entry.get("month")
+    if month is not None:
+        entry["month"] = _normalize_month_value(month)
+    return entry
+
+
+def _normalize_month_field_match(match: re.Match[str]) -> str:
+    prefix, raw_value = match.groups()
+    stripped = raw_value.strip()
+
+    if (
+        (stripped.startswith("{") and stripped.endswith("}"))
+        or (stripped.startswith('"') and stripped.endswith('"'))
+    ):
+        normalized = _normalize_month_value(stripped[1:-1])
+    else:
+        normalized = _normalize_month_value(stripped)
+
+    return f"{prefix}{{{normalized}}}"
+
+
+def normalize_months_in_bibtex_text(text: str) -> str:
+    """Normalize month fields in raw BibTeX text before parsing."""
+    return MONTH_FIELD_PATTERN.sub(_normalize_month_field_match, text)
+
+
+def parse_bibtex_text(text: str):
+    """Parse BibTeX text after normalizing month fields."""
+    db = bibtexparser.loads(normalize_months_in_bibtex_text(text))
+    return normalize_month_fields(db)
 
 
 def write_sorted_bibliography(path: Path, db=None) -> bool:

@@ -24,7 +24,7 @@ from typing import Iterable
 
 import requests
 
-from bibsort import load_bibliography, write_sorted_bibliography
+from bibsort import load_bibliography, normalize_month_entry, write_sorted_bibliography
 
 OPEN_LIBRARY_URL = "https://openlibrary.org/api/books"
 GOOGLE_BOOKS_URL = "https://www.googleapis.com/books/v1/volumes"
@@ -330,6 +330,7 @@ def add_isbn_to_bib(raw_isbn: str, bib_path: Path) -> bool:
     """
     metadata = fetch_book_metadata(raw_isbn)
     new_entry = build_book_entry(metadata)
+    normalize_month_entry(new_entry)
 
     db = load_bibliography(bib_path)
     existing_keys, existing_isbns = existing_keys_and_isbns(db)

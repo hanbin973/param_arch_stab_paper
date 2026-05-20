@@ -20,10 +20,9 @@ import re
 import sys
 from pathlib import Path
 
-import bibtexparser
 from doi2bib.crossref import get_bib_from_doi
 
-from bibsort import load_bibliography, write_sorted_bibliography
+from bibsort import load_bibliography, normalize_month_entry, parse_bibtex_text, write_sorted_bibliography
 
 DOI_PATTERN = re.compile(r"(10\.\d{4,9}/[-._;()/:A-Z0-9]+)", re.IGNORECASE)
 
@@ -67,11 +66,11 @@ def fetch_bibtex(raw_doi: str, abstract: bool = False) -> dict:
     if not found or not bibtex.strip():
         raise RuntimeError(f"No BibTeX entry found for DOI: {raw_doi}")
 
-    db = bibtexparser.loads(bibtex)
+    db = parse_bibtex_text(bibtex)
     if not getattr(db, "entries", []):
         raise RuntimeError(f"doi2bib returned no parsable entries for DOI: {raw_doi}")
 
-    return db.entries[0]
+    return normalize_month_entry(db.entries[0])
 
 
 def add_doi_to_bib(raw_doi: str, bib_path: Path, abstract: bool = False) -> bool:
