@@ -373,7 +373,7 @@ For the prediction experiments, we first added Gaussian noise of variance $\sigm
 then split individuals into equally sized training and validation sets using the replicate identifier as the random seed.
 All fits were carried out on the training set after centering by the training mean. Under the evolutionary model, 
 we jointly estimated $\sigma_a^2/W_S$, the overall variance scale $\sigma_b^2$, and $\sigma_e^2$ by REML. 
-For the $\alpha$-model baselines with $\alpha \in \{0, 0.5, 1\}$, we instead fit the variance scale and $\sigma_e^2$ by REML using per-variant prior variances proportional to $[\hat p_j(1-\hat p_j)]^{-\alpha}$. 
+For the $\alpha$-model baselines with $\alpha \in \{0, 0.5, 1\}$, we instead fit the variance scale and $\sigma_e^2$ by REML using per-variant prior variances proportional to $[\hx_j(1-\hx_j)]^{-\alpha}$. 
 The fitted prior variances were then used to form posterior mean BLUP effect estimates on the training set, which were evaluated on the held-out individuals by $R^2$.
 
 We next compared held-out BLUP accuracy under the evolutionary model and three $\alpha$-model baselines. 
@@ -399,6 +399,13 @@ Held-out prediction is nearly unchanged relative to Figure \ref{fig:blup_predict
 and estimation of $\sigma_b^2$ remains close to the full model, 
 although with somewhat greater dispersion in some settings. 
 This supports the reduced parameterization as a useful approximation when separate identification of $\rho_{ab}^2$ and $\sigma_a^2 / W_S$ is weak.
+
+\subsection{Frequency stratification in \texorpdfstring{$\alpha$}{}-model}
+
+The $\alpha$-model baselines discussed thus far are substantially inferior compared to the evolutionary model,
+contradicting the empirical success of the $\alpha$-model in literature.
+We demonstrate that this success can be attributed to minor allele frequency (MAF) stratification commonly adopted in modern methods [cite],
+which approximates the underlying true evolutionary relationship between effect size and allele frequency.
 
 \section{Discussion}
 % opening
