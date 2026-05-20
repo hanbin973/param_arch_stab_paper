@@ -404,8 +404,28 @@ This supports the reduced parameterization as a useful approximation when separa
 
 The $\alpha$-model baselines discussed thus far are substantially inferior compared to the evolutionary model,
 contradicting the empirical success of the $\alpha$-model in literature.
-We demonstrate that this success can be attributed to minor allele frequency (MAF) stratification commonly adopted in modern methods [cite],
-which approximates the underlying true evolutionary relationship between effect size and allele frequency.
+We demonstrate that this success can be attributed to minor allele frequency (MAF) stratification commonly adopted in modern methods \citep{Lee_2013, Yang_2015, Gazal_2017, Speed2017}.
+The MAF-stratified (or binned) $\alpha$-model fits separate 
+\begin{align}
+    \label{eq:bin_spec_alpha}
+    \E{\beta^2 \mid x} = \frac{h_{\mathrm{bin}}^2}{[x(1-x)]^\alpha}
+\end{align}
+for bin-specific $h_{\mathrm{bin}}^2$ and shared $\alpha$ across bins.
+As each bin-specific curve~\eqref{eq:bin_spec_alpha} needs only to cover a narrow MAF range, it can mimic a wider range of $\E{\beta^2 \mid x}$ relationship than the vanilla $\alpha$-model.
+In fact, if the frequency spectrum is divided finely enough, it can approximate any function of $\E{\beta^2 \mid x}$ to an arbitrary degree as any two curves are increasingly the same for a short enough segment.
+
+Figure blup\_beta2\_by\_maf\_* show that under stabilizing selection, the stratified $\alpha$-model approximates the frequency curve $\E{\beta^2 \mid x}$ of the evolutionary model where as the vanilla $\alpha$-model does it poorly.
+The resemblance is pronounced in higher MAF bins which occupy most of the genic variance of the trait (Figure *cumulative\_genic*).
+As a result, BLUP prediction improves significantly compared to the vanilla $\alpha$-model (Figure blup\_binned\_summary\_prediction).
+That is, the empirical success of the $\alpha$-model is driven by MAF-binning that allows the model to approximate the true evolutionary frequency dependence.
+
+Given the flexibility of the stratified $\alpha$-model to adapt to the underlying evolutionary relationship,
+the main advantage of this paper's framework exists in two fronts.
+Computationally speaking, the evolutionary model requires far less number of parameters to estimate compared to the stratified $\alpha$-model,  
+which needs an additional $h^2_{\mathrm{bin}}$ parameter for a new MAF bin.
+The evolutionary model is also more interpretable, 
+providing the raw magnitude $\sigma_b^2$ of a newly arising mutation.
+In contrast, the stratified model's $h^2_{\mathrm{bin}}$ parameters are merely tuning knobs used to match the stratified curve to the underlying evolutionary curve (Figure blup\_binned\_sigma2a\_*).
 
 \section{Discussion}
 % opening
