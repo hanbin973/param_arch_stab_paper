@@ -69,7 +69,7 @@ proof of concept of how to go from pop-gen model to mixed model to inference.
 \end{point}
 
 \reply{
-Thank you for the comments! (placeholder)
+placeholder
 }
 
 \begin{point}{} % \revpoint{1}{2} in paper.tex
@@ -81,7 +81,7 @@ apply it to data and what do they expect to see if it were fit to data.
 \end{point}
 
 \reply{
-Placeholder
+We did not conduct a full analysis on human genomes because an efficient implementation of the proposed model warrants a separate methods paper.
 }
 
 % Minor comments:
@@ -153,7 +153,7 @@ a sense of it.
 \end{point}
 
 \reply{
-placeholder
+Figure X-X draws the requested curve alongside two $\alpha$-model variants with or without MAF-binning.
 }
 
 \begin{point}{} % Figure 4, % \revpoint{1}{9} in paper.tex
@@ -165,7 +165,8 @@ achieve that and can match the architectures simulated by Schoech.
 \end{point}
 
 \reply{
-Placeholder
+This would be a great addition.
+Figure X-X are precisely the analogous plot to Schoech's supplementary figure.
 }
 
 \newpage
@@ -174,13 +175,73 @@ Placeholder
 \reviewersection{2}
 
 \begin{point}{} % \revpoint{2}{1} in paper.tex
-I find the results presented in figures 3 and 4 somewhat confusing. Both indicate that the alpha=0 model implying no relationship between effect size and frequency is closer to the simulated model of selection than either alpha>0 model. This demands a clear explanation given that when alpha models have been fit in practice estimates are consistently significantly greater than zero. Moreover, the simulation results also show particularly poor performance for alpha=1. Given that this is the standard parameterization in the field, and methods do not perform exceedingly poorly, it begs the question of whether the simulations are particularly realistic, at least for humans. The explanation in the discussion that the good performance of alpha=0 is partly due to rare variants where the dependency disappears is also concerning because (again, in humans) rare variants don't contribute massively to heritability. I wonder if the restriction to simulating a single trait under stabilizing selections is contributing to some of this. This all needs a clearer explanation before a strong preference for evolutionary derived models can be claimed off of the results. Also, Schraiber et al 2024 showed that alpha=1/standard GRM corresponded to mutation-selection balance, and this should be noted. 
+I find the results presented in figures 3 and 4 somewhat confusing. Both indicate that the alpha=0 model implying no relationship between effect size and frequency is closer to the simulated model of selection than either alpha>0 model. This demands a clear explanation given that when alpha models have been fit in practice estimates are consistently significantly greater than zero. Moreover, the simulation results also show particularly poor performance for alpha=1. Given that this is the standard parameterization in the field, and methods do not perform exceedingly poorly, it begs the question of whether the simulations are particularly realistic, at least for humans. The explanation in the discussion that the good performance of alpha=0 is partly due to rare variants where the dependency disappears is also concerning because (again, in humans) rare variants don't contribute massively to heritability. I wonder if the restriction to simulating a single trait under stabilizing selections is contributing to some of this. This all needs a clearer explanation before a strong preference for evolutionary derived models can be claimed off of the results.
 \end{point}
 
 \reply{
+The reviewer raised an important question of reconciling the manuscript's findings against the $\alpha$-model and the model's empirical success.
+We argue that minor allele frequency (MAF) stratification commonly shipped together with the $\alpha$-model improves the model fit at the cost of increased computational burden, lower precision, and lost interpretability of parameters.
+This approach is standard with examples including stratified LDSC (Gazal et al. 2017, Nature Genetics), GREML-LDMS (Yang et al. 2015, Nature Genetics), and LDAK (Speed et al. 2020, Nature Genetics).
+These models adopt a common $\alpha$ value across MAF bins but separately estimate the numerator $\sigma_b^2$ for each bin.
+Therefore, they consist of an ensemble of $\E{\beta^2 \mid p} =\sigma_b^2 \,/\, [p(1-p)]^{\alpha}$ curves (as a function of MAF $p$) instead of a single $\alpha$-model representing the whole frequency spectrum.
+
+Figure X, X, and X plot three different $\E{\beta^2 \mid p}$ parameterizations against MAF $p$: our evolutionary model, the vanilla $\alpha$-model, and the MAF-binned $\alpha$-model.
+The MAF bins in the figure was adopted from Yang et al. (2015, Nature Genetics).
+The true $\E{\beta^2 \mid p}$ curve represented by the evolutionary model drops gradually with increasing MAF.
+The vanilla $\alpha$-model deviates significantly from the evolutionary model due to $[p(1-p)]^{-\alpha}$ diverging to infinity for rare variants.
+The MAF-binned $\alpha$-model suffers less from the same problem because all MAF bins except for the lowest MAF have bounded values.
+Furthermore, within MAF bins, the curves closely resemble the true evolutionary curve.
+As shown in Figure X, X, and X, this translates to equivalent prediction accuracy to that of the evolutionary model.
+
+This is not at all surprising.
+By finely dividing the MAF spectrum and fitting separate $\E{\beta^2 \mid p}$ per MAF bin,
+we can approximate any continuous and bounded curves of the true underlying $\E{\beta^2 \mid p}$ function.
+This can be done with step functions (corresponding to $\alpha=0$) or $\alpha$-models of different positive $\alpha$ values ($\alpha=0.5, 1$) as shown in Figure X, X, and X.
+In fact, as long as the MAF bins are fine enough, one may choose any parametric curve family -- e.g. linear, quadractic, or exponential -- for each MAF bin because any two continuous curves are indistinguishable for a short enough interval.
+That is, the common practice of MAF stratification is a highly flexible model of frequency-dependent architecture that is insensitive to the choice of $\alpha$: it is the MAF binning doing the heavy lifting.
+
+We also examined the cumulative genic variance -- the numerator of SNP-heritability $h^2$ -- across the MAF spectrum in Figure X-X.
+The vanilla $\alpha$-model does very badly, aligning with its poor predictive performance whereas the MAF-binned $\alpha$-model follows the evolutionary curve almost perfectly.
+As pointed out by the reviewer, rare variants occupy only a small fraction of the total genic variance, so the poor $\E{\beta^2 \mid p}$ fit in rare MAF bins in Figure X, X, and X, would not have mattered much in prediction tasks.
+
+Therefore, MAF-stratified $\alpha$-model performs nearly as good as the correct evolutionary model in prediction (Figure X).
+This explains the empirical success of the $\alpha$-model: 
+MAF-stratified $\alpha$-model with sufficiently fine MAF bins behave as a non-parametric curve estimator that can adapt to any frequency-dependent architecture.
+As prediction only cares about how well the model fits to data, 
+MAF-stratified $\alpha$-model is a good choice for this purpose.
+Nevertheless, this advantage comes at the cost of lost interpretability.
+
+The discussion so far addresses the reviewer's questions as follows.
+The simulation setting, as shown in Figure X-X, reflects the low contribution of rare variants to heritability.
+It also demonstrates $\alpha$-model's good fit to data with MAF binning as shown in earlier human genetics studies.
+Furthermore, the positive $\alpha$-value reported in the literature does not contradict with our finding.
+The vanilla $\alpha$-model fits data better with $\alpha=0$ (Figure X-X), 
+but the more common MAF-binned $\alpha$-model matches the evolutionary curve better with $\alpha=0.5$ than $\alpha=0$ (Figure X-X).
+
+We have updated Discussion to reflect these results.
+
+}
+
+\begin{point}{}{}
+Also, Schraiber et al 2024 showed that alpha=1/standard GRM corresponded to mutation-selection balance, and this should be noted. 
+\end{point}
+
+\reply{
+Connecting our mutation-selection-drift balance result to the deterministic ($N_e \rightarrow \infty$) mutation-selection balance is a great exercise.
+In fact, Schraiber et al. (2024, PLoS Biology)'s result is a special case of our formula with $N_e \rightarrow \infty$ up to a constant factor of mutation rate $\mu$.
+To see this, modify equation (19):
+\begin{align*}
+    \begin{aligned}
+        \E{\beta^2 \mid p} &=
+        \frac{\sigma_a^2}{1 + 2\frac{\sigma_a^2N_e}{V_S}p(1-p)} \\
+        &\approx 
+        \frac{V_S}{2N_e p(1-p)} \\
+        &\propto \, \frac{1}{p(1-p)}
+    \end{aligned}
+\end{align*}
+with $W_S = V_S / (2N_e)$.
 
 
-placeholder
 }
 
 \begin{point}{} % Line 658, \revpoint{2}{2} in paper.tex
@@ -196,7 +257,7 @@ It would seriously improve reader understanding if eq 19 were plotted under a re
 \end{point}
 
 \reply{
-placeholder
+Figure X-X shows the equations alongside two different $\alpha$-models with and without MAF-binning.
 }
 
 \begin{point}{} % \revpoint{2}{4} NOT NEEDED in paper.tex
@@ -204,7 +265,10 @@ It isn't really clear what eqs 3 and 4 actually add here given that eq 6 can be 
 \end{point}
 
 \reply{
-placeholder
+Based on Bulmer's paper provided by the reviewer,
+the suggested derivation likely refers to the use of Wright's formula.
+Wright's formula (equation 21 of the same Bulmer reference).
+Our derivation using Kolmogorov's equation is merely an elaboration of Bulmer as Wright's formula is proved from Kolmogorov's equation.
 }
 
 \begin{point}{}
@@ -212,7 +276,8 @@ placeholder
 \end{point}
 
 \reply{
-placeholder
+Thank you for pointing to the reference.
+We've updated the reference.
 }
 
 \begin{point}{}
@@ -220,7 +285,8 @@ Given that h2 is intended to be an estimator of the narrow sense heritability ex
 \end{point}
 
 \reply{
-placeholder
+We explain how genic variance analogous to $h^2$ can be obtained from our model.
+The same logic was used to draw Figure X-X.
 }
 
 
@@ -247,5 +313,5 @@ Does the derivation leading to eq 18 include a large sample size limit? It isn't
 \end{point}
 
 \reply{
-placeholder
+Appendix
 }
