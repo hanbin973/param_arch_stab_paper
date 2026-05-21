@@ -523,14 +523,14 @@ With diminishing selection $W_S \rightarrow \infty$, the formula reduces to the 
 We now follow the same steps as before to deduce
 \begin{align} \label{eq:arch_final}
     \begin{aligned}
-        \E{\beta_j^2 \mid \hp_j, u_j}
+        \E{\beta_j^2 \mid \hx_j, u_j}
     &= \sigma_{b,j}^2 \cdot 
     \left[
     1 - 
     \rho_{ab,j}^2 \cdot 
         \frac{
-             2\left(1-h(u_j)\frac{V_g}{V_S}\right)^2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j)}{
-            1 + 2\left(1-h(u_j)\frac{V_g}{V_S}\right)^2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
+             2\left(1-h(u_j)\frac{V_g}{V_S}\right)^2\frac{\sigma_{a,j}^2}{W_S} \hx_j(1-\hx_j)}{
+            1 + 2\left(1-h(u_j)\frac{V_g}{V_S}\right)^2\frac{\sigma_{a,j}^2}{W_S} \hx_j(1-\hx_j) 
         }
     \right]
     \end{aligned}
@@ -538,12 +538,12 @@ We now follow the same steps as before to deduce
 which reduces to
 \begin{align}
     \begin{aligned}
-        \E{\beta_j^2 \mid \hp_j, u_j}
+        \E{\beta_j^2 \mid \hx_j, u_j}
     &=   
         \frac{
         \sigma_{b,j}^2
              }{
-            1 + 2\left(1-h(u_j)\frac{V_g}{V_S}\right)^2\frac{\sigma_{a,j}^2}{W_S} \hp_j(1-\hp_j) 
+            1 + 2\left(1-h(u_j)\frac{V_g}{V_S}\right)^2\frac{\sigma_{a,j}^2}{W_S} \hx_j(1-\hx_j) 
         }
     \end{aligned}
 \end{align}
@@ -677,7 +677,10 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_beta2_by_maf_alpha_1.pdf}
-    \caption{Relationship between allele frequency and $\E{\beta^2 \mid x}$ with $\alpha=1$. The binned model closely tracks the evolutionary curve over the MAF range shown. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_beta2_by_maf_alpha_0_appendix} and \ref{fig:blup_beta2_by_maf_alpha_0p5_appendix}.}
+    \caption{Relationship between allele frequency $x$ and $\E{\beta^2 \mid x}$ with $\alpha=1$. The binned model closely tracks the evolutionary curve over the MAF range shown. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_beta2_by_maf_alpha_0_appendix} and \ref{fig:blup_beta2_by_maf_alpha_0p5_appendix}.
+    The solid, dotted, and dashed lines correspond to the evolutionary, binned $\alpha$, and vanilla $\alpha$ models, respectively.
+    }
+    
     \label{fig:blup_beta2_by_maf_alpha_1}
 \end{figure}
 
@@ -685,7 +688,10 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_binned_cumulative_genic_variance_alpha_1.pdf}
-    \caption{Cumulative genic variance across MAF bins with $\alpha=1$. Most of the variance is concentrated in the higher-frequency bins where the binned approximation is strongest. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix} and \ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}.}
+    \caption{Cumulative genic variance across MAF bins with $\alpha=1$. Most of the variance is concentrated in the higher-frequency bins where the binned approximation is strongest. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix} and \ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}.
+    The solid and dashed lines correspond to the binned $\alpha$ and evolutionary models, respectively.
+    The dotted line is the expected genic variance under neutrality, serving as the upper bound.
+    }
     \label{fig:blup_binned_cumulative_genic_variance_alpha_1}
 \end{figure}
 
@@ -701,7 +707,7 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_binned_sigma2a_alpha_1.pdf}
-    \caption{Frequency-stratified $\alpha$-model with $\alpha=1$: fitted bin-specific variance parameters. These parameters act as flexible tuning terms that adapt the stratified curve to the underlying evolutionary relationship. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_binned_sigma2a_alpha_0_appendix} and \ref{fig:blup_binned_sigma2a_alpha_0p5_appendix}.}
+    \caption{Bin-specific variance parameters with $\alpha=1$. These parameters act as tuning parameters that adapt the stratified curve to the underlying evolutionary relationship. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_binned_sigma2a_alpha_0_appendix} and \ref{fig:blup_binned_sigma2a_alpha_0p5_appendix}.}
     \label{fig:blup_binned_sigma2a_alpha_1}
 \end{figure}
 
