@@ -46,7 +46,9 @@
 \noindent \textbf{Keywords:} stabilizing selection; polygenic trait, statistical genetics
 
 \section{Introduction}
-A fitness landscape maps genotypes or phenotypes to reproductive success and provides a geometric framework for reasoning about how mutation, selection, and constraint shape evolutionary change \citep{Tenaillon_2014,de_Visser_2014}. This perspective has been used to study adaptation and predict evolutionary trajectories, to characterize epistasis and landscape ruggedness, and to understand how genetic variation is maintained under competing forces of mutation and selection. In statistical genetics, it also offers a natural language for relating the effects of trait-associated variants to their fitness consequences. One of the most influential mathematical realizations of this idea is Fisher's geometric model.
+A fitness landscape maps genotypes or phenotypes to reproductive success and provides a geometric framework for reasoning about how mutation, selection, and constraint shape evolutionary change \citep{Tenaillon_2014,de_Visser_2014}. 
+This concept has been used to study adaptation and predict evolutionary trajectories, to characterize epistasis and landscape ruggedness, and to understand how genetic variation is maintained under competing forces of mutation and selection. 
+\revpoint{1}{3}
 
 The canonical example of a fitness landscape function is Fisher's geometric model (FGM), which supposes that an individual's fitness is given by
 \begin{align} \label{eq:fitness}
@@ -217,6 +219,7 @@ Here, $\beta_j$ is the effect of locus $j$ on the observed focal trait $y$ appea
 By contrast, $\alpha_j$ belongs to the evolutionary model and describes the effect of the same locus on the latent trait $z$  that determines fitness under stabilizing selection in equation~\eqref{eq:fitness}.
 These need not be the same quantity because selection may act on an unobserved background trait rather than directly on the focal trait.
 The two effect sizes are coupled through pleiotropy: a single mutation can perturb both the selected latent trait $z$ and the focal observed trait $y$. \revpoint{1}{4}
+\revpoint{2}{8}
 
 \subsection{Fitness effect and its influence on a focal trait}
 From \eqref{eq:goal2}, it remains to determine $\E{\beta_j^2 \mid \norm{\alpha_j}}$, which measures how much the focal trait's effect $\beta_j$ is determined by the overall fitness effect $\alpha_j$,
@@ -274,6 +277,7 @@ As pointed out by a reviewer, writing equation~\eqref{eq:alpha_to_beta} as
 reveals that $\norm{\alpha_j}^2 / \sigma_a^2$ controls the potential direction of $\beta_j$ because $\E{\norm{\alpha_j}^2 / \sigma_a^2}=1$ and $\rho_{ab}^2$ determines how strongly will $\beta_j$ follow this direction.
 At last, $\sigma_b^2$ scales this direction to get the magnitude of $\beta_j$. 
 \revpoint{1}{5}
+\revpoint{2}{9}
 
 \subsection{Approximate genetic architecture}
 Next we turn to $p(\norm{\alpha_j}^2 \mid G)$.
@@ -362,6 +366,10 @@ but other choices can be made possibly with numerical methods to evaluate the ex
 To evaluate our theoretical model, we conducted forward simulations using SLiM \citep{Haller_2025}. Our individual-based simulations assume that stabilizing selection acts according to the fitness function in equation \eqref{eq:fitness}.
 The simulation is based on \eqref{eq:coa}, where a one-dimensional trait is subject to selection while the observed trait is correlated with it through its focal effect sizes (precise details are given in Appendix \ref{sec:simulations}).
 Notably, this simulation setup differs from most other LMM benchmarking studies, which typically condition on fixed genotypes and only vary the random effects and the residual noise of the regression model \citep{Speed2017, Gazal_2019, Priv__2020}.
+The genic variance attributed to variant $j$ was computed by computing $\E{\beta_j^2 \mid x_j} \cdot 2\hx_j(1-\hx_j)$.
+The total genic variance was then obtained by summing it over all $j$.
+Note that this is the numerator of the usual SNP-heritability $h^2$.
+\revpoint{2}{7}
 
 
 \subsection{Variance component estimation}
