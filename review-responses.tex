@@ -81,7 +81,7 @@ apply it to data and what do they expect to see if it were fit to data.
 \end{point}
 
 \reply{
-We did not conduct a full analysis on human genomes because an efficient implementation of the proposed model warrants a separate methods development.
+We wrote a new pagraph in Disccusion~\revref.
 }
 
 % Minor comments:
@@ -112,7 +112,8 @@ distinction is.
 \begin{enumerate}
     \item[(a)] We have replaced all $p$ with $x$ to denote allele frequencies.
     \item[(b)] We added a paragraph clarifying their definitions and mutual relationship in \revref.
-    \item[(c)] The selection coefficient is a function of the allele frequency in stabilizing selection.
+    \item[(c)] The selection coefficient is a function of the allele frequency in stabilizing selection,
+    so can't be expressed simply as $s_j = \norm{\alpha_j^2}/W_S$.
     We also wanted to emphasize that the latent trait $z$ is a quantitative trait as a function of $\alpha_j$.
 \end{enumerate}
 }
@@ -123,24 +124,10 @@ appears. One could first introduce the simple model of equation 16, and then sug
 use the resulting $\E{\beta^2 \mid s}$ more generally. One could also motivate it by a probabilistic
 model in which each variant has either no pleiotropic fitness effects with probability $\rho^2$ or
 has pleiotropic fitness effects (and behaves similarly to Simons et al with $\beta^2 \propto \, s$ with probability $\rho^2$.
-\end{point}
-
-\reply{
-placeholder
-}
-
-\begin{point}{}% \revpoint{1}{6} in paper.tex
 When doing that it would be a great opportunity to give some intuition into the meaning
 of $\sigma_a^2$, $\sigma_b^2$, and $\rho^2$.
 within section 2.3. Such intuition does appear downstream, but, on first
 read, I felt it was sorely needed in section 2.3.
-\end{point}
-
-\reply{
-placeholder
-}
-
-\begin{point}{} % \revpoint{1}{7} in paper.tex
 In equation 13, I think it’s better to write the right hand term as $\rho^2 \cdot \sigma_b^2 \cdot \frac{\norm{\alpha}^2}{\sigma_a^2}$.
 Since $\E{\frac{\norm{\alpha}^2}{\sigma_a^2}}=1$
 this emphasize that $\sigma_b^2$
@@ -149,7 +136,8 @@ to selection just effect how they depend on selection.
 \end{point}
 
 \reply{
-   Placeholder. 
+In \revref, we expanded the discussion as requested. 
+The section now starts with the tentative meaning of $\sigma_\bullet^2$ and $\rho$ parameters.
 }
 
 \begin{point}{} % Line 313, \revpoint{1}{8} in paper.tex
@@ -318,5 +306,5 @@ Does the derivation leading to eq 18 include a large sample size limit? It isn't
 \end{point}
 
 \reply{
-Appendix
+We clarified where the large sample limit enters our derivation in Appendix~\ref{apx:bb_large}.
 }

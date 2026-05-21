@@ -226,6 +226,10 @@ For the rest of the paper, we assume
     \E{\beta_j^2 \mid \norm{\alpha_j}} = \sigma_b^2 (1- \rho_{ab}^2) + \rho_{ab}^2 \cdot \frac{\sigma_b^2}{\sigma_a^2} \cdot \norm{\alpha_j}^2
 \end{align}
 for some constants $\sigma_a^2$, $\sigma_b^2$ and $\rho_{ab}^2$.
+$\sigma_a^2$ and $\sigma_b^2$ control the marginal magnitude of effect sizes $\alpha_j$ and $\beta_j$ of the latent trait $z$ subject to selection and the observed focal trait $y$, respectively.
+The observed trait's effect size will exhibit frequency dependence only if $\beta_j$ is correlated to $\alpha_j$,
+and $\rho_{ab}$ precisely controls how strong this relationship is.
+
 This can be viewed as a generalization of the framework proposed by \citet{Simons2018popgeninterpretation}: with an isotropic FGM,
 \begin{align}
     \E{(\alpha_j^1)^2 \mid \norm{\alpha_j}} = \cdots =
@@ -236,8 +240,9 @@ holds by symmetry (all $\alpha_j^d$ have the same expected magnitude) and
     \sum_{k=1}^d \E{(\alpha_j^k)^2 \mid \norm{\alpha_j}} = \norm{\alpha_j}^2
 \end{align}
 gives $\E{\beta_j^2 \mid \norm{\alpha_j}} = \norm{\alpha_j}^2 /d $ where $\beta_j$ is one of the $\alpha_j^k$. \citet{Simons2018popgeninterpretation}'s model is recovered by setting $\rho_{ab}=1$, $\sigma_b^2/\sigma_a^2 = 1/d$.
+In this model, $\beta_j$ is perfectly correlated to $\norm{\alpha_j}$ ($\rho_{ab}=1$).
 
-Another scenario that leads to \eqref{eq:alpha_to_beta} is when the fitness effect is drawn from a multivariate normal distribution
+The original motivation that led to \eqref{eq:alpha_to_beta} is when the fitness effect is drawn from a multivariate normal distribution
 \begin{gather} \label{eq:coa}
 \begin{pmatrix}
         \alpha_j \\
@@ -258,7 +263,15 @@ Another scenario that leads to \eqref{eq:alpha_to_beta} is when the fitness effe
 \end{gather}
 and selection is acting on a one-dimensional trait with fitness effect $\alpha$.
 Then, $\sigma_a^2 = \E{\norm{\alpha_j}^2}$, $\sigma_b^2=\E{\beta_j^2}$, and $\rho_{ab}^2 = \mathrm{corr}(\norm{\alpha_j}^2, \beta_j^2)$ from the property of multivariate normal distributions.
+An alternative interpretation of equation~\eqref{eq:alpha_to_beta} suggested by a reviewer is that $\beta_j^2$ is assigned independently from $\alpha_j$ with probability $1-\rho_{ab}^2$ and proportionally to $\norm{\alpha_j}^2$ with probability $\rho_{ab}^2$.
 
+As pointed out by a reviewer, writing equation~\eqref{eq:alpha_to_beta} as
+\begin{align}
+    \E{\beta_j^2 \mid \norm{\alpha_j}} = \sigma_b^2 (1- \rho_{ab}^2) + \rho_{ab}^2 \cdot \frac{\norm{\alpha_j}^2}{\sigma_a^2} \cdot \sigma_b^2
+\end{align}
+reveals that $\norm{\alpha_j}^2 / \sigma_a^2$ controls the potential direction of $\beta_j$ because $\E{\norm{\alpha_j}^2 / \sigma_a^2}=1$ and $\rho_{ab}^2$ determines how strongly will $\beta_j$ follow this direction.
+At last, $\sigma_b^2$ scales this direction to get the magnitude of $\beta_j$. 
+\revpoint{1}{5}
 
 \subsection{Approximate genetic architecture}
 Next we turn to $p(\norm{\alpha_j}^2 \mid G)$.
@@ -463,9 +476,10 @@ whereas the evolutionary model remains both more parsimonious and more directly 
 We did not carry out a real data analysis in this study and
 closing this gap will require an efficient implementation of the proposed variance component model applicable to modern genomic datasets.
 In the meantime, we may draw real world implications of the new model.
-First of all, the evolutionary model can isolate the mutational variance $\sigma_b^2$ that measures the magnitude of new mutations -- conventionally estimated from costly lab experiments -- from existing population data[cite]\citep{Lee2026}.
+First of all, the evolutionary model can isolate the mutational variance $\sigma_b^2$ that measures the magnitude of new mutations -- conventionally estimated from costly lab experiments -- from existing population data \citep{lynch1998geneticsandanalysisof,Lee2026}.
 For genic variance, the evolutionary model is unlikely to produce distinct numbers from the $\alpha$-model as existing methods implement the MAF-stratified $\alpha$-model which approximates the evolutionary model well as shown in Figures~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix},~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}, and~\ref{fig:blup_binned_cumulative_genic_variance_alpha_1}.
 Nevertheless, the evolutionary model offers a more parsimonious parameterization that is likely more resource efficient and numerically stable.
+\revpoint{1}{2}
 
 Finally, these results should be interpreted in light of the simplifying assumptions used to obtain a tractable formula. Our derivation relies on genotype-likelihood factorization in the spirit of composite likelihood, stationarity of the population, a low mutation rate, and weak selection relative to recombination. In the full multilocus setting, the dynamics of a focal locus depend on the genetic background through linkage, even in the strictly additive setting considered here, and ignoring that dependence lets us reduce the analysis to a single locus. We suspect that this omission is responsible for the systematic underestimation of $\sigma_a^2/W_S$ seen in the simulations. In particular, linkage disequilibrium induces the Bulmer effect, which creates background forces opposing selection and thereby weakens the effective selective pressure acting on a locus. \citet{Negm_2026} formalized this reduction as a multiplicative factor, which algebraically has the same effect as increasing the selection width $W_S$ and hence decreasing $\sigma_a^2/W_S$. By expanding their formula with further approximations, we found that the Bulmer effect quantitatively predicts the observed underestimation; Appendix \ref{sec:meanfield_ld} gives the details. Extending the framework to treat linkage disequilibrium and richer models of pleiotropy more explicitly is therefore the most natural direction for future work.
 
@@ -581,8 +595,8 @@ For the correction factors in Figure \ref{fig:blm_sigma2_a_over_ws}, we used the
 \section{Simulation details}
 \label{sec:simulations}
 The population followed a panmictic demographic history with a constant diploid population size of $N=10{,}000$ individuals. 
-Each genome was of length $L=2 \times 10^6$ with mutation rate of $\mu=10^{-8}$ and recombination rate of $r=10^{-5}$.
-The configuration was borrowed from \citet{Hayward_2022} to set $L\mu=0.02$ mutations per genome per generation, $2NL\mu = 400 \gg 1$ to ensure polygenicity, and $r/\mu = 10^3$ for low linkage disequilibrium (see Appendix~\ref{sec:meanfield_ld}).
+Each genome was of length $L=2 \times 10^6$ with mutation rate of $\mu=10^{-8}$ and recombination rate of $r=10^{-6}$.
+The configuration was borrowed from \citet{Hayward_2022} to set $L\mu=0.02$ mutations per genome per generation, $2NL\mu = 400 \gg 1$ to ensure polygenicity, and $r/\mu = 10^2$ for low linkage disequilibrium (see Appendix~\ref{sec:meanfield_ld}).
 The mutational effect sizes $\alpha$ were simulated from $\sigma_a^2 \in \{0.5, 1.0, 2.0\}$ and the selection width $W_S = V_S/2N = \{1.0, 2.0, 4.0\}$ (see Appendix for details).
 As $V_S$ is of scale $\mathcal{O}(N)$, the environmental variance $V_E$ and the genetic variance $V_G$ were negligible.
 Hence, the fitness function \eqref{eq:fitness} was used in the simulations.
