@@ -437,10 +437,35 @@ A central ingredient in this construction is the model of pleiotropy. Empirical 
 
 The simulations also clarify what aspects of the model are practically identifiable. In particular, jointly estimating $\rho_{ab}$ and $\sigma_a^2/W_S$ is difficult because $\hx_j(1-\hx_j)$ is typically both small and weakly variable under the $U$-shaped allele-frequency spectrum. As a result, the denominator in equation \eqref{eq:beta_cond_var} is usually close to one, so the data mainly identify the product $\rho_{ab}^2 \sigma_a^2 / W_S$ rather than its two components separately. This is why fixing $\rho_{ab}=1$ and interpreting the fitted quantity as $\rho_{ab}^2 \sigma_a^2/W_S$ works reasonably well in practice. As we show in Appendix \ref{sec:meanfield_ld}, this reduced parameterization lowers precision somewhat but has little effect on BLUP accuracy, and estimation of $\sigma_b^2$ remains stable. That asymmetry is itself informative: $\sigma_b^2$ controls the overall scale of the covariance structure, whereas $\sigma_a^2/W_S$ enters only through a weaker modulation by allele frequency. Even when the evolutionary decomposition is only partially identified, the model can therefore still recover the aggregate variance carried by the focal trait.
 
-This perspective also helps explain the behavior of the $\alpha$-model baselines. When $\rho_{ab}^2=0$, the focal trait is effectively decoupled from the selected background trait, so stabilizing selection induces essentially no frequency dependence and the model collapses to an approximately frequency-independent prior. That regime is therefore a useful sanity check: the corresponding panels are uninformative for $\sigma_a^2/W_S$, and the evolutionary fit and the $\alpha=0$ baseline give nearly identical predictions. More generally, because most variants are rare, one often has $\E{\beta_j^2 \mid \hx_j} \approx \E{\beta_j^2}$, so the genetic relatedness matrices produced by the evolutionary model and the $\alpha=0$ model differ mainly by an overall scale factor to which BLUP is largely insensitive. 
-Nevertheless, that similarity in prediction should not be mistaken for recovery of the same architecture. Once the focal trait is coupled to the selected background, the $\alpha=0$ model absorbs the missing frequency dependence by pushing its estimate of $\sigma_b^2$ downward, whereas the nonzero $\alpha$-models degrade more substantially in both prediction and variance-component estimation. The comparison therefore shows that predictive performance alone can obscure architectural misspecification, and that an evolutionarily derived frequency-dependence model is preferable to purely statistical heuristics.
+This perspective also helps explain the behavior of the $\alpha$-model baselines. 
+When $\rho_{ab}^2=0$, the focal trait is effectively decoupled from the selected background trait, 
+so stabilizing selection induces essentially no frequency dependence and the model collapses to an approximately frequency-independent prior. 
+That regime is therefore a useful sanity check: the corresponding panels are uninformative for $\sigma_a^2/W_S$, 
+and the evolutionary fit and the $\alpha=0$ baseline give nearly identical predictions. 
+More generally, because most variants are rare, one often has $\E{\beta_j^2 \mid \hx_j} \approx \E{\beta_j^2}$, so the genetic relatedness matrices produced by the evolutionary model and the $\alpha=0$ model differ mainly by an overall scale factor to which BLUP is largely insensitive. 
+Nevertheless, that similarity in prediction should not be mistaken for recovery of the same architecture. 
+Once the focal trait is coupled to the selected background, the $\alpha=0$ model absorbs the missing frequency dependence by pushing its estimate of $\sigma_b^2$ downward, whereas the nonzero $\alpha$-models degrade more substantially in both prediction and variance-component estimation. 
+Additionally, $\alpha$-model fails in correctly recovering the genic variance across MAF bins, 
+substantially exaggerating the contribution of rare variants (Figures~\ref{fig:blup_cumulative_genic_variance_alpha_0_appendix},~\ref{fig:blup_cumulative_genic_variance_alpha_0p5_appendix}, and~\ref{fig:blup_cumulative_genic_variance_alpha_1_appendix}).
+The comparison therefore shows that predictive performance alone can obscure architectural misspecification, and that an evolutionarily derived frequency-dependence model is preferable to purely statistical heuristics.
 
-The frequency-stratified $\alpha$-model helps reconcile this conclusion with the empirical success of $\alpha$-based methods. A single global $\alpha$-curve is too rigid to match the stabilizing-selection relationship over the full MAF range, but once the spectrum is partitioned into narrow bins, each local fit only has to approximate the target over a short interval where the mismatch is much less pronounced. This repair is especially effective because most of the genic variance is carried by the higher-frequency bins, where the binned approximation is strongest, so BLUP accuracy can improve substantially even when the global functional form is still misspecified. The evolutionary model nevertheless retains an important advantage because it captures the same frequency dependence with one mechanistic formula rather than a collection of bin-specific tuning parameters. In that sense, the binned $\alpha$-model succeeds by flexible local approximation, whereas the evolutionary model remains both more parsimonious and more directly interpretable.
+The frequency-stratified $\alpha$-model helps reconcile this conclusion with the empirical success of $\alpha$-based methods. 
+A single global $\alpha$-model curve is too rigid to match the stabilizing selection relationship over the full MAF range, 
+but once the spectrum is partitioned into narrow bins, 
+each local fit only has to approximate the target over a short interval where the mismatch is much less pronounced. 
+This repair is especially effective because most of the genic variance is carried by the higher-frequency bins, 
+where the binned approximation is strongest, 
+so BLUP accuracy can improve substantially even when the global functional form is still misspecified. 
+The evolutionary model nevertheless retains an important advantage because it captures the same frequency dependence with one mechanistic formula rather than a collection of bin-specific tuning parameters. 
+In that sense, the binned $\alpha$-model succeeds by flexible local approximation, 
+whereas the evolutionary model remains both more parsimonious and more directly interpretable.
+
+We did not carry out a real data analysis in this study and
+closing this gap will require an efficient implementation of the proposed variance component model applicable to modern genomic datasets.
+In the meantime, we may draw real world implications of the new model.
+First of all, the evolutionary model can isolate the mutational variance $\sigma_b^2$ that measures the magnitude of new mutations -- conventionally estimated from costly lab experiments -- from existing population data[cite]\citep{Lee2026}.
+For genic variance, the evolutionary model is unlikely to produce distinct numbers from the $\alpha$-model as existing methods implement the MAF-stratified $\alpha$-model which approximates the evolutionary model well as shown in Figures~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix},~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}, and~\ref{fig:blup_binned_cumulative_genic_variance_alpha_1}.
+Nevertheless, the evolutionary model offers a more parsimonious parameterization that is likely more resource efficient and numerically stable.
 
 Finally, these results should be interpreted in light of the simplifying assumptions used to obtain a tractable formula. Our derivation relies on genotype-likelihood factorization in the spirit of composite likelihood, stationarity of the population, a low mutation rate, and weak selection relative to recombination. In the full multilocus setting, the dynamics of a focal locus depend on the genetic background through linkage, even in the strictly additive setting considered here, and ignoring that dependence lets us reduce the analysis to a single locus. We suspect that this omission is responsible for the systematic underestimation of $\sigma_a^2/W_S$ seen in the simulations. In particular, linkage disequilibrium induces the Bulmer effect, which creates background forces opposing selection and thereby weakens the effective selective pressure acting on a locus. \citet{Negm_2026} formalized this reduction as a multiplicative factor, which algebraically has the same effect as increasing the selection width $W_S$ and hence decreasing $\sigma_a^2/W_S$. By expanding their formula with further approximations, we found that the Bulmer effect quantitatively predicts the observed underestimation; Appendix \ref{sec:meanfield_ld} gives the details. Extending the framework to treat linkage disequilibrium and richer models of pleiotropy more explicitly is therefore the most natural direction for future work.
 
@@ -679,7 +704,8 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_beta2_by_maf_alpha_1.pdf}
-    \caption{Relationship between allele frequency $x$ and $\E{\beta^2 \mid x}$ with $\alpha=1$. The binned model closely tracks the evolutionary curve over the MAF range shown. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_beta2_by_maf_alpha_0_appendix} and \ref{fig:blup_beta2_by_maf_alpha_0p5_appendix}.
+    \caption{Relationship between allele frequency $x$ and $\E{\beta^2 \mid x}$ with $\alpha=1$. 
+    The binned model closely tracks the evolutionary curve over the MAF range shown. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_beta2_by_maf_alpha_0_appendix} and \ref{fig:blup_beta2_by_maf_alpha_0p5_appendix}.
     The solid, dotted, and dashed lines correspond to the evolutionary, binned $\alpha$, and vanilla $\alpha$ models, respectively.
     }
     
@@ -690,7 +716,8 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_binned_cumulative_genic_variance_alpha_1.pdf}
-    \caption{Cumulative genic variance across MAF bins with $\alpha=1$. Most of the variance is concentrated in the higher-frequency bins where the binned approximation is strongest. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix} and \ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}.
+    \caption{Cumulative genic variance across MAF bins computed from $\alpha=1$-model with MAF stratification. 
+    Most of the variance is concentrated in the higher-frequency bins where the binned approximation is strongest. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix} and \ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}.
     The solid and dashed lines correspond to the binned $\alpha$ and evolutionary models, respectively.
     The dotted line is the expected genic variance under neutrality, serving as the upper bound.
     }
@@ -737,7 +764,7 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_beta2_by_maf_alpha_0.pdf}
-    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0$: relationship between allele frequency and $\E{\beta^2 \mid x}$.}
+    \caption{Relationship between allele frequency and $\E{\beta^2 \mid x}$ for $\alpha=0$.}
     \label{fig:blup_beta2_by_maf_alpha_0_appendix}
 \end{figure}
 
@@ -745,7 +772,7 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_beta2_by_maf_alpha_0p5.pdf}
-    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0.5$: relationship between allele frequency and $\E{\beta^2 \mid x}$.}
+    \caption{Relationship between allele frequency and $\E{\beta^2 \mid x}$ for $\alpha=0.5$.}
     \label{fig:blup_beta2_by_maf_alpha_0p5_appendix}
 \end{figure}
 
@@ -753,7 +780,7 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_binned_cumulative_genic_variance_alpha_0.pdf}
-    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0$: cumulative genic variance across MAF bins.}
+    \caption{Cumulative genic variance across MAF bins computed from $\alpha=0$-model with MAF stratification.}
     \label{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix}
 \end{figure}
 
@@ -761,7 +788,7 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_binned_cumulative_genic_variance_alpha_0p5.pdf}
-    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0.5$: cumulative genic variance across MAF bins.}
+    \caption{Cumulative genic variance across MAF bins computed from $\alpha=0.5$-model with MAF stratification.}
     \label{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}
 \end{figure}
 
@@ -769,7 +796,7 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_binned_sigma2a_alpha_0.pdf}
-    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0$: fitted bin-specific variance parameters.}
+    \caption{Bin-specific variance parameters for $\alpha=0$.}
     \label{fig:blup_binned_sigma2a_alpha_0_appendix}
 \end{figure}
 
@@ -777,8 +804,33 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figs/blup_binned_sigma2a_alpha_0p5.pdf}
-    \caption{Additional frequency-stratified $\alpha$-model result for $\alpha=0.5$: fitted bin-specific variance parameters.}
+    \caption{Bin-specific variance parameters for $\alpha=0.5$.}
     \label{fig:blup_binned_sigma2a_alpha_0p5_appendix}
+\end{figure}
+
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_cumulative_genic_variance_alpha_0.pdf}
+    \caption{Cumulative genic variance across MAF bins computed from $\alpha=0$-model without MAF stratification.}
+    \label{fig:blup_cumulative_genic_variance_alpha_0_appendix}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_cumulative_genic_variance_alpha_0p5.pdf}
+    \caption{Cumulative genic variance across MAF bins computed from $\alpha=0.5$-model without MAF stratification.}
+    \label{fig:blup_cumulative_genic_variance_alpha_0p5_appendix}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figs/blup_cumulative_genic_variance_alpha_1.pdf}
+    \caption{Cumulative genic variance across MAF bins computed from $\alpha=1$-model without MAF stratification.}
+    \label{fig:blup_cumulative_genic_variance_alpha_1_appendix}
 \end{figure}
 
 \newpage
