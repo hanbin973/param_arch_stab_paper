@@ -36,7 +36,7 @@
     In statistical genetics, the so-called $\alpha$-model captures this relationship by assuming that effect size variance is inversely proportional to heterozygosity raised to a power $0\le\alpha\le 1$.
     Although empirically useful, the $\alpha$-model is phenomenological rather than mechanistic and lacks a direct population-genetic interpretation.
     In this paper, we derive an alternative to the $\alpha$-model based on evolutionary theory. 
-    Our approach yields a linear mixed model in which the frequency dependence of effect size emerges naturally as a function of interpretable evolutionary quantities describing mutational variance, selection intensity, and coupling between the focal and selected traits.
+    Our approach yields a linear mixed model in which frequency dependence emerges naturally as a function of interpretable evolutionary quantities describing mutational variance, selection intensity, and coupling between the focal and selected traits.
     These quantities enter through two identifiable variance components that can be estimated by restricted maximum likelihood (REML).
     The resulting framework links a fitness-landscape model to standard mixed-model methodology, enabling both inference on evolutionary parameters and downstream prediction by best linear unbiased prediction (BLUP).
     In forward simulations, the model accurately recovers the focal-trait variance and generally improves genetic prediction relative to conventional $\alpha$-model baselines.
@@ -50,7 +50,7 @@ A fitness landscape maps genotypes or phenotypes to reproductive success and pro
 This concept has been used to study adaptation and predict evolutionary trajectories, to characterize epistasis and landscape ruggedness, and to understand how genetic variation is maintained under competing forces of mutation and selection. 
 \revpoint{1}{3}
 
-The canonical example of a fitness landscape function is Fisher's geometric model (FGM), which supposes that an individual's fitness is given by
+The canonical example of a fitness landscape is Fisher's geometric model (FGM), which supposes that an individual's fitness is given by
 \begin{align} \label{eq:fitness}
     \text{fitness} \ \propto \
     \exp \left(
@@ -58,23 +58,23 @@ The canonical example of a fitness landscape function is Fisher's geometric mode
     \right)
 \end{align}
 where $z=(z^1, \ldots, z^d)$ is a $d$-dimensional trait vector subject to stabilizing selection and $V_S$ controls selection intensity \citep{fisher1999thegeneticaltheoryof,Tenaillon_2014}. 
-Originally proposed by R.A.~Fisher almost a century ago, the past decade has seen renewed interest in FGM as a theoretical framework for understanding trait-associated loci in genome-wide association studies (GWAS).
-By considering a special instance of FGM with isotropically distributed mutational effects, \citet{Simons2018popgeninterpretation} made predictions about the distribution of (GWAS)-derived effect sizes.  
-A follow-up study used this framework to estimate the contribution of complex traits to fitness in actual GWAS data \citep{Simons2025scalinglaw}.
+Originally proposed by R.A.~Fisher almost a century ago, FGM has seen renewed interest over the past decade as a theoretical framework for understanding trait-associated loci in genome-wide association studies (GWAS).
+By considering a special instance of FGM with isotropically distributed mutational effects, \citet{Simons2018popgeninterpretation} made predictions about the distribution of GWAS-derived effect sizes.
+Another study used this framework to estimate the contribution of complex traits to fitness in actual GWAS data \citep{Simons2025scalinglaw}.
 Using predictions derived from FGM, \citet{Koch2024} further argued that stabilizing selection is a primary mode of selection acting on human traits, and gave estimates as to its strength.
 
 % opening
-These works help to explain repeated empirical observations 
-in massive GWAS of negative correlation between effect size and allele frequency \citep{Zeng_2018, Schoech_2019, Priv__2020}.
+These works help explain repeated empirical observations
+from large GWAS of a negative correlation between effect size and allele frequency \citep{Zeng_2018, Schoech_2019, Priv__2020}.
 Generally, this correlation is ascribed to purifying selection, where large effect variants are more likely to be removed from the population.
-To model this relationship, a common choice is the so-called $\alpha$-model, by which the variance of the effect size is inversely proportional to allelic heterozygosity raised to the power $0\le \alpha \le 1$.
+To model this relationship, a common choice is the so-called $\alpha$-model, by which the variance of effect sizes is inversely proportional to heterozygosity raised to the power $0\le \alpha \le 1$.
 This model first appeared in the setting of estimating genetic relatedness matrices from single nucleotide polymorphism (SNP) markers and has later been extended to explicitly detect negative selection \citep{Zeng_2018, Schoech_2019}.
 
 Although it captures the underlying relationship well, the $\alpha$-model is largely based on statistical curve-fitting. To the best of our knowledge, a population genetic model that predicts this relationship has yet to be developed \citep{Sella_2019,Koch_2021}.
 In this work, we fill that gap by proposing a general procedure for combining an evolutionary model with mixed-effects models in statistical genetics. 
 This yields a linear mixed model parameterized by evolutionary quantities that can be estimated through a conventional statistical method, namely the restricted maximum likelihood (REML) estimator \citep{Johnson_1995}.
-These quantities appear in the variance of random effects encoding the aforementioned frequency dependence of effect sizes that is distinct from the $\alpha$-model.
-Unlike the $\alpha$-model, the new formula does not diverge to infinity as the sample frequency approaches zero and allows unbiased estimation of mutational variance.
+These quantities appear in the variance of random effects encoding the frequency dependence of effect sizes, which is distinct from the $\alpha$-model.
+Unlike the $\alpha$-model, the new formula does not diverge as the sample frequency approaches zero and allows unbiased estimation of mutational variance.
 Furthermore, as a mixed-effects model, it can estimate genetic values from the best linear unbiased predictor (BLUP).
 
 \section{Theory and model}
@@ -86,7 +86,7 @@ the marginal selection coefficient $\seff$ acting on a given locus is
     \seff(x_j) = \left(x_j-\frac{1}{2}\right)\frac{\norm{\alpha_j}^2}{V_S}
 \end{align}
 for a biallelic locus $j$ of frequency $x$ and effect size $\alpha_j=(\alpha_j^1, \ldots, \alpha_j^d)$ with $\alpha_j^k$ corresponding to $z^k$ \citep{Robertson1956againstextreme,Lande1976phenoevolution,Simons2018popgeninterpretation, Negm_2026}.
-Hereafter, $\alpha_j$ denotes the vector of effect sizes of the $j$-th locus for traits $k=1,\ldots,d$ and $\alpha^k=(\alpha_1^k, \ldots, \alpha_p^k)$ denotes the vector of effect sizes of the $k$-th trait for loci $j=1, \ldots, p$.
+Hereafter, $\alpha_j$ denotes the vector of effect sizes of the $j$-th locus for traits $k=1,\ldots,d$, and $\alpha^k=(\alpha_1^k, \ldots, \alpha_p^k)$ denotes the vector of effect sizes of the $k$-th trait across loci $j=1, \ldots, p$.
 
 In a panmictic diploid population of size $N$,
 the diffusion approximation corresponding to \eqref{eq:seff} is
@@ -99,7 +99,7 @@ the diffusion approximation corresponding to \eqref{eq:seff} is
     dt + \sqrt{\frac{X_{t,j}(1-X_{t,j})}{2N}}dB_t
     \end{aligned}
 \end{align}
-where $B_t$ is the Brownian motion. 
+where $B_t$ is Brownian motion.
 Rescaling time in units of $2N$ generations, with $V_S = 2N \cdot W_S$ and $\theta = 4N\mu$, we obtain
 \begin{align} \label{eq:wf_diffusion_scaled}
     dX_{t,j} = \left[
@@ -141,7 +141,7 @@ with normalizing constant
     \theta; \theta + \frac{1}{2}; -\frac{\norm{\alpha_j}^2}{4W_S}
     \right)
 \end{align*}
-where $_1F_1(a;b;z)$ is the Kummer's hypergeometric function
+where $_1F_1(a;b;z)$ is Kummer's hypergeometric function
 \citep{us2010nisthandbookofmathematical}.
 For fixed $b,z$ we have $_1F_1(a;b;z) = 1 + \mathcal{O}(a)$. Hence, as $\theta \to 0$,
 \begin{align}
@@ -203,7 +203,7 @@ Finally, it is unclear if the sample frequency $\hx_j$ can replace the true freq
 Our framework offers a principled solution to the aforementioned issues.
 The key is to \emph{deduce}, instead of assuming, a formula for $\Sigma_{\beta,j} = \var{\beta_j \mid G}$ from evolutionary theory where $j$ denotes the $j$-th locus.
 A common assumption in the literature is that the mean of $\beta_j$ is zero,
-thereby we get $\var{\beta_j \mid G} = \E{\beta_j^2 \mid G}$.
+thereby implying $\var{\beta_j \mid G} = \E{\beta_j^2 \mid G}$.
 Then, we can derive $\E{\beta_j^2 \mid G}$ from
 \begin{equation}
     \label{eq:goal2}
@@ -226,28 +226,28 @@ From \eqref{eq:goal2}, it remains to determine $\E{\beta_j^2 \mid \norm{\alpha_j
 and $p(\norm{\alpha_j} \mid G)$, the likely value of overall fitness given the genotype data
 from a given evolutionary model. We now derive these quantities in the case of stabilizing selection. 
 
-For the rest of the paper, we assume 
+For the rest of the paper, we assume
 \begin{align} \label{eq:alpha_to_beta}
     \E{\beta_j^2 \mid \norm{\alpha_j}} = \sigma_b^2 (1- \rho_{ab}^2) + \rho_{ab}^2 \cdot \frac{\sigma_b^2}{\sigma_a^2} \cdot \norm{\alpha_j}^2
 \end{align}
 for some constants $\sigma_a^2$, $\sigma_b^2$ and $\rho_{ab}^2$.
 $\sigma_a^2$ and $\sigma_b^2$ control the marginal magnitude of effect sizes $\alpha_j$ and $\beta_j$ of the latent trait $z$ subject to selection and the observed focal trait $y$, respectively.
-The observed trait's effect size will exhibit frequency dependence only if $\beta_j$ is correlated to $\alpha_j$,
-and $\rho_{ab}$ precisely controls how strong this relationship is.
+The observed trait's effect size exhibits frequency dependence only if $\beta_j$ is correlated with $\alpha_j$,
+and $\rho_{ab}$ precisely controls the strength of this relationship.
 
 This can be viewed as a generalization of the framework proposed by \citet{Simons2018popgeninterpretation}: with an isotropic FGM,
 \begin{align}
     \E{(\alpha_j^1)^2 \mid \norm{\alpha_j}} = \cdots =
     \E{(\alpha_j^d)^2 \mid \norm{\alpha_j}}
 \end{align}
-holds by symmetry (all $\alpha_j^d$ have the same expected magnitude) and 
+holds by symmetry (all $\alpha_j^k$ have the same expected magnitude) and
 \begin{align}
     \sum_{k=1}^d \E{(\alpha_j^k)^2 \mid \norm{\alpha_j}} = \norm{\alpha_j}^2
 \end{align}
 gives $\E{\beta_j^2 \mid \norm{\alpha_j}} = \norm{\alpha_j}^2 /d $ where $\beta_j$ is one of the $\alpha_j^k$. \citet{Simons2018popgeninterpretation}'s model is recovered by setting $\rho_{ab}=1$, $\sigma_b^2/\sigma_a^2 = 1/d$.
-In this model, $\beta_j$ is perfectly correlated to $\norm{\alpha_j}$ ($\rho_{ab}=1$).
+In this model, $\beta_j$ is perfectly correlated with $\norm{\alpha_j}$ ($\rho_{ab}=1$).
 
-The original motivation that led to \eqref{eq:alpha_to_beta} is when the fitness effect is drawn from a multivariate normal distribution
+The original motivation for \eqref{eq:alpha_to_beta} is a multivariate normal model in which the fitness effect is drawn from
 \begin{gather} \label{eq:coa}
 \begin{pmatrix}
         \alpha_j \\
@@ -266,16 +266,16 @@ The original motivation that led to \eqref{eq:alpha_to_beta} is when the fitness
     \end{pmatrix} 
     \right)
 \end{gather}
-and selection is acting on a one-dimensional trait with fitness effect $\alpha$.
-Then, $\sigma_a^2 = \E{\norm{\alpha_j}^2}$, $\sigma_b^2=\E{\beta_j^2}$, and $\rho_{ab}^2 = \mathrm{corr}(\norm{\alpha_j}^2, \beta_j^2)$ from the property of multivariate normal distributions.
-An alternative interpretation of equation~\eqref{eq:alpha_to_beta} suggested by a reviewer is that $\beta_j^2$ is assigned independently from $\alpha_j$ with probability $1-\rho_{ab}^2$ and proportionally to $\norm{\alpha_j}^2$ with probability $\rho_{ab}^2$.
+and selection acts on a one-dimensional trait with fitness effect $\alpha$.
+Then, $\sigma_a^2 = \E{\norm{\alpha_j}^2}$, $\sigma_b^2=\E{\beta_j^2}$, and $\rho_{ab}^2 = \mathrm{corr}(\norm{\alpha_j}^2, \beta_j^2)$ by properties of multivariate normal distributions.
+An alternative interpretation of equation~\eqref{eq:alpha_to_beta} suggested by a reviewer is that $\beta_j^2$ is assigned independently of $\alpha_j$ with probability $1-\rho_{ab}^2$ and proportionally to $\norm{\alpha_j}^2$ with probability $\rho_{ab}^2$.
 
-As pointed out by a reviewer, writing equation~\eqref{eq:alpha_to_beta} as
+As a reviewer pointed out, writing equation~\eqref{eq:alpha_to_beta} as
 \begin{align}
     \E{\beta_j^2 \mid \norm{\alpha_j}} = \sigma_b^2 (1- \rho_{ab}^2) + \rho_{ab}^2 \cdot \frac{\norm{\alpha_j}^2}{\sigma_a^2} \cdot \sigma_b^2
 \end{align}
-reveals that $\norm{\alpha_j}^2 / \sigma_a^2$ controls the potential direction of $\beta_j$ because $\E{\norm{\alpha_j}^2 / \sigma_a^2}=1$ and $\rho_{ab}^2$ determines how strongly will $\beta_j$ follow this direction.
-At last, $\sigma_b^2$ scales this direction to get the magnitude of $\beta_j$. 
+reveals that $\norm{\alpha_j}^2 / \sigma_a^2$ controls the potential direction of $\beta_j$ because $\E{\norm{\alpha_j}^2 / \sigma_a^2}=1$ and $\rho_{ab}^2$ determines how strongly $\beta_j$ follows this direction.
+Finally, $\sigma_b^2$ scales this direction to determine the magnitude of $\beta_j$.
 \revpoint{1}{5}
 \revpoint{2}{9}
 
@@ -313,7 +313,7 @@ there are $k_j$ derived alleles observed in $G_j$. By exchangeability of the $2n
     &\ \propto \ \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}\hx_j(1-\hx_j) \right].
     \end{aligned}
 \end{align}
-Note that the integration over $[0,1]$ collapses to the substitution $x_j \leftarrow \hx_j$ because the beta-binomial distribution degenerates to the sample frequency in large samples $n \rightarrow \infty$ (see Appendix~\ref{apx:bb_large}).
+Note that the integration over $[0,1]$ collapses approximately to the substitution $x_j \leftarrow \hx_j$ because the beta-binomial distribution degenerates to the sample frequency in large samples $n \rightarrow \infty$ (see Appendix~\ref{apx:bb_large}).
 
 For the prior term $p(\norm{\alpha_j}^2)$, we assume $\norm{\alpha_j}^2$ follows a $\chi^2$-distribution multiplied by $\sigma_a^2$.
 Then $\E{\norm{\alpha_j}^2} = \sigma_a^2$ and
@@ -343,31 +343,31 @@ Substituting
         }
     \right).
 \end{equation}
-The shape of equation~\eqref{eq:beta_cond_var} as a function of $x_j$ will be shown shortly. 
+The shape of equation~\eqref{eq:beta_cond_var} as a function of allele frequency will be shown shortly.
 
 \subsection{Framework breakdown}
 \revpoint{1}{1}
-The derivation so far can be broken down into two distinct components that can be extended on its own right.
+The derivation so far can be broken down into two distinct components that can each be extended on their own.
 The first component in equation~\eqref{eq:fwd_alpha_to_g} is the forward population genetic model $p(G_j \mid \norm{\alpha}_j)$.
-This is merely the site frequency spectrum (SFS) conditioned on the latent effect size $\alpha_j$.
-Thus, an alternative population genetic model can be adopted to the framework by replacing this SFS component, 
-such as with a non-equilibrium demography generalizing the constant size panmictic assumption.
+This is simply the site frequency spectrum (SFS) conditioned on the latent effect size $\alpha_j$.
+Thus, an alternative population-genetic model can be adopted in the framework by replacing this SFS component,
+for example with a non-equilibrium demography that generalizes the constant-size panmictic assumption.
 
 While the first component reflects the population genetic process conditioned on $\norm{\alpha_j}$,
 equation~\eqref{eq:alpha2_cond_avg} requires inverting the conditional relationship of $\norm{\alpha_j}$ and $G_j$.
-According to the Bayes rule,
+According to Bayes' rule,
 the prior distribution $p(\norm{\alpha_j})$ has to be specified to achieve this goal.
 We chose the $\chi^2$-distribution to obtain a closed-form formula,
-but other choices can be made possibly with numerical methods to evaluate the expectation in equation~\eqref{eq:alpha2_cond_avg}.
+but other choices are possible, albeit often requiring numerical methods to evaluate the expectation in equation~\eqref{eq:alpha2_cond_avg}.
 
 \section{Simulation and empirical study}
 
 \subsection{SLiM forward simulation}
-To evaluate our theoretical model, we conducted forward simulations using SLiM \citep{Haller_2025}. Our individual-based simulations assume that stabilizing selection acts according to the fitness function in equation \eqref{eq:fitness}.
-The simulation is based on \eqref{eq:coa}, where a one-dimensional trait is subject to selection while the observed trait is correlated with it through its focal effect sizes (precise details are given in Appendix \ref{sec:simulations}).
+To evaluate the proposed model, we conducted forward simulations using SLiM \citep{Haller_2025}. Our individual-based simulations assume that stabilizing selection acts according to the fitness function in equation \eqref{eq:fitness}.
+The simulation is based on \eqref{eq:coa}, where a one-dimensional trait is subject to selection while the observed trait is correlated with it through its effect sizes (precise details are given in Appendix \ref{sec:simulations}).
 Notably, this simulation setup differs from most other LMM benchmarking studies, which typically condition on fixed genotypes and only vary the random effects and the residual noise of the regression model \citep{Speed2017, Gazal_2019, Priv__2020}.
-The genic variance attributed to variant $j$ was computed by computing $\E{\beta_j^2 \mid x_j} \cdot 2\hx_j(1-\hx_j)$.
-The total genic variance was then obtained by summing it over all $j$.
+The genic variance attributed to variant $j$ was computed as $\E{\beta_j^2 \mid x_j} \cdot 2\hx_j(1-\hx_j)$.
+The total genic variance was then obtained by summing over all $j$.
 Note that this is the numerator of the usual SNP-heritability $h^2$.
 \revpoint{2}{7}
 
@@ -407,7 +407,7 @@ which underperforms substantially in every regime.
 The $\alpha=0.5$ model is closer, but still remains below the evolutionary fit throughout most of the grid. 
 By contrast, the evolutionary model and the $\alpha=0$ model are often quite similar, especially when $\rho_{ab}^2=0$, 
 where equation \ref{eq:beta_cond_var} reduces to an approximately frequency-independent architecture. 
-When the coupling between the focal and selected traits is stronger, the evolutionary model typically retains a nearly unnoticeable advantage.
+When the coupling between the focal and selected traits is stronger, the evolutionary model typically retains a small but consistent advantage.
 
 
 The distinction is sharper when one examines the variance components obtained from the prediction fits. 
@@ -468,7 +468,7 @@ and the evolutionary fit and the $\alpha=0$ baseline give nearly identical predi
 More generally, because most variants are rare, one often has $\E{\beta_j^2 \mid \hx_j} \approx \E{\beta_j^2}$, so the genetic relatedness matrices produced by the evolutionary model and the $\alpha=0$ model differ mainly by an overall scale factor to which BLUP is largely insensitive. 
 Nevertheless, that similarity in prediction should not be mistaken for recovery of the same architecture. 
 Once the focal trait is coupled to the selected background, the $\alpha=0$ model absorbs the missing frequency dependence by pushing its estimate of $\sigma_b^2$ downward, whereas the nonzero $\alpha$-models degrade more substantially in both prediction and variance-component estimation. 
-Additionally, $\alpha$-model fails in correctly recovering the genic variance across MAF bins, 
+Additionally, the $\alpha$-model fails to correctly recover the genic variance across MAF bins,
 substantially exaggerating the contribution of rare variants (Figures~\ref{fig:blup_cumulative_genic_variance_alpha_0_appendix},~\ref{fig:blup_cumulative_genic_variance_alpha_0p5_appendix}, and~\ref{fig:blup_cumulative_genic_variance_alpha_1_appendix}).
 The comparison therefore shows that predictive performance alone can obscure architectural misspecification, and that an evolutionarily derived frequency-dependence model is preferable to purely statistical heuristics.
 
@@ -483,11 +483,10 @@ The evolutionary model nevertheless retains an important advantage because it ca
 In that sense, the binned $\alpha$-model succeeds by flexible local approximation, 
 whereas the evolutionary model remains both more parsimonious and more directly interpretable.
 
-We did not carry out a real data analysis in this study and
-closing this gap will require an efficient implementation of the proposed variance component model applicable to modern genomic datasets.
-In the meantime, we may draw real world implications of the new model.
-First of all, the evolutionary model can isolate the mutational variance $\sigma_b^2$ that measures the magnitude of new mutations -- conventionally estimated from costly lab experiments -- from existing population data \citep{lynch1998geneticsandanalysisof,Lee2026}.
-For genic variance, the evolutionary model is unlikely to produce distinct numbers from the $\alpha$-model as existing methods implement the MAF-stratified $\alpha$-model which approximates the evolutionary model well as shown in Figures~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix},~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}, and~\ref{fig:blup_binned_cumulative_genic_variance_alpha_1}.
+We did not carry out a real-data analysis in this study, and closing this gap will require an efficient implementation of the proposed variance-component model for modern genomic datasets.
+In the meantime, we can draw some real-world implications from the new model.
+First, the evolutionary model can isolate the mutational variance $\sigma_b^2$ that measures the magnitude of new mutations, conventionally estimated from costly lab experiments, from existing population data \citep{lynch1998geneticsandanalysisof,Lee2026}.
+For genic variance, the evolutionary model is unlikely to produce estimates that differ substantially from the $\alpha$-model, because existing methods implement the MAF-stratified $\alpha$-model, which approximates the evolutionary model well as shown in Figures~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix},~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}, and~\ref{fig:blup_binned_cumulative_genic_variance_alpha_1}.
 Nevertheless, the evolutionary model offers a more parsimonious parameterization that is likely more resource efficient and numerically stable.
 \revpoint{1}{2}
 
@@ -519,13 +518,11 @@ and does not necessarily represent the official views of the NIH.
 \section{Mean-field approach to linkage disequilibrium}
 \label{sec:meanfield_ld}
 
-So far, we completely ignored the effect of linkage which creates theoretical challenges.
-To analyze the dynamics of an individual locus in general,
-we have to consider the countless number of interactions with other loci that exhibit randomness.
-To simplify the problem, we adopt the \emph{mean-field} approximation where the locus is assumed to interact with the rest of the system in a simplified fashion.
+So far, we have completely ignored linkage, which creates theoretical challenges.
+To analyze the dynamics of an individual locus in general, we must account for its many random interactions with other loci.
+To simplify the problem, we adopt the \emph{mean-field} approximation, in which the locus is assumed to interact with the rest of the system in a simplified fashion.
 Here, the field is the rest of the genome, or the genetic background, with which the focal locus interacts.
-Because this background consists of a huge number of loci,
-although being stochastic in principle, we instead treat it as a deterministic \emph{average} which gives rise to the term mean-field.
+Because this background consists of a huge number of loci and is stochastic in principle, we instead treat it as a deterministic \emph{average}, which gives rise to the term mean-field.
 
 We work with each locus while leaving all else as a deterministic aggregate.
 Under this framework, one can further refine equation \eqref{eq:seff} as (after scaling by $2N$)
@@ -545,7 +542,7 @@ For simplicity, let $u_j$ be the normalized position of locus $j$ so that $Lu_j$
 
 The difficulty arising in equation \eqref{eq:seff_ld} is that $V_g$ is also a random variable because it is a function of the random variables $x_j$.
 We take another round of mean-field approximation so that $V_g = 2L \cdot \E{x(1-x)\alpha^2}$ is a constant.
-By further assuming that mutation rate is uniform, otherwise we can rescale the genome,
+By further assuming a uniform mutation rate, or equivalently rescaling the genome,
 we arrive at
 \begin{gather}
     \begin{gathered}
@@ -567,9 +564,9 @@ Solving for $V_g$ with $h(u) V_g \ll V_S$ gives
 \begin{align}
     V_g = \frac{2L\theta \sigma_a^2}{2 + \frac{\sigma_a^2}{W_S}}.
 \end{align}
-which means that the shape of $h$ is irrelevant under the $V_g \ll V_S$ approximation.
+which shows that the shape of $h(u)$ is irrelevant under the $V_g \ll V_S$ approximation.
 A locus-level equivalent is derived in \citet{Keightley_1988}.
-With diminishing selection $W_S \rightarrow \infty$, the formula reduces to the classic neutral result $V_G = L\theta\sigma_a^2 = 4NL\mu\sigma_a^2$ \citep{Lynch_1986}.
+In the limit of diminishing selection, with $W_S \rightarrow \infty$, the formula reduces to the classic neutral result $V_G = L\theta\sigma_a^2 = 4NL\mu\sigma_a^2$ \citep{Lynch_1986}.
 
 We now follow the same steps as before to deduce
 \begin{align} \label{eq:arch_final}
@@ -598,9 +595,9 @@ which reduces to
         }
     \end{aligned}
 \end{align}
-if $\rho=1$, a perfect correlation between $\alpha$ and $\beta$.
-As before, if $\rho=0$, it simply becomes $\sigma_{b,j}^2$ because selection on $z$ has no influence on $y$ at all.
-For the correction factors in Figure \ref{fig:blm_sigma2_a_over_ws}, we used the global harmonic mean of recombination fraction.
+if $\rho_{ab}=1$, a perfect correlation between $\alpha$ and $\beta$.
+As before, if $\rho_{ab}=0$, it simply becomes $\sigma_{b,j}^2$ because selection on $z$ has no influence on $y$ at all.
+For the correction factors in Figure \ref{fig:blm_sigma2_a_over_ws}, we used the global harmonic mean of the recombination fraction.
 
 \section{Simulation details}
 \label{sec:simulations}
@@ -613,8 +610,8 @@ Hence, the fitness function \eqref{eq:fitness} was used in the simulations.
 For each pair of $\sigma_a^2$ and $W_S$, 
 a single burn-in of $10N$ generations was followed by 20 separate replicates of $5N$ generations.
 
-To simulate pleiotropic selection, for each population after a total of $15N$ generations, we drew the observed effect sizes $\beta$ conditional on $\alpha$ according to the joint distribution in equation \eqref{eq:coa}.
-This is the same as sampling $\beta$ during the SLiM simulation because $\beta$ has no effect on the simulation at all ($\alpha$ does the job).
+To simulate pleiotropic selection, after a total of $15N$ generations we drew the observed effect sizes $\beta$ conditional on $\alpha$ according to the joint distribution in equation \eqref{eq:coa}.
+This is equivalent to sampling $\beta$ after the SLiM simulation because $\beta$ has no effect on the simulated dynamics; only $\alpha$ determines selection.
 For $\sigma_b^2$ and $\rho_{ab}^2$, we chose them to be the same as $\sigma_a^2$ and to take values in the grid $\{0.00, 0.50, 1.00\}$, respectively.
 
 \section{Large sample asymptotics for Beta-Binomial distribution}
