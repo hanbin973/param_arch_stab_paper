@@ -176,43 +176,8 @@ The reviewer raised an important question of reconciling the manuscript's findin
 We argue that minor allele frequency (MAF) stratification commonly shipped together with the $\alpha$-model improves the model fit at the cost of increased computational burden, lower precision, and lost interpretability of parameters.
 This approach is standard with examples including stratified LDSC (Gazal et al. 2017, Nature Genetics), GREML-LDMS (Yang et al. 2015, Nature Genetics), and LDAK (Speed et al. 2020, Nature Genetics).
 These models adopt a common $\alpha$ value across MAF bins but separately estimate the numerator $\sigma_b^2$ for each bin.
-Therefore, they consist of an ensemble of $\E{\beta^2 \mid p} =\sigma_b^2 \,/\, [p(1-p)]^{\alpha}$ curves (as a function of MAF $p$) instead of a single $\alpha$-model representing the whole frequency spectrum.
-
-Figure X, X, and X plot three different $\E{\beta^2 \mid p}$ parameterizations against MAF $p$: our evolutionary model, the vanilla $\alpha$-model, and the MAF-binned $\alpha$-model.
-The MAF bins in the figure was adopted from Yang et al. (2015, Nature Genetics).
-The true $\E{\beta^2 \mid p}$ curve represented by the evolutionary model drops gradually with increasing MAF.
-The vanilla $\alpha$-model deviates significantly from the evolutionary model due to $[p(1-p)]^{-\alpha}$ diverging to infinity for rare variants.
-The MAF-binned $\alpha$-model suffers less from the same problem because all MAF bins except for the lowest MAF have bounded values.
-Furthermore, within MAF bins, the curves closely resemble the true evolutionary curve.
-As shown in Figure X, X, and X, this translates to equivalent prediction accuracy to that of the evolutionary model.
-
-This is not at all surprising.
-By finely dividing the MAF spectrum and fitting separate $\E{\beta^2 \mid p}$ per MAF bin,
-we can approximate any continuous and bounded curves of the true underlying $\E{\beta^2 \mid p}$ function.
-This can be done with step functions (corresponding to $\alpha=0$) or $\alpha$-models of different positive $\alpha$ values ($\alpha=0.5, 1$) as shown in Figure X, X, and X.
-In fact, as long as the MAF bins are fine enough, one may choose any parametric curve family -- e.g. linear, quadractic, or exponential -- for each MAF bin because any two continuous curves are indistinguishable for a short enough interval.
-That is, the common practice of MAF stratification is a highly flexible model of frequency-dependent architecture that is insensitive to the choice of $\alpha$: it is the MAF binning doing the heavy lifting.
-
-We also examined the cumulative genic variance -- the numerator of SNP-heritability $h^2$ -- across the MAF spectrum in Figure X-X.
-The vanilla $\alpha$-model does very badly, aligning with its poor predictive performance whereas the MAF-binned $\alpha$-model follows the evolutionary curve almost perfectly.
-As pointed out by the reviewer, rare variants occupy only a small fraction of the total genic variance, so the poor $\E{\beta^2 \mid p}$ fit in rare MAF bins in Figure X, X, and X, would not have mattered much in prediction tasks.
-
-Therefore, MAF-stratified $\alpha$-model performs nearly as good as the correct evolutionary model in prediction (Figure X).
-This explains the empirical success of the $\alpha$-model: 
-MAF-stratified $\alpha$-model with sufficiently fine MAF bins behave as a non-parametric curve estimator that can adapt to any frequency-dependent architecture.
-As prediction only cares about how well the model fits to data, 
-MAF-stratified $\alpha$-model is a good choice for this purpose.
-Nevertheless, this advantage comes at the cost of lost interpretability.
-
-The discussion so far addresses the reviewer's questions as follows.
-The simulation setting, as shown in Figure X-X, reflects the low contribution of rare variants to heritability.
-It also demonstrates $\alpha$-model's good fit to data with MAF binning as shown in earlier human genetics studies.
-Furthermore, the positive $\alpha$-value reported in the literature does not contradict with our finding.
-The vanilla $\alpha$-model fits data better with $\alpha=0$ (Figure X-X), 
-but the more common MAF-binned $\alpha$-model matches the evolutionary curve better with $\alpha=0.5$ than $\alpha=0$ (Figure X-X).
-
-We have updated Results and Discussion to reflect these results.
-
+Therefore, they consist of an ensemble of $\E{\beta^2 \mid x} =\sigma_b^2 \,/\, [x(1-x)]^{\alpha}$ curves (as a function of MAF $x$) instead of a single $\alpha$-model representing the whole frequency spectrum.
+The detailed arguments and supporting information is in \revref.
 }
 
 \begin{point}{}{}
@@ -243,6 +208,8 @@ Previous work on this topic noted the importance of the DFE (e.g. Schoech et al.
 
 \reply{
 placeholder
+
+\textcolor{red}{$\chi^2$ is a special instance of the gamma distribution. Different mean values of it comes from $\sigma_a^2$ which has been studied in Schoech et al. so we're fine?}
 }
 
 \begin{point}{} % \revpoint{2}{3} in paper.tex

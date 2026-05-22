@@ -34,12 +34,12 @@
     Across many complex traits, genetic variants with larger effect sizes
     tend to occur at lower frequencies, which is often interpreted as a signature of stabilizing selection.
     In statistical genetics, the so-called $\alpha$-model captures this relationship by assuming that effect size variance is inversely proportional to heterozygosity raised to a power $0\le\alpha\le 1$.
-    Although empirically useful, the $\alpha$-model is phenomenological rather than mechanistic and lacks a direct population-genetic interpretation.
+    Although empirically useful, the $\alpha$-model is phenomenological rather than mechanistic and lacks a direct population genetic interpretation.
     In this paper, we derive an alternative to the $\alpha$-model based on evolutionary theory. 
     Our approach yields a linear mixed model in which frequency dependence emerges naturally as a function of interpretable evolutionary quantities describing mutational variance, selection intensity, and coupling between the focal and selected traits.
     These quantities enter through two identifiable variance components that can be estimated by restricted maximum likelihood (REML).
-    The resulting framework links a fitness-landscape model to standard mixed-model methodology, enabling both inference on evolutionary parameters and downstream prediction by best linear unbiased prediction (BLUP).
-    In forward simulations, the model accurately recovers the focal-trait variance and generally improves genetic prediction relative to conventional $\alpha$-model baselines.
+    The resulting framework links a fitness landscape model to standard mixed model methodology, enabling both inference on evolutionary parameters and downstream prediction by best linear unbiased prediction (BLUP).
+    In forward simulations, the model accurately recovers the focal trait variance and generally improves genetic prediction relative to conventional $\alpha$-model baselines.
 \end{abstract}
 
 \vspace{1em} 
@@ -47,7 +47,7 @@
 
 \section{Introduction}
 A fitness landscape maps genotypes or phenotypes to reproductive success and provides a geometric framework for reasoning about how mutation, selection, and constraint shape evolutionary change \citep{Tenaillon_2014,de_Visser_2014}. 
-This concept has been used to study adaptation and predict evolutionary trajectories, to characterize epistasis and landscape ruggedness, and to understand how genetic variation is maintained under competing forces of mutation and selection. 
+This concept has been used to study adaptation and predict evolutionary trajectories, to characterize epistasis and landscape ruggedness, and to understand how genetic variation is maintained under competing forces of mutation, selection, and drift. 
 \revpoint{1}{3}
 
 The canonical example of a fitness landscape is Fisher's geometric model (FGM), which supposes that an individual's fitness is given by
@@ -70,7 +70,7 @@ Generally, this correlation is ascribed to purifying selection, where large effe
 To model this relationship, a common choice is the so-called $\alpha$-model, by which the variance of effect sizes is inversely proportional to heterozygosity raised to the power $0\le \alpha \le 1$.
 This model first appeared in the setting of estimating genetic relatedness matrices from single nucleotide polymorphism (SNP) markers and has later been extended to explicitly detect negative selection \citep{Zeng_2018, Schoech_2019}.
 
-Although it captures the underlying relationship well, the $\alpha$-model is largely based on statistical curve-fitting. To the best of our knowledge, a population genetic model that predicts this relationship has yet to be developed \citep{Sella_2019,Koch_2021}.
+Although it captures the underlying relationship well, the $\alpha$-model is largely based on statistical curve fitting. To the best of our knowledge, a population genetic model that predicts this relationship has yet to be developed \citep{Sella_2019,Koch_2021}.
 In this work, we fill that gap by proposing a general procedure for combining an evolutionary model with mixed-effects models in statistical genetics. 
 This yields a linear mixed model parameterized by evolutionary quantities that can be estimated through a conventional statistical method, namely the restricted maximum likelihood (REML) estimator \citep{Johnson_1995}.
 These quantities appear in the variance of random effects encoding the frequency dependence of effect sizes, which is distinct from the $\alpha$-model.
@@ -288,6 +288,7 @@ p(\norm{\alpha_j}^2 \mid G) =
     p(\norm{\alpha_j}^2 \mid G_j)\ \propto\ 
         p(G_j \mid \norm{\alpha_j}^2) \cdot p(\norm{\alpha_j}^2).
 \end{equation}
+One might notice that $p(\norm{\alpha_j}^2)$ is the distribution of fitness effects (DFE). 
 For the first term on the right, $p(G_j \mid \norm{\alpha_j}^2)$, assume that
 there are $k_j$ derived alleles observed in $G_j$. By exchangeability of the $2n$ samples,
 \begin{align}
@@ -316,6 +317,8 @@ there are $k_j$ derived alleles observed in $G_j$. By exchangeability of the $2n
 Note that the integration over $[0,1]$ collapses approximately to the substitution $x_j \leftarrow \hx_j$ because the beta-binomial distribution degenerates to the sample frequency in large samples $n \rightarrow \infty$ (see Appendix~\ref{apx:bb_large}).
 
 For the prior term $p(\norm{\alpha_j}^2)$, we assume $\norm{\alpha_j}^2$ follows a $\chi^2$-distribution multiplied by $\sigma_a^2$.
+This choice follows if one assumes $\alpha_j$ is drawn from a normal distribution $N(0,\sigma_a^2)$ as in standard mixed models.
+Also, $\chi^2$-distribution is a special case of gamma distribution commonly adopted in DFE modeling \citep{EyreWalker2007}.
 Then $\E{\norm{\alpha_j}^2} = \sigma_a^2$ and
 \begin{equation*}
     p(\norm{\alpha_j}^2 \mid G_j) \ \propto \ \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}\hx_j(1-\hx_j) \right] \cdot
@@ -436,7 +439,8 @@ The MAF-stratified, or binned, $\alpha$-model fits
 \end{align}
 with bin-specific $h_{\mathrm{bin}}^2$ and a shared $\alpha$ across bins.
 Because each curve~\eqref{eq:bin_spec_alpha} only needs to describe a narrow MAF interval, the stratified model is much more flexible than the vanilla $\alpha$-model in capturing the relationship between $\E{\beta^2 \mid x}$ and allele frequency.
-Indeed, with sufficiently fine bins, this piecewise construction can approximate an arbitrary frequency-dependent curve, since over a short enough segment many candidate curves become nearly indistinguishable.
+Indeed, with sufficiently fine bins, this piecewise construction can approximate an arbitrary frequency-dependent curve, 
+since over a short enough segment any reasonably smooth curves become nearly indistinguishable.
 
 Figure \ref{fig:blup_beta2_by_maf_alpha_1} illustrates this point under stabilizing selection: the stratified $\alpha$-model tracks the evolutionary curve for $\E{\beta^2 \mid x}$ far better than the vanilla $\alpha$-model.
 The agreement is especially strong in the higher-MAF bins, which account for most of the genic variance of the trait (Figure \ref{fig:blup_binned_cumulative_genic_variance_alpha_1}).
@@ -450,15 +454,33 @@ First, the evolutionary model is computationally more parsimonious: the stratifi
 Second, the evolutionary model is more interpretable, because it estimates the raw mutational scale $\sigma_b^2$ directly.
 By contrast, the stratified model's $h^2_{\mathrm{bin}}$ parameters are best viewed as tuning knobs chosen to match the binned curve to the underlying evolutionary relationship (Figures \ref{fig:blup_binned_sigma2a_alpha_1}, \ref{fig:blup_binned_sigma2a_alpha_0_appendix}, 
 and \ref{fig:blup_binned_sigma2a_alpha_0p5_appendix}).
+\revpoint{2}{1}
 
 \section{Discussion}
 % opening
 
-We presented a general procedure for deriving evolution-aware mixed-effects models and applied it to stabilizing selection with pleiotropy. This yields a frequency-dependent effect-size formula expressed directly in terms of evolutionary parameters, while still allowing those parameters to be estimated by restricted maximum likelihood (REML). In that sense, the framework links an interpretable fitness-landscape model to standard statistical-genetic practice: the same model can be used both to learn about the evolutionary architecture of a trait and to perform downstream tasks such as genetic prediction by best linear unbiased prediction (BLUP). In forward simulations, this evolutionary model outperformed the conventional $\alpha$-model across the values of $\alpha$ we considered, which supports the practical value of deriving the frequency dependence from an explicit evolutionary model rather than imposing it heuristically.
+We presented a general procedure for deriving evolution-aware mixed-effects models and applied it to stabilizing selection with pleiotropy. 
+This yields a frequency-dependent effect size formula expressed directly in terms of evolutionary parameters, while still allowing those parameters to be estimated by restricted maximum likelihood (REML). 
+In that sense, the framework links an interpretable fitness landscape model to standard statistical genetic practice: the same model can be used both to learn about the evolutionary architecture of a trait and to perform downstream tasks such as genetic prediction by best linear unbiased prediction (BLUP). 
+In forward simulations, this evolutionary model outperformed the conventional $\alpha$-model across the values of $\alpha$ we considered, 
+which supports the practical value of deriving the frequency dependence from an explicit evolutionary model rather than imposing it heuristically.
 
-A central ingredient in this construction is the model of pleiotropy. Empirical studies suggest that pleiotropy is pervasive in human complex traits, and \citet{Simons2018popgeninterpretation} captured this idea within Fisher's geometric model (FGM) by assuming isotropic mutational effects. Under that assumption, each axis of the underlying fitness landscape contributes equally, so the effect of a mutation on the focal trait is spread symmetrically across directions in trait space. Equation \eqref{eq:alpha_to_beta} generalizes this relationship by allowing the focal trait to be coupled to overall fitness in a potentially non-isotropic way. One concrete example is a jointly Gaussian model for mutational effects, which has been studied in earlier theoretical work and which we also used in our simulations \citep{Kimura_1964, B_rger_1986, burger2000themathematicaltheoryof, walsh2018evolutionandselectionof}. More broadly, this suggests that the present framework should not be tied to a single pleiotropy mechanism: an important next step is to investigate what other biological models lead to the same or similar relationship in equation \eqref{eq:alpha_to_beta}.
+A central ingredient in this construction is the model of pleiotropy. 
+Empirical studies suggest that pleiotropy is pervasive in human complex traits, 
+and \citet{Simons2018popgeninterpretation} captured this idea within Fisher's geometric model (FGM) by assuming isotropic mutational effects. 
+Under that assumption, each axis of the underlying fitness landscape contributes equally, so the effect of a mutation on the focal trait is spread symmetrically across directions in trait space. 
+Equation \eqref{eq:alpha_to_beta} generalizes this relationship by allowing the focal trait to be coupled to overall fitness in a potentially non-isotropic way. One concrete example is a jointly Gaussian model for mutational effects, which has been studied in earlier theoretical work and which we also used in our simulations \citep{Kimura_1964, B_rger_1986, burger2000themathematicaltheoryof, walsh2018evolutionandselectionof}. 
+More broadly, this suggests that the present framework should not be tied to a single pleiotropy mechanism: an important next step is to investigate what other biological models lead to the same or similar relationship in equation \eqref{eq:alpha_to_beta}.
 
-The simulations also clarify what aspects of the model are practically identifiable. In particular, jointly estimating $\rho_{ab}$ and $\sigma_a^2/W_S$ is difficult because $\hx_j(1-\hx_j)$ is typically both small and weakly variable under the $U$-shaped allele-frequency spectrum. As a result, the denominator in equation \eqref{eq:beta_cond_var} is usually close to one, so the data mainly identify the product $\rho_{ab}^2 \sigma_a^2 / W_S$ rather than its two components separately. This is why fixing $\rho_{ab}=1$ and interpreting the fitted quantity as $\rho_{ab}^2 \sigma_a^2/W_S$ works reasonably well in practice. As we show in Appendix \ref{sec:meanfield_ld}, this reduced parameterization lowers precision somewhat but has little effect on BLUP accuracy, and estimation of $\sigma_b^2$ remains stable. That asymmetry is itself informative: $\sigma_b^2$ controls the overall scale of the covariance structure, whereas $\sigma_a^2/W_S$ enters only through a weaker modulation by allele frequency. Even when the evolutionary decomposition is only partially identified, the model can therefore still recover the aggregate variance carried by the focal trait.
+The simulations also clarify what aspects of the model are practically identifiable. 
+In particular, jointly estimating $\rho_{ab}$ and $\sigma_a^2/W_S$ is difficult because $\hx_j(1-\hx_j)$ is typically both small and weakly variable under the $U$-shaped allele-frequency spectrum. 
+As a result, the denominator in equation \eqref{eq:beta_cond_var} is usually close to one, 
+so the data mainly identify the product $\rho_{ab}^2 \sigma_a^2 / W_S$ rather than its two components separately. 
+This is why fixing $\rho_{ab}=1$ and interpreting the fitted quantity as $\rho_{ab}^2 \sigma_a^2/W_S$ works reasonably well in practice. 
+As we show in Appendix \ref{sec:meanfield_ld}, this reduced parameterization lowers precision somewhat but has little effect on BLUP accuracy, and estimation of $\sigma_b^2$ remains stable. 
+That asymmetry is itself informative: $\sigma_b^2$ controls the overall scale of the covariance structure, whereas $\sigma_a^2/W_S$ enters only through a weaker modulation by allele frequency. 
+Even when the evolutionary decomposition is only partially identified, 
+the model can therefore still recover the aggregate variance carried by the focal trait.
 
 This perspective also helps explain the behavior of the $\alpha$-model baselines. 
 When $\rho_{ab}^2=0$, the focal trait is effectively decoupled from the selected background trait, 
@@ -468,7 +490,7 @@ and the evolutionary fit and the $\alpha=0$ baseline give nearly identical predi
 More generally, because most variants are rare, one often has $\E{\beta_j^2 \mid \hx_j} \approx \E{\beta_j^2}$, so the genetic relatedness matrices produced by the evolutionary model and the $\alpha=0$ model differ mainly by an overall scale factor to which BLUP is largely insensitive. 
 Nevertheless, that similarity in prediction should not be mistaken for recovery of the same architecture. 
 Once the focal trait is coupled to the selected background, the $\alpha=0$ model absorbs the missing frequency dependence by pushing its estimate of $\sigma_b^2$ downward, whereas the nonzero $\alpha$-models degrade more substantially in both prediction and variance-component estimation. 
-Additionally, the $\alpha$-model fails to correctly recover the genic variance across MAF bins,
+Furthermore, the $\alpha$-model fails to correctly recover the genic variance across MAF bins,
 substantially exaggerating the contribution of rare variants (Figures~\ref{fig:blup_cumulative_genic_variance_alpha_0_appendix},~\ref{fig:blup_cumulative_genic_variance_alpha_0p5_appendix}, and~\ref{fig:blup_cumulative_genic_variance_alpha_1_appendix}).
 The comparison therefore shows that predictive performance alone can obscure architectural misspecification, and that an evolutionarily derived frequency-dependence model is preferable to purely statistical heuristics.
 
@@ -477,17 +499,18 @@ A single global $\alpha$-model curve is too rigid to match the stabilizing selec
 but once the spectrum is partitioned into narrow bins, 
 each local fit only has to approximate the target over a short interval where the mismatch is much less pronounced. 
 This repair is especially effective because most of the genic variance is carried by the higher-frequency bins, 
-where the binned approximation is strongest, 
+where the binned approximation is accurate, 
 so BLUP accuracy can improve substantially even when the global functional form is still misspecified. 
 The evolutionary model nevertheless retains an important advantage because it captures the same frequency dependence with one mechanistic formula rather than a collection of bin-specific tuning parameters. 
 In that sense, the binned $\alpha$-model succeeds by flexible local approximation, 
 whereas the evolutionary model remains both more parsimonious and more directly interpretable.
+\revpoint{2}{1}
 
 We did not carry out a real-data analysis in this study, and closing this gap will require an efficient implementation of the proposed variance-component model for modern genomic datasets.
 In the meantime, we can draw some real-world implications from the new model.
 First, the evolutionary model can isolate the mutational variance $\sigma_b^2$ that measures the magnitude of new mutations, conventionally estimated from costly lab experiments, from existing population data \citep{lynch1998geneticsandanalysisof,Lee2026}.
 For genic variance, the evolutionary model is unlikely to produce estimates that differ substantially from the $\alpha$-model, because existing methods implement the MAF-stratified $\alpha$-model, which approximates the evolutionary model well as shown in Figures~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix},~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}, and~\ref{fig:blup_binned_cumulative_genic_variance_alpha_1}.
-Nevertheless, the evolutionary model offers a more parsimonious parameterization that is likely more resource efficient and numerically stable.
+Nevertheless, the evolutionary model offers a more parsimonious parameterization for mixed-effects models that is likely more resource efficient and numerically stable.
 \revpoint{1}{2}
 
 Finally, these results should be interpreted in light of the simplifying assumptions used to obtain a tractable formula. Our derivation relies on genotype-likelihood factorization in the spirit of composite likelihood, stationarity of the population, a low mutation rate, and weak selection relative to recombination. In the full multilocus setting, the dynamics of a focal locus depend on the genetic background through linkage, even in the strictly additive setting considered here, and ignoring that dependence lets us reduce the analysis to a single locus. We suspect that this omission is responsible for the systematic underestimation of $\sigma_a^2/W_S$ seen in the simulations. In particular, linkage disequilibrium induces the Bulmer effect, which creates background forces opposing selection and thereby weakens the effective selective pressure acting on a locus. \citet{Negm_2026} formalized this reduction as a multiplicative factor, which algebraically has the same effect as increasing the selection width $W_S$ and hence decreasing $\sigma_a^2/W_S$. By expanding their formula with further approximations, we found that the Bulmer effect quantitatively predicts the observed underestimation; Appendix \ref{sec:meanfield_ld} gives the details. Extending the framework to treat linkage disequilibrium and richer models of pleiotropy more explicitly is therefore the most natural direction for future work.
@@ -499,6 +522,7 @@ H.L.~thanks the attendees of New York Area Population Genetics 2026 for valuable
 This research was supported in part by the National Institute of General Medical Sciences of the
 NIH under award number R35GM151145. The content is solely the responsibility of the authors
 and does not necessarily represent the official views of the NIH.
+
 
 \printbibliography
 
@@ -636,7 +660,7 @@ The polynomial factor can be normalized into a beta density, yielding
     \cdot
     \E{
     \exp\left(-\frac{\norm{\alpha_j}^2}{W_S}X_n(1-X_n)\right)
-    },
+    }
     \end{aligned}
 \end{align}
 where
@@ -728,6 +752,7 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
     \caption{Relationship between allele frequency $x$ and $\E{\beta^2 \mid x}$ with $\alpha=1$. 
     The binned model closely tracks the evolutionary curve over the MAF range shown. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_beta2_by_maf_alpha_0_appendix} and \ref{fig:blup_beta2_by_maf_alpha_0p5_appendix}.
     The solid, dotted, and dashed lines correspond to the evolutionary, binned $\alpha$, and vanilla $\alpha$ models, respectively.
+    The curves were drawn from the median parameters estimates across 20 replicates.
     }
     
     \label{fig:blup_beta2_by_maf_alpha_1}
@@ -741,6 +766,7 @@ for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\the
     Most of the variance is concentrated in the higher-frequency bins where the binned approximation is strongest. Corresponding $\alpha=0$ and $\alpha=0.5$ versions are given in Figures \ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix} and \ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}.
     The solid and dashed lines correspond to the binned $\alpha$ and evolutionary models, respectively.
     The dotted line is the expected genic variance under neutrality, serving as the upper bound.
+    The curves were drawn from the median parameters estimates across 20 replicates.
     }
     \label{fig:blup_binned_cumulative_genic_variance_alpha_1}
 \end{figure}
