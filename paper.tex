@@ -67,14 +67,14 @@ Using predictions derived from FGM, \citet{Koch2024} further argued that stabili
 These works help explain repeated empirical observations
 from large GWAS of a negative correlation between effect size and allele frequency \citep{Zeng_2018, Schoech_2019, Priv__2020}.
 Generally, this correlation is ascribed to purifying selection, where large effect variants are more likely to be removed from the population.
-To model this relationship, a common choice is the so-called $\alpha$-model, by which the variance of effect sizes is inversely proportional to heterozygosity raised to the power $0\le \alpha \le 1$.
-This model first appeared in the setting of estimating genetic relatedness matrices from single nucleotide polymorphism (SNP) markers and has later been extended to explicitly detect negative selection \citep{Zeng_2018, Schoech_2019}.
+To quantify this relationship, a common choice is the so-called $\alpha$-model, which supposes that the variance of effect size is inversely proportional to heterozygosity raised to a power $0\le \alpha \le 1$.
+This model first appeared in the setting of estimating genetic relatedness matrices from single nucleotide polymorphism (SNP) markers, and was later been extended to explicitly detect negative selection \citep{Zeng_2018, Schoech_2019}.
 
 Although it captures the underlying relationship well, the $\alpha$-model is largely based on statistical curve fitting. To the best of our knowledge, a population genetic model that predicts this relationship has yet to be developed \citep{Sella_2019,Koch_2021}.
 In this work, we fill that gap by proposing a general procedure for combining an evolutionary model with mixed-effects models in statistical genetics. 
-This yields a linear mixed model parameterized by evolutionary quantities that can be estimated through a conventional statistical method, namely the restricted maximum likelihood (REML) estimator \citep{Johnson_1995}.
+This yields a linear mixed model parameterized by evolutionary quantities that can be estimated using restricted maximum likelihood \citep[REML;][]{Johnson_1995}.
 These quantities appear in the variance of random effects encoding the frequency dependence of effect sizes, which is distinct from the $\alpha$-model.
-Unlike the $\alpha$-model, the new formula does not diverge as the sample frequency approaches zero and allows unbiased estimation of mutational variance.
+Unlike the $\alpha$-model, the new formula does not diverge as the sample frequency approaches zero, and allows unbiased estimation of mutational variance.
 Furthermore, as a mixed-effects model, it can estimate genetic values from the best linear unbiased predictor (BLUP).
 
 \section{Theory and model}
@@ -141,16 +141,15 @@ with normalizing constant
     \theta; \theta + \frac{1}{2}; -\frac{\norm{\alpha_j}^2}{4W_S}
     \right)
 \end{align*}
-where $_1F_1(a;b;z)$ is Kummer's hypergeometric function
-\citep{us2010nisthandbookofmathematical}.
-For fixed $b,z$ we have $_1F_1(a;b;z) = 1 + \mathcal{O}(a)$. Hence, as $\theta \to 0$,
+where $_1F_1(a;b;z)$ is Kummer's hypergeometric function.
+For fixed $b$ and $z$ we have $_1F_1(a;b;z) = 1 + \mathcal{O}(a)$ as $a\to 0$. Hence, as $\theta \to 0$,
 \begin{align}
-    p_{\infty}(x_j ; \norm{\alpha_j}) \ \propto \
+    p_{\infty}(x_j ; \norm{\alpha_j}) \ \asymp \
     x_j^{\theta-1}(1-x_j)^{\theta-1}
     \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}x_j(1-x_j) \right]
 \end{align}
 after suppressing $C(\norm{\alpha_j}) \approx B(\theta, \theta)$ which is independent of $\alpha_j$.
-A parallel derivation of this stationary law using Wright's formula \citep{Wright1937, walsh2018evolutionandselectionof} can be found in \citet{Bulmer1972}'s equation (26).
+A parallel derivation of this stationary law using Wright's formula \citep{Wright1937, walsh2018evolutionandselectionof} can be found in \citet[][eqn.~26]{Bulmer1972}.
 
 
 \subsection{Connecting evolution to mixed-effects models}
@@ -181,7 +180,7 @@ The aforementioned $\alpha$-model supposes that
     \right)_{j=1,\ldots,p}
 \end{equation}
 where $M$ is the number of variants and $h^2$ is a positive constant often referred to as the single nucleotide polymorphism (SNP) heritability.
-Here, the effect of $G$ enters the formula through its column-wise frequency $x_j$. In practice, we only have the sample frequency $\hx_j$ instead of $x_j$, leading to the plug-in estimator
+Here, the effect of $G$ enters the formula through its column-wise frequency $x_j$. In practice, we only know the sample frequency $\hx_j$ instead of the population frequency $x_j$, leading to the plug-in estimator
 \begin{align} \label{eq:alpha}
     \begin{aligned}
         \widehat{\Sigma}_{\beta} = \textrm{diag}
@@ -197,14 +196,13 @@ For a more comprehensive review of different choices of $\Sigma_\beta$, see \cit
 
 Despite the success of equation \eqref{eq:alpha} in data modeling, there are some challenges relating to theory and interpretation.
 First, the form of $\Sigma_\beta = \var{\beta \mid G}$ in equation \eqref{eq:Sigma_beta} is simply assumed \emph{a priori}, so the parameters $h^2$ and $\alpha$ are merely tuning parameters without an explicit biological interpretation. $\alpha$ in particular exists in order to heuristically capture the inverse relationship between minor allele frequency and effect size \citep{Zeng_2018,Schoech_2019}.
-For $\alpha>0$ there is also the pathology that $[x_j(1-x_j)]^{-\alpha}\to\infty$  as $x_j\to 0$, requiring heuristic GRM partitioning over multiple MAF bins if rare variants are involved \citep{Yang_2015,Wainschtein_2022}.
-Finally, it is unclear if the sample frequency $\hx_j$ can replace the true frequency $x_j$, especially for rare variants that tend to exhibit larger sampling variance.
+For $\alpha>0$ there is also the pathology that $[x_j(1-x_j)]^{-\alpha}\to\infty$  as $x_j\to 0$, requiring heuristic GRM partitioning over multiple MAF bins to handle rare variants \citep{Yang_2015,Wainschtein_2022}.
+Finally, substituting $\hx_j$ for $x_j$ can introduce to substantial error for rare variants, which tend to exhibit larger sampling variance.
 
-Our framework offers a principled solution to the aforementioned issues.
-The key is to \emph{deduce}, instead of assuming, a formula for $\Sigma_{\beta,j} = \var{\beta_j \mid G}$ from evolutionary theory where $j$ denotes the $j$-th locus.
-A common assumption in the literature is that the mean of $\beta_j$ is zero,
-thereby implying $\var{\beta_j \mid G} = \E{\beta_j^2 \mid G}$.
-Then, we can derive $\E{\beta_j^2 \mid G}$ from
+Our framework offers a principled way to overcome these issues.
+The key is to \emph{deduce} from evolutionary principles, rather than assume, a formula for the SNP-level variance $\Sigma_{\beta,j} = \var{\beta_j \mid G}$.
+Assuming that the mean of $\beta_j$ is zero,
+its variance is 
 \begin{equation}
     \label{eq:goal2}
 \begin{aligned} 
@@ -234,8 +232,7 @@ for some constants $\sigma_a^2$, $\sigma_b^2$ and $\rho_{ab}^2$.
 $\sigma_a^2$ and $\sigma_b^2$ control the marginal magnitude of effect sizes $\alpha_j$ and $\beta_j$ of the latent trait $z$ subject to selection and the observed focal trait $y$, respectively.
 The observed trait's effect size exhibits frequency dependence only if $\beta_j$ is correlated with $\alpha_j$,
 and $\rho_{ab}$ precisely controls the strength of this relationship.
-
-This can be viewed as a generalization of the framework proposed by \citet{Simons2018popgeninterpretation}: with an isotropic FGM,
+Equation \eqref{eq:alpha_to_beta} can be viewed as a generalization of the framework proposed by \citet{Simons2018popgeninterpretation}: with an isotropic FGM,
 \begin{align}
     \E{(\alpha_j^1)^2 \mid \norm{\alpha_j}} = \cdots =
     \E{(\alpha_j^d)^2 \mid \norm{\alpha_j}}
@@ -318,7 +315,7 @@ Note that the integration over $[0,1]$ collapses approximately to the substituti
 
 For the prior term $p(\norm{\alpha_j}^2)$, we assume $\norm{\alpha_j}^2$ follows a $\chi^2$-distribution multiplied by $\sigma_a^2$.
 This choice follows if one assumes $\alpha_j$ is drawn from a normal distribution $N(0,\sigma_a^2)$ as in standard mixed models.
-Also, $\chi^2$-distribution is a special case of gamma distribution commonly adopted in DFE modeling \citep{EyreWalker2007}.
+Also, $\chi^2$-distribution is a special case of Gamma distribution commonly adopted in DFE modeling \citep{EyreWalker2007}.
 Then $\E{\norm{\alpha_j}^2} = \sigma_a^2$ and
 \begin{equation*}
     p(\norm{\alpha_j}^2 \mid G_j) \ \propto \ \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}\hx_j(1-\hx_j) \right] \cdot
@@ -346,7 +343,10 @@ Substituting
         }
     \right).
 \end{equation}
-The shape of equation~\eqref{eq:beta_cond_var} as a function of allele frequency will be shown shortly.
+The shape of equation~\eqref{eq:beta_cond_var} as a function of allele frequency will appear in Results.
+In fact, we can relax the $\chi^2$-distribution to any Gamma distribution while keeping the functional form~\eqref{eq:alpha2_cond_avg} intact (Appendix~\ref{apx:Gamma_dfe}).
+\revpoint{2}{3}
+
 
 \subsection{Framework breakdown}
 \revpoint{1}{1}
@@ -363,6 +363,7 @@ the prior distribution $p(\norm{\alpha_j})$ has to be specified to achieve this 
 We chose the $\chi^2$-distribution to obtain a closed-form formula,
 but other choices are possible, albeit often requiring numerical methods to evaluate the expectation in equation~\eqref{eq:alpha2_cond_avg}.
 
+
 \section{Simulation and empirical study}
 
 \subsection{SLiM forward simulation}
@@ -372,6 +373,7 @@ Notably, this simulation setup differs from most other LMM benchmarking studies,
 The genic variance attributed to variant $j$ was computed as $\E{\beta_j^2 \mid x_j} \cdot 2\hx_j(1-\hx_j)$.
 The total genic variance was then obtained by summing over all $j$.
 Note that this is the numerator of the usual SNP-heritability $h^2$.
+The minor allele frequency (MAF) bins for the MAF-stratified $\alpha$-model was [0.001,0.01], (0.01, 0.1], (0.2,0.3], (0.3,0.4], (0.4,0.5] \citep{Lee_2013}.
 \revpoint{2}{7}
 
 
@@ -648,7 +650,7 @@ After absorbing all terms that do not depend on $\norm{\alpha_j}$ into the propo
     x_j^{k_j+\theta-1}(1-x_j)^{2n-k_j+\theta-1}
     \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}x_j(1-x_j)\right]dx_j.
 \end{align}
-The polynomial factor can be normalized into a beta density, yielding
+The polynomial factor can be normalized into a Beta density, yielding
 \begin{align}
     \begin{aligned}
     &
@@ -656,7 +658,7 @@ The polynomial factor can be normalized into a beta density, yielding
     x_j^{k_j+\theta-1}(1-x_j)^{2n-k_j+\theta-1}
     \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}x_j(1-x_j)\right]dx_j \\
     &=
-    B(k_j+\theta,\,2n-k_j+\theta)
+    \mathrm{B}(k_j+\theta,\,2n-k_j+\theta)
     \cdot
     \E{
     \exp\left(-\frac{\norm{\alpha_j}^2}{W_S}X_n(1-X_n)\right)
@@ -683,7 +685,7 @@ Writing $\hx_j = k_j/(2n)$, we obtain
     \var{X_n} = \mathcal{O}(n^{-1}).
 \end{align}
 Hence, if $k_j/(2n) \to x^\star$, then Chebyshev's inequality implies that $X_n \xrightarrow{P} x^\star$.
-In the notation of the main text, this means that the beta distribution concentrates around the observed sample frequency $\hx_j$ as $n \to \infty$.
+In the notation of the main text, this means that the Beta distribution concentrates around the observed sample frequency $\hx_j$ as $n \to \infty$.
 
 Now define
 \begin{align}
@@ -707,6 +709,56 @@ Therefore,
     \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}\hx_j(1-\hx_j)\right]
 \end{align}
 for large $n$, where the omitted factor $\binom{2n}{k_j}B(k_j+\theta,2n-k_j+\theta)$ does not depend on $\norm{\alpha_j}$ and is absorbed into the proportionality constant.
+
+\section{Genetic architecture under Gamma DFE}
+\label{apx:Gamma_dfe}
+
+Suppose that $\norm{\alpha_j}^2$ follows a Gamma distribution
+\begin{align*}
+    p(\norm{\alpha_j}^2) \ \propto \
+    \norm{\alpha_j}^{2(k-1)} \exp\left(-\frac{k\norm{\alpha_j}^2}{\sigma_a^2} \right)
+\end{align*}
+which reduces to the $\sigma_a^2$-scaled $\chi^2$-distribution of the main text when $k=1/2$.
+Then, the posterior distribution 
+\begin{equation*}
+    p(\norm{\alpha_j}^2 \mid G_j) \ \propto \ \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}\hx_j(1-\hx_j) \right] \cdot
+    \norm{\alpha_j}^{2(k-1)} \exp\left(-\frac{k\norm{\alpha_j}^2}{\sigma_a^2} \right)
+\end{equation*}
+is also a Gamma distribution with mean
+\begin{align}\label{aeq:}
+    \E{\norm{\alpha_j}^2 \mid G_j}
+    = \frac{\sigma_a^2}{1 + \frac{\sigma_a^2}{kW_S}\hx_j(1-\hx_j)}.
+\end{align}
+The conditional mean of $\beta_j^2$ is therefore
+\begin{align} \label{aeq:beta_cond_var}
+    \begin{aligned}
+       \E{\beta_j^2 \mid G_j} &=\sigma_b^2 (1- \rho_{ab}^2) + \rho_{ab}^2 \cdot \frac{\sigma_b^2}{\sigma_a^2} \cdot 
+       \frac{\sigma_a^2}{1 + \frac{\sigma_a^2}{kW_S}\hx_j(1-\hx_j)} \\
+       &=
+       \sigma_b^2 \cdot
+    \left(
+        1 - \rho_{ab}^2 \cdot 
+        \frac{
+        \frac{\sigma_a^2}{kW_S}\hx_j(1-\hx_j) 
+        }{
+        1+ \frac{\sigma_a^2}{kW_S}\hx_j(1-\hx_j)
+        }
+    \right)
+    \end{aligned}
+\end{align}
+which reduces to equation~\eqref{eq:beta_cond_var} with $k=1/2$.
+Hence, the functional form for $\E{\beta_j^2 \mid G_j}$ stays the same under Gamma DFE.
+
+Note that $k$ controls how clustered the distribution is around 0.
+For small $k$, the mass of $p(\norm{\alpha_j}^2)$ is concentrated near 0;
+whereas for large $k$, the probability mass shifts away from zero.
+For instance, if $k \rightarrow \infty$, meaning that large effect variants are common, equation~\eqref{aeq:beta_cond_var} reduces to
+\begin{align}
+    \E{\beta_j^2 \mid G_j} = \sigma_b^2.
+\end{align}
+Therefore, the frequency dependence is stronger when large effect variants are rarer and vice versa.
+
+
 
 \clearpage
 

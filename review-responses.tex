@@ -174,7 +174,7 @@ I find the results presented in figures 3 and 4 somewhat confusing. Both indicat
 \reply{
 The reviewer raised an important question of reconciling the manuscript's findings against the $\alpha$-model and the model's empirical success.
 We argue that minor allele frequency (MAF) stratification commonly shipped together with the $\alpha$-model improves the model fit at the cost of increased computational burden, lower precision, and lost interpretability of parameters.
-This approach is standard with examples including stratified LDSC (Gazal et al. 2017, Nature Genetics), GREML-LDMS (Yang et al. 2015, Nature Genetics), and LDAK (Speed et al. 2020, Nature Genetics).
+This approach is standard with examples including stratified LDSC \citep{Gazal_2017}, GREML-LDMS \citep{Lee_2013,Yang_2015}, and LDAK \citep{Speed2017}.
 These models adopt a common $\alpha$ value across MAF bins but separately estimate the numerator $\sigma_b^2$ for each bin.
 Therefore, they consist of an ensemble of $\E{\beta^2 \mid x} =\sigma_b^2 \,/\, [x(1-x)]^{\alpha}$ curves (as a function of MAF $x$) instead of a single $\alpha$-model representing the whole frequency spectrum.
 The detailed arguments and supporting information is in \revref.
@@ -207,9 +207,10 @@ Previous work on this topic noted the importance of the DFE (e.g. Schoech et al.
 \end{point}
 
 \reply{
-placeholder
-
-\textcolor{red}{$\chi^2$ is a special instance of the gamma distribution. Different mean values of it comes from $\sigma_a^2$ which has been studied in Schoech et al. so we're fine?}
+We explain in Appendix~\ref{apx:Gamma_dfe} that the formula remains the same under Gamma distributed fitness effect, 
+a common choice in DFE modelling \citep{EyreWalker2007}.
+The $\chi^2$-distributed case appears as a special instance of this general fact.
+The main text was updated accordingly in \revref.
 }
 
 \begin{point}{} % \revpoint{2}{3} in paper.tex
