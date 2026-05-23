@@ -38,8 +38,8 @@
     In this paper, we derive an alternative to the $\alpha$-model based on evolutionary theory. 
     Our approach yields a linear mixed model in which frequency dependence emerges naturally as a function of interpretable evolutionary quantities describing mutational variance, selection intensity, and coupling between the focal and selected traits.
     These quantities enter through two identifiable variance components that can be estimated by restricted maximum likelihood (REML).
-    The resulting framework links a fitness landscape model to standard mixed model methodology, enabling both inference on evolutionary parameters and downstream prediction by best linear unbiased prediction (BLUP).
-    In forward simulations, the model accurately recovers the focal trait variance and generally improves genetic prediction relative to conventional $\alpha$-model baselines.
+    The resulting framework links a fitness-landscape model to standard mixed-model methodology, enabling both inference on evolutionary parameters and downstream prediction by best linear unbiased prediction (BLUP).
+    In forward simulations, the model accurately recovers the focal-trait variance and generally improves genetic prediction relative to conventional $\alpha$-model baselines.
 \end{abstract}
 
 \vspace{1em} 
@@ -68,14 +68,14 @@ These works help explain repeated empirical observations
 from large GWAS of a negative correlation between effect size and allele frequency \citep{Zeng_2018, Schoech_2019, Priv__2020}.
 Generally, this correlation is ascribed to purifying selection, where large effect variants are more likely to be removed from the population.
 To quantify this relationship, a common choice is the so-called $\alpha$-model, which supposes that the variance of effect size is inversely proportional to heterozygosity raised to a power $0\le \alpha \le 1$.
-This model first appeared in the setting of estimating genetic relatedness matrices from single nucleotide polymorphism (SNP) markers, and was later been extended to explicitly detect negative selection \citep{Zeng_2018, Schoech_2019}.
+This model first appeared in the setting of estimating genetic relatedness matrices from single nucleotide polymorphism (SNP) markers, and was later extended to explicitly detect negative selection \citep{Zeng_2018, Schoech_2019}.
 
 Although it captures the underlying relationship well, the $\alpha$-model is largely based on statistical curve fitting. To the best of our knowledge, a population genetic model that predicts this relationship has yet to be developed \citep{Sella_2019,Koch_2021}.
 In this work, we fill that gap by proposing a general procedure for combining an evolutionary model with mixed-effects models in statistical genetics. 
-This yields a linear mixed model parameterized by evolutionary quantities that can be estimated using restricted maximum likelihood \citep[REML;][]{Johnson_1995}.
+This yields a linear mixed model parameterized by evolutionary quantities that can be estimated with restricted maximum likelihood \citep[REML;][]{Johnson_1995}.
 These quantities appear in the variance of random effects encoding the frequency dependence of effect sizes, which is distinct from the $\alpha$-model.
 Unlike the $\alpha$-model, the new formula does not diverge as the sample frequency approaches zero, and allows unbiased estimation of mutational variance.
-Furthermore, as a mixed-effects model, it can estimate genetic values from the best linear unbiased predictor (BLUP).
+Furthermore, as a mixed-effects model, it can estimate genetic values using the best linear unbiased predictor (BLUP).
 
 \section{Theory and model}
 
@@ -194,15 +194,14 @@ The $\alpha=1$ case is the genome-wide complex trait analysis (GCTA) model \cite
 Together with $G$, $G \widehat{\Sigma}_{\beta}G^T$ is a genomic estimate of genetic relatedness, called the genomic genetic relatedness matrix (GRM) \citep{Speed_2014}.
 For a more comprehensive review of different choices of $\Sigma_\beta$, see \citet{Lehmann_2025, Weir_2026}.
 
-Despite the success of equation \eqref{eq:alpha} in data modeling, there are some challenges relating to theory and interpretation.
+Despite the success of equation \eqref{eq:alpha} in data modeling, there are several challenges related to theory and interpretation.
 First, the form of $\Sigma_\beta = \var{\beta \mid G}$ in equation \eqref{eq:Sigma_beta} is simply assumed \emph{a priori}, so the parameters $h^2$ and $\alpha$ are merely tuning parameters without an explicit biological interpretation. $\alpha$ in particular exists in order to heuristically capture the inverse relationship between minor allele frequency and effect size \citep{Zeng_2018,Schoech_2019}.
 For $\alpha>0$ there is also the pathology that $[x_j(1-x_j)]^{-\alpha}\to\infty$  as $x_j\to 0$, requiring heuristic GRM partitioning over multiple MAF bins to handle rare variants \citep{Yang_2015,Wainschtein_2022}.
-Finally, substituting $\hx_j$ for $x_j$ can introduce to substantial error for rare variants, which tend to exhibit larger sampling variance.
+Finally, substituting $\hx_j$ for $x_j$ can introduce substantial error for rare variants, which tend to exhibit larger sampling variance.
 
 Our framework offers a principled way to overcome these issues.
-The key is to \emph{deduce} from evolutionary principles, rather than assume, a formula for the SNP-level variance $\Sigma_{\beta,j} = \var{\beta_j \mid G}$.
-Assuming that the mean of $\beta_j$ is zero,
-its variance is 
+The key is to \emph{deduce} a formula for the SNP-level variance $\Sigma_{\beta,j} = \var{\beta_j \mid G}$ from evolutionary principles rather than assume it.
+Assuming that the mean of $\beta_j$ is zero, its variance is
 \begin{equation}
     \label{eq:goal2}
 \begin{aligned} 
@@ -343,7 +342,7 @@ Substituting
         }
     \right).
 \end{equation}
-The shape of equation~\eqref{eq:beta_cond_var} as a function of allele frequency will appear in Results.
+The shape of equation~\eqref{eq:beta_cond_var} as a function of allele frequency appears in the Results.
 In fact, we can relax the $\chi^2$-distribution to any Gamma distribution while keeping the functional form~\eqref{eq:alpha2_cond_avg} intact (Appendix~\ref{apx:Gamma_dfe}).
 \revpoint{2}{3}
 
@@ -373,7 +372,7 @@ Notably, this simulation setup differs from most other LMM benchmarking studies,
 The genic variance attributed to variant $j$ was computed as $\E{\beta_j^2 \mid x_j} \cdot 2\hx_j(1-\hx_j)$.
 The total genic variance was then obtained by summing over all $j$.
 Note that this is the numerator of the usual SNP-heritability $h^2$.
-The minor allele frequency (MAF) bins for the MAF-stratified $\alpha$-model was [0.001,0.01], (0.01, 0.1], (0.2,0.3], (0.3,0.4], (0.4,0.5] \citep{Lee_2013}.
+The minor allele frequency (MAF) bins for the MAF-stratified $\alpha$-model were [0.001,0.01], (0.01, 0.1], (0.2,0.3], (0.3,0.4], (0.4,0.5] \citep{Lee_2013}.
 \revpoint{2}{7}
 
 
@@ -393,7 +392,7 @@ Formally, one can see in equation \eqref{eq:beta_cond_var} that the frequency-de
 
 The overall scale parameter $\sigma_b^2$ is considerably easier to recover. Figure \ref{fig:blm_sigma2_b} shows that REML estimates of $\sigma_b^2$ remain centered near the true value across the full grid of $W_S$ and $\rho_{ab}^2$, with only modest replicate-to-replicate variability. 
 This further supports the robustness of the functional form of equation~\eqref{eq:beta_cond_var}.
-Taken together, these results suggest that the focal-trait variance is well identified, 
+Taken together, these results suggest that the focal-trait variance is well identified,
 whereas the selection-sensitive component is recovered chiefly through the combined quantity $\sigma_a^2 / W_S$ and is therefore more sensitive to departures from the single-locus approximation.
 
 \subsection{Genetic prediction}
@@ -402,7 +401,7 @@ For the prediction experiments, we first added Gaussian noise of variance $\sigm
 then split individuals into equally sized training and validation sets using the replicate identifier as the random seed.
 All fits were carried out on the training set after centering by the training mean. Under the evolutionary model, 
 we jointly estimated $\sigma_a^2/W_S$, the overall variance scale $\sigma_b^2$, and $\sigma_e^2$ by REML. 
-For the $\alpha$-model baselines with $\alpha \in \{0, 0.5, 1\}$, we instead fit the variance scale and $\sigma_e^2$ by REML using per-variant prior variances proportional to $[\hx_j(1-\hx_j)]^{-\alpha}$. 
+For the $\alpha$-model baselines with $\alpha \in \{0, 0.5, 1\}$, we instead fit the variance scale and $\sigma_e^2$ by REML using per-variant prior variances proportional to $[\hx_j(1-\hx_j)]^{-\alpha}$.
 The fitted prior variances were then used to form posterior mean BLUP effect estimates on the training set, which were evaluated on the held-out individuals by $R^2$.
 
 We next compared held-out BLUP accuracy under the evolutionary model and three $\alpha$-model baselines. 
@@ -441,8 +440,8 @@ The MAF-stratified, or binned, $\alpha$-model fits
 \end{align}
 with bin-specific $h_{\mathrm{bin}}^2$ and a shared $\alpha$ across bins.
 Because each curve~\eqref{eq:bin_spec_alpha} only needs to describe a narrow MAF interval, the stratified model is much more flexible than the vanilla $\alpha$-model in capturing the relationship between $\E{\beta^2 \mid x}$ and allele frequency.
-Indeed, with sufficiently fine bins, this piecewise construction can approximate an arbitrary frequency-dependent curve, 
-since over a short enough segment any reasonably smooth curves become nearly indistinguishable.
+Indeed, with sufficiently fine bins, this piecewise construction can approximate an arbitrary frequency-dependent curve,
+since over a short enough segment any reasonably smooth curve becomes nearly indistinguishable.
 
 Figure \ref{fig:blup_beta2_by_maf_alpha_1} illustrates this point under stabilizing selection: the stratified $\alpha$-model tracks the evolutionary curve for $\E{\beta^2 \mid x}$ far better than the vanilla $\alpha$-model.
 The agreement is especially strong in the higher-MAF bins, which account for most of the genic variance of the trait (Figure \ref{fig:blup_binned_cumulative_genic_variance_alpha_1}).
@@ -501,7 +500,7 @@ A single global $\alpha$-model curve is too rigid to match the stabilizing selec
 but once the spectrum is partitioned into narrow bins, 
 each local fit only has to approximate the target over a short interval where the mismatch is much less pronounced. 
 This repair is especially effective because most of the genic variance is carried by the higher-frequency bins, 
-where the binned approximation is accurate, 
+where the binned approximation is accurate,
 so BLUP accuracy can improve substantially even when the global functional form is still misspecified. 
 The evolutionary model nevertheless retains an important advantage because it captures the same frequency dependence with one mechanistic formula rather than a collection of bin-specific tuning parameters. 
 In that sense, the binned $\alpha$-model succeeds by flexible local approximation, 
@@ -510,9 +509,9 @@ whereas the evolutionary model remains both more parsimonious and more directly 
 
 We did not carry out a real-data analysis in this study, and closing this gap will require an efficient implementation of the proposed variance-component model for modern genomic datasets.
 In the meantime, we can draw some real-world implications from the new model.
-First, the evolutionary model can isolate the mutational variance $\sigma_b^2$ that measures the magnitude of new mutations, conventionally estimated from costly lab experiments, from existing population data \citep{lynch1998geneticsandanalysisof,Lee2026}.
+First, the evolutionary model can isolate the mutational variance $\sigma_b^2$, which measures the magnitude of new mutations and is conventionally estimated from costly lab experiments, from existing population data \citep{lynch1998geneticsandanalysisof,Lee2026}.
 For genic variance, the evolutionary model is unlikely to produce estimates that differ substantially from the $\alpha$-model, because existing methods implement the MAF-stratified $\alpha$-model, which approximates the evolutionary model well as shown in Figures~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0_appendix},~\ref{fig:blup_binned_cumulative_genic_variance_alpha_0p5_appendix}, and~\ref{fig:blup_binned_cumulative_genic_variance_alpha_1}.
-Nevertheless, the evolutionary model offers a more parsimonious parameterization for mixed-effects models that is likely more resource efficient and numerically stable.
+Nevertheless, the evolutionary model offers a more parsimonious parameterization for mixed-effects models that is likely more resource-efficient and numerically stable.
 \revpoint{1}{2}
 
 Finally, these results should be interpreted in light of the simplifying assumptions used to obtain a tractable formula. Our derivation relies on genotype-likelihood factorization in the spirit of composite likelihood, stationarity of the population, a low mutation rate, and weak selection relative to recombination. In the full multilocus setting, the dynamics of a focal locus depend on the genetic background through linkage, even in the strictly additive setting considered here, and ignoring that dependence lets us reduce the analysis to a single locus. We suspect that this omission is responsible for the systematic underestimation of $\sigma_a^2/W_S$ seen in the simulations. In particular, linkage disequilibrium induces the Bulmer effect, which creates background forces opposing selection and thereby weakens the effective selective pressure acting on a locus. \citet{Negm_2026} formalized this reduction as a multiplicative factor, which algebraically has the same effect as increasing the selection width $W_S$ and hence decreasing $\sigma_a^2/W_S$. By expanding their formula with further approximations, we found that the Bulmer effect quantitatively predicts the observed underestimation; Appendix \ref{sec:meanfield_ld} gives the details. Extending the framework to treat linkage disequilibrium and richer models of pleiotropy more explicitly is therefore the most natural direction for future work.
