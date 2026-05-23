@@ -732,7 +732,10 @@ is also a Gamma distribution with mean
 The conditional mean of $\beta_j^2$ is therefore
 \begin{align} \label{aeq:beta_cond_var}
     \begin{aligned}
-       \E{\beta_j^2 \mid G_j} &=\sigma_b^2 (1- \rho_{ab}^2) + \rho_{ab}^2 \cdot \frac{\sigma_b^2}{\sigma_a^2} \cdot 
+       \E{\beta_j^2 \mid G_j} 
+       &=\sigma_b^2 (1- \rho_{ab}^2) + \rho_{ab}^2 \cdot \frac{\sigma_b^2}{\sigma_a^2} \cdot 
+       \E{\norm{\alpha_j}^2 \mid G_j} \\
+       &=\sigma_b^2 (1- \rho_{ab}^2) + \rho_{ab}^2 \cdot \frac{\sigma_b^2}{\sigma_a^2} \cdot 
        \frac{\sigma_a^2}{1 + \frac{\sigma_a^2}{kW_S}\hx_j(1-\hx_j)} \\
        &=
        \sigma_b^2 \cdot
