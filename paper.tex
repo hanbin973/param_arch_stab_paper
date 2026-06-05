@@ -38,7 +38,7 @@
     In this paper, we derive an alternative to the $\alpha$-model based on evolutionary theory. 
     Our approach yields a linear mixed model in which frequency dependence emerges naturally as a function of interpretable evolutionary quantities describing mutational variance, selection intensity, and coupling between the focal and selected traits.
     These quantities enter through two identifiable variance components that can be estimated by restricted maximum likelihood (REML).
-    The resulting framework links a fitness-landscape model to standard mixed-model methodology, enabling both inference on evolutionary parameters and downstream prediction by best linear unbiased prediction (BLUP).
+    The resulting framework links a fitness landscape model to standard mixed-model methodology, enabling both inference on evolutionary parameters and downstream prediction by best linear unbiased prediction (BLUP).
     In forward simulations, the model accurately recovers the focal-trait variance and generally improves genetic prediction relative to conventional $\alpha$-model baselines.
 \end{abstract}
 
@@ -144,7 +144,7 @@ with normalizing constant
 where $_1F_1(a;b;z)$ is Kummer's hypergeometric function.
 For fixed $b$ and $z$ we have $_1F_1(a;b;z) = 1 + \mathcal{O}(a)$ as $a\to 0$. Hence, as $\theta \to 0$,
 \begin{align}
-    p_{\infty}(x_j ; \norm{\alpha_j}) \ \asymp \
+    p_{\infty}(x_j ; \norm{\alpha_j}) \ \propto \
     x_j^{\theta-1}(1-x_j)^{\theta-1}
     \exp\left[-\frac{\norm{\alpha_j}^2}{W_S}x_j(1-x_j) \right]
 \end{align}
@@ -342,8 +342,8 @@ Substituting
         }
     \right).
 \end{equation}
-The shape of equation~\eqref{eq:beta_cond_var} as a function of allele frequency appears in the Results.
 In fact, we can relax the $\chi^2$-distribution to any Gamma distribution while keeping the functional form~\eqref{eq:alpha2_cond_avg} intact (Appendix~\ref{apx:Gamma_dfe}).
+The shape of equation~\eqref{eq:beta_cond_var} as a function of allele frequency appears in the next section.
 \revpoint{2}{3}
 
 
@@ -359,7 +359,7 @@ While the first component reflects the population genetic process conditioned on
 equation~\eqref{eq:alpha2_cond_avg} requires inverting the conditional relationship of $\norm{\alpha_j}$ and $G_j$.
 According to Bayes' rule,
 the prior distribution $p(\norm{\alpha_j})$ has to be specified to achieve this goal.
-We chose the $\chi^2$-distribution to obtain a closed-form formula,
+We chose the $\chi^2$-distribution to obtain a closed-form formula in the main text,
 but other choices are possible, albeit often requiring numerical methods to evaluate the expectation in equation~\eqref{eq:alpha2_cond_avg}.
 
 
@@ -436,9 +436,13 @@ Here we show that much of this success can be explained by the minor allele freq
 The MAF-stratified, or binned, $\alpha$-model fits
 \begin{align}
     \label{eq:bin_spec_alpha}
-    \E{\beta^2 \mid x} = \frac{h_{\mathrm{bin}}^2}{[x(1-x)]^\alpha}
+    \E{\beta^2 \mid x} =
+    \frac{h_{i,\mathrm{bin}}^2}{M} \cdot 
+    \frac{1}{[x(1-x)]^\alpha} 
+    \quad \text{for} \quad
+    x \in [x_{i-1},x_i]
 \end{align}
-with bin-specific $h_{\mathrm{bin}}^2$ and a shared $\alpha$ across bins.
+with MAF bins $0 = x_1 < \cdots < x_b =1$, bin-specific $h_{i,\mathrm{bin}}^2$, and a shared $\alpha$ across bins.
 Because each curve~\eqref{eq:bin_spec_alpha} only needs to describe a narrow MAF interval, the stratified model is much more flexible than the vanilla $\alpha$-model in capturing the relationship between $\E{\beta^2 \mid x}$ and allele frequency.
 Indeed, with sufficiently fine bins, this piecewise construction can approximate an arbitrary frequency-dependent curve,
 since over a short enough segment any reasonably smooth curve becomes nearly indistinguishable.
@@ -451,7 +455,7 @@ Even if the $\alpha$-model is a poor fit over the MAF spectrum globally,
 confining it to short segments largely salvages the model.
 
 Even with that added flexibility, however, the main advantages of the framework developed here remain twofold.
-First, the evolutionary model is computationally more parsimonious: the stratified $\alpha$-model requires one additional $h^2_{\mathrm{bin}}$ parameter for every extra MAF bin.
+First, the evolutionary model is statistically more parsimonious: the stratified $\alpha$-model requires one additional $h^2_{\mathrm{bin}}$ parameter for every extra MAF bin.
 Second, the evolutionary model is more interpretable, because it estimates the raw mutational scale $\sigma_b^2$ directly.
 By contrast, the stratified model's $h^2_{\mathrm{bin}}$ parameters are best viewed as tuning knobs chosen to match the binned curve to the underlying evolutionary relationship (Figures \ref{fig:blup_binned_sigma2a_alpha_1}, \ref{fig:blup_binned_sigma2a_alpha_0_appendix}, 
 and \ref{fig:blup_binned_sigma2a_alpha_0p5_appendix}).
@@ -478,7 +482,7 @@ In particular, jointly estimating $\rho_{ab}$ and $\sigma_a^2/W_S$ is difficult 
 As a result, the denominator in equation \eqref{eq:beta_cond_var} is usually close to one, 
 so the data mainly identify the product $\rho_{ab}^2 \sigma_a^2 / W_S$ rather than its two components separately. 
 This is why fixing $\rho_{ab}=1$ and interpreting the fitted quantity as $\rho_{ab}^2 \sigma_a^2/W_S$ works reasonably well in practice. 
-As we show in Appendix \ref{sec:meanfield_ld}, this reduced parameterization lowers precision somewhat but has little effect on BLUP accuracy, and estimation of $\sigma_b^2$ remains stable. 
+As we show in Figures~\ref{fig:blup_prediction_rho1_fixed} and~\ref{fig:sigma2_b_estimates_rho1_fixed}, this reduced parameterization lowers precision somewhat but has little effect on BLUP accuracy, and estimation of $\sigma_b^2$ remains stable. 
 That asymmetry is itself informative: $\sigma_b^2$ controls the overall scale of the covariance structure, whereas $\sigma_a^2/W_S$ enters only through a weaker modulation by allele frequency. 
 Even when the evolutionary decomposition is only partially identified, 
 the model can therefore still recover the aggregate variance carried by the focal trait.
